@@ -1,5 +1,6 @@
 package core.math
 
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.math.sqrt
@@ -200,6 +201,24 @@ class Vector3Test {
         assertEquals(10f, vector3.x)
         assertEquals(16f, vector3.y)
         assertEquals(22f, vector3.z)
+    }
+
+    @Test
+    fun `test equals`() {
+        val vector1 = Vector3(1f, 2f, 3f)
+        val vector2 = Vector3(1f, 2f, 3f)
+        val vector3 = Vector3(4f, 5f, 6f)
+
+        assertEquals(vector1, vector2)
+        assertNotEquals(vector1, vector3)
+    }
+
+    @Test
+    fun `test hashCode`() {
+        val vector1 = Vector3(1f, 2f, 3f)
+        val vector2 = Vector3(1f, 2f, 3f)
+
+        assertEquals(vector1.hashCode(), vector2.hashCode())
     }
 
     @Test

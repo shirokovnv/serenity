@@ -144,6 +144,20 @@ class Vector3 {
         z *= scalar
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Vector3) return false
+
+        return x == other.x && y == other.y && z == other.z
+    }
+
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        result = 31 * result + z.hashCode()
+        return result
+    }
+
     override fun toString(): String {
         return "[$x,$y,$z]"
     }

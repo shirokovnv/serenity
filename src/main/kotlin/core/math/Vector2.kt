@@ -117,6 +117,16 @@ class Vector2 {
         y *= scalar
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Vector2) return false
+        return x == other.x && y == other.y
+    }
+
+    override fun hashCode(): Int {
+        return x.hashCode() * 31 + y.hashCode()
+    }
+
     override fun toString(): String {
         return "[$x,$y]"
     }

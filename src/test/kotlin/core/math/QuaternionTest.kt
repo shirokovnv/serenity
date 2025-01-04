@@ -1,5 +1,6 @@
 package core.math
 
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.math.sqrt
@@ -249,6 +250,25 @@ class QuaternionTest {
         assertEquals(2f, vector.y)
         assertEquals(3f, vector.z)
     }
+
+    @Test
+    fun `test equals`() {
+        val quaternion1 = Quaternion(1f, 2f, 3f, 4f)
+        val quaternion2 = Quaternion(1f, 2f, 3f, 4f)
+        val quaternion3 = Quaternion(5f, 6f, 7f, 8f)
+
+        assertEquals(quaternion1, quaternion2)
+        assertNotEquals(quaternion1, quaternion3)
+    }
+
+    @Test
+    fun `test hashCode`() {
+        val quaternion1 = Quaternion(1f, 2f, 3f, 4f)
+        val quaternion2 = Quaternion(1f, 2f, 3f, 4f)
+
+        assertEquals(quaternion1.hashCode(), quaternion2.hashCode())
+    }
+
     @Test
     fun `test toString`() {
         val quaternion = Quaternion(1f, 2f, 3f, 4f)

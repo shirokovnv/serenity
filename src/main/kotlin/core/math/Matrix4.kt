@@ -1,7 +1,17 @@
 package core.math
 
-class Matrix4 {
+class Matrix4(other: Matrix4? = null) {
     var m: Array<FloatArray> = Array(4) { FloatArray(4) }
+
+    init {
+        if (other != null) {
+            for (i in 0..3) {
+                for (j in 0..3) {
+                    this[i, j] = other[i, j]
+                }
+            }
+        }
+    }
 
     fun zero(): Matrix4 {
         for (i in 0..3) {

@@ -5,7 +5,7 @@ import core.math.Vector3
 import core.math.toRadians
 import kotlin.math.tan
 
-open class PerspectiveCamera(
+class PerspectiveCamera(
     override var position: Vector3,
     override var forward: Vector3,
     override var up: Vector3,
@@ -14,11 +14,10 @@ open class PerspectiveCamera(
     val fovY: Float,
     val zNear: Float,
     val zFar: Float
-    ) : Camera() {
+) : Camera() {
 
     init {
         projectionType = ProjectionType.PERSPECTIVE
-        isChanged = true
 
         up.normalize()
         forward.normalize()
@@ -26,10 +25,10 @@ open class PerspectiveCamera(
 
     override fun calculateProjectionMatrix(): Matrix4 {
         val tanFOV = tan((fovY / 2).toRadians())
-        val aspectRatio = width / height;
+        val aspectRatio = width / height
         val m = Matrix4()
 
-        m[0, 0] = 1/(tanFOV*aspectRatio)
+        m[0, 0] = 1 / (tanFOV * aspectRatio)
         m[0, 1] = 0.0f
         m[0, 2] = 0.0f
         m[0, 3] = 0.0f
@@ -41,8 +40,8 @@ open class PerspectiveCamera(
 
         m[2, 0] = 0.0f
         m[2, 1] = 0.0f
-        m[2, 2] = zFar/(zFar-zNear)
-        m[2, 3] = zFar*zNear /(zFar-zNear)
+        m[2, 2] = zFar / (zFar - zNear)
+        m[2, 3] = zFar * zNear / (zFar - zNear)
 
         m[3, 0] = 0.0f
         m[3, 1] = 0.0f

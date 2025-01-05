@@ -3,7 +3,7 @@ package core.scene.camera
 import core.math.Matrix4
 import core.math.Vector3
 
-open class OrthographicCamera(
+class OrthographicCamera(
     override var position: Vector3,
     override var forward: Vector3,
     override var up: Vector3,
@@ -18,7 +18,6 @@ open class OrthographicCamera(
 
     init {
         projectionType = ProjectionType.ORTHOGRAPHIC
-        isChanged = true
     }
 
     override fun calculateProjectionMatrix(): Matrix4 {

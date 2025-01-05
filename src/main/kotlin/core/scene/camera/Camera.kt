@@ -11,11 +11,14 @@ abstract class Camera : Component {
     protected abstract var forward: Vector3
     protected abstract var up: Vector3
 
-    var isChanged: Boolean = false
+    val view: Matrix4
+        get() = calculateViewMatrix()
 
-    protected lateinit var view: Matrix4
-    protected lateinit var projection: Matrix4
-    protected lateinit var viewProjection: Matrix4
+    val projection: Matrix4
+        get() = calculateProjectionMatrix()
+
+    val viewProjection: Matrix4
+        get() = projection * view
 
     fun projectionType(): ProjectionType = projectionType
     fun position(): Vector3 = Vector3(position)
@@ -26,15 +29,13 @@ abstract class Camera : Component {
 
     protected abstract fun calculateProjectionMatrix(): Matrix4
 
-    fun rotate(axis: Vector3, angle: Float) {
+    fun updateRotation(axis: Vector3, angle: Float) {
         val q = Quaternion.fromAxisAngle(axis, angle)
         rotation = (q * rotation).normalize()
-        isChanged = true
     }
 
     fun updatePosition(delta: Vector3) {
         position = position + delta
-        isChanged = true
     }
 
     protected fun calculateViewMatrix(): Matrix4 {
@@ -46,53 +47,28 @@ abstract class Camera : Component {
         newUp.normalize()
         newRight.normalize()
 
-        val view = Matrix4()
-        val invPosition = -position
+        val m = Matrix4()
 
-        view[0, 0] = newRight.x
-        view[0, 1] = newRight.y
-        view[0, 2] = newRight.z
-        view[0, 3] = invPosition.x
+        m[0, 0] = newRight.x
+        m[0, 1] = newRight.y
+        m[0, 2] = newRight.z
+        m[0, 3] = -position.x
 
-        view[1, 0] = newUp.x
-        view[1, 1] = newUp.y
-        view[1, 2] = newUp.z
-        view[1, 3] = invPosition.y
+        m[1, 0] = newUp.x
+        m[1, 1] = newUp.y
+        m[1, 2] = newUp.z
+        m[1, 3] = -position.y
 
-        view[2, 0] = newForward.x
-        view[2, 1] = newForward.y
-        view[2, 2] = newForward.z
-        view[2, 3] = invPosition.z
+        m[2, 0] = newForward.x
+        m[2, 1] = newForward.y
+        m[2, 2] = newForward.z
+        m[2, 3] = -position.z
 
-        view[3, 0] = 0.0f
-        view[3, 1] = 0.0f
-        view[3, 2] = 0.0f
-        view[3, 3] = 1.0f
+        m[3, 0] = 0.0f
+        m[3, 1] = 0.0f
+        m[3, 2] = 0.0f
+        m[3, 3] = 1.0f
 
-        return view
-    }
-
-    fun view(): Matrix4 {
-        if (isChanged) {
-            view = calculateViewMatrix()
-        }
-
-        return calculateViewMatrix()
-    }
-
-    fun projection(): Matrix4 {
-        if (isChanged) {
-            projection = calculateProjectionMatrix()
-        }
-
-        return calculateProjectionMatrix()
-    }
-
-    fun viewProjection(): Matrix4 {
-        if (isChanged) {
-            viewProjection = calculateViewMatrix() * calculateProjectionMatrix()
-        }
-
-        return viewProjection
+        return m
     }
 }

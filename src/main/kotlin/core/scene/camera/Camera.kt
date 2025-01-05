@@ -22,12 +22,6 @@ abstract class Camera : Component {
     fun forward(): Vector3 = Vector3(forward)
     fun up(): Vector3 = Vector3(up)
 
-    val rightOrientation: Vector3
-        get() = up.cross(forward).normalize()
-
-    val leftOrientation: Vector3
-        get() = forward.cross(up).normalize()
-
     private var rotation: Quaternion = Quaternion();
 
     protected abstract fun calculateProjectionMatrix(): Matrix4
@@ -52,7 +46,6 @@ abstract class Camera : Component {
         newUp.normalize()
         newRight.normalize()
 
-//        val right = up.cross(forward).normalize()
         val view = Matrix4()
         val invPosition = -position
 

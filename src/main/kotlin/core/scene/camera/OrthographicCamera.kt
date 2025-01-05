@@ -18,6 +18,9 @@ class OrthographicCamera(
 
     init {
         projectionType = ProjectionType.ORTHOGRAPHIC
+
+        forward.normalize()
+        up.normalize()
     }
 
     override fun calculateProjectionMatrix(): Matrix4 {

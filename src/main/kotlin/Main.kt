@@ -1,4 +1,3 @@
-import core.math.Quaternion
 import core.math.Vector3
 import core.math.toFloatBuffer
 import core.scene.camera.Camera
@@ -9,7 +8,6 @@ import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.ARBVertexArrayObject.*
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL20.*
-import org.lwjgl.opengl.GL30
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.MemoryUtil.NULL
 import java.nio.FloatBuffer

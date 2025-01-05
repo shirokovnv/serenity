@@ -123,12 +123,7 @@ class Quaternion {
     }
 
     operator fun unaryMinus(): Quaternion {
-        x = -x
-        y = -y
-        z = -z
-        w = -w
-
-        return this
+        return Quaternion(-x, -y, -z, -w)
     }
 
     operator fun div(quaternion: Quaternion): Quaternion {

@@ -130,8 +130,8 @@ class QuaternionTest {
 
     @Test
     fun `test unary minus`() {
-        val quaternion = Quaternion(5f, 8f, 11f, 14f)
-        quaternion.unaryMinus()
+        var quaternion = Quaternion(5f, 8f, 11f, 14f)
+        quaternion = quaternion.unaryMinus()
         assertEquals(-5f, quaternion.x)
         assertEquals(-8f, quaternion.y)
         assertEquals(-11f, quaternion.z)

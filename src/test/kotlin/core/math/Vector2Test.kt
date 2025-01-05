@@ -100,8 +100,8 @@ class Vector2Test {
     }
     @Test
     fun `test unary minus`(){
-        val vector1 = Vector2(5f, 8f)
-        vector1.unaryMinus()
+        var vector1 = Vector2(5f, 8f)
+        vector1 = vector1.unaryMinus()
         assertEquals(-5f, vector1.x)
         assertEquals(-8f, vector1.y)
     }

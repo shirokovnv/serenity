@@ -77,10 +77,7 @@ class Vector2 {
     }
 
     operator fun unaryMinus(): Vector2 {
-        x = -x
-        y = -y
-
-        return this
+        return Vector2(-x, -y)
     }
 
     operator fun div(vector: Vector2): Vector2 {

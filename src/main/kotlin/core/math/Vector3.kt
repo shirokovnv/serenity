@@ -98,10 +98,12 @@ class Vector3 {
         z -= scalar
     }
 
-    operator fun unaryMinus() {
+    operator fun unaryMinus(): Vector3 {
         x = -x
         y = -y
         z = -z
+
+        return this
     }
 
     operator fun div(vector: Vector3): Vector3 {

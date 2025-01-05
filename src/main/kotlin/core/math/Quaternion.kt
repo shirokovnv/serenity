@@ -1,5 +1,7 @@
 package core.math
 
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Quaternion {
@@ -8,7 +10,20 @@ class Quaternion {
     var z = 0f
     var w = 0f
 
-    constructor(x: Float, y: Float, z: Float, w: Float) {
+    companion object {
+        fun fromAxisAngle(axis: Vector3, angle: Float): Quaternion {
+            val halfAngle = angle * 0.5f
+            val sinHalfAngle = sin(halfAngle)
+            return Quaternion(
+                axis.x * sinHalfAngle,
+                axis.y * sinHalfAngle,
+                axis.z * sinHalfAngle,
+                cos(halfAngle)
+            )
+        }
+    }
+
+    constructor(x: Float = 0.0f, y: Float = 0.0f, z: Float = 0.0f, w: Float = 1.0f) {
         this.x = x
         this.y = y
         this.z = z
@@ -107,11 +122,13 @@ class Quaternion {
         w -= scalar
     }
 
-    operator fun unaryMinus() {
+    operator fun unaryMinus(): Quaternion {
         x = -x
         y = -y
         z = -z
         w = -w
+
+        return this
     }
 
     operator fun div(quaternion: Quaternion): Quaternion {
@@ -204,6 +221,13 @@ class Quaternion {
     
     fun xyz(): Vector3 {
         return Vector3(x, y, z)
+    }
+
+    fun rotate(vector: Vector3): Vector3 {
+        val qVec = Vector3(x, y, z)
+        val uv = qVec.cross(vector)
+        val uuv = qVec.cross(uv);
+        return vector + (uv * (2f * w)) + (uuv * 2f);
     }
 
     override fun equals(other: Any?): Boolean {

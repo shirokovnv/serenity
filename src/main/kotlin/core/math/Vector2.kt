@@ -76,9 +76,11 @@ class Vector2 {
         y -= scalar
     }
 
-    operator fun unaryMinus() {
+    operator fun unaryMinus(): Vector2 {
         x = -x
         y = -y
+
+        return this
     }
 
     operator fun div(vector: Vector2): Vector2 {

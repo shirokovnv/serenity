@@ -6,11 +6,16 @@ import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
+import platform.components.input.KeyboardInput
+import platform.components.input.MouseInput
 
 abstract class Application(private val settings: ApplicationSettings) {
 
     private var window: Long = 0
     private var isRunning = false
+
+    protected lateinit var keyboardInput: KeyboardInput
+    protected lateinit var mouseInput: MouseInput
 
     abstract fun oneTimeSceneInit()
 
@@ -31,6 +36,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     fun launch() {
         create()
         printDeviceProperties()
+        registerInputCallbacks()
         oneTimeSceneInit()
         run()
         destroy()
@@ -110,5 +116,14 @@ abstract class Application(private val settings: ApplicationSettings) {
         println("Max Uniform Buffer Bindings: ${GL31.GL_MAX_UNIFORM_BUFFER_BINDINGS} bytes")
         println("Max Uniform Block Size: ${GL31.GL_MAX_UNIFORM_BLOCK_SIZE} bytes")
         println("Max SSBO Block Size: ${GL43.GL_MAX_SHADER_STORAGE_BLOCK_SIZE} bytes")
+    }
+
+    private fun registerInputCallbacks() {
+        keyboardInput = KeyboardInput(window)
+        mouseInput = MouseInput(window)
+
+        GLFW.glfwSetCursorPosCallback(window, mouseInput::mousePosCallback)
+        GLFW.glfwSetMouseButtonCallback(window, mouseInput::mouseButtonCallback)
+        GLFW.glfwSetKeyCallback(window, keyboardInput::keyCallback)
     }
 }

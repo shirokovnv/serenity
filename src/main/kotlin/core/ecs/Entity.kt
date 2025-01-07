@@ -8,6 +8,7 @@ open class Entity {
 
     fun <T : Component> addComponent(component: T) {
         components.add(component)
+        component.setOwner(this)
     }
 
     fun <T : Component> getComponent(componentType: KClass<T>): T? {
@@ -43,11 +44,25 @@ open class Entity {
     }
 
     fun <T : Component> removeComponent(componentType: KClass<T>) {
-        components.removeIf { it::class == componentType }
+        components.removeIf {
+            if (it::class == componentType) {
+                it.setOwner(null)
+                true
+            } else {
+                false
+            }
+        }
     }
 
     fun <T : Component> removeComponent(component: T) {
-        components.removeIf { it == component }
+        components.removeIf {
+            if (it == component) {
+                it.setOwner(null)
+                true
+            } else {
+               false
+            }
+        }
     }
 
     inline fun <reified T : Component> removeComponent() {

@@ -1,9 +1,8 @@
-package platform.components.input
+package platform.services.input
 
-import core.ecs.Component
 import org.lwjgl.glfw.GLFW
 
-class KeyboardInput(private val window: Long): Component() {
+class KeyboardInput(private val window: Long) {
 
     private val listeners = mutableListOf<KeyboardInputListener>()
 

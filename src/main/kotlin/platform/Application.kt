@@ -1,13 +1,14 @@
 package platform
 
+import core.scene.Object
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
-import platform.components.input.KeyboardInput
-import platform.components.input.MouseInput
+import platform.services.input.KeyboardInput
+import platform.services.input.MouseInput
 
 abstract class Application(private val settings: ApplicationSettings) {
 
@@ -37,6 +38,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         create()
         printDeviceProperties()
         registerInputCallbacks()
+        registerSharedServices()
         oneTimeSceneInit()
         run()
         destroy()
@@ -125,5 +127,10 @@ abstract class Application(private val settings: ApplicationSettings) {
         GLFW.glfwSetCursorPosCallback(window, mouseInput::mousePosCallback)
         GLFW.glfwSetMouseButtonCallback(window, mouseInput::mouseButtonCallback)
         GLFW.glfwSetKeyCallback(window, keyboardInput::keyCallback)
+    }
+
+    protected open fun registerSharedServices() {
+        Object.services.putService<KeyboardInput>(keyboardInput)
+        Object.services.putService<MouseInput>(mouseInput)
     }
 }

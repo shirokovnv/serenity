@@ -1,10 +1,9 @@
-package platform.components.input
+package platform.services.input
 
-import core.ecs.Component
 import org.lwjgl.glfw.GLFW.GLFW_PRESS
 import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
-class MouseInput(val window: Long): Component() {
+class MouseInput(val window: Long) {
     private var mouseXDelta = 0f
     private var mouseYDelta = 0f
     private var mouseScrollY = 0f

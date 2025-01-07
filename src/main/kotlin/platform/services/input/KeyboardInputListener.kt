@@ -1,4 +1,4 @@
-package platform.components.input
+package platform.services.input
 
 interface KeyboardInputListener {
     fun onKeyPressed(key: Int)

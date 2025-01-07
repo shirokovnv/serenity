@@ -1,5 +1,6 @@
 package core.scene
 
+import core.di.ServiceLocator
 import core.ecs.Component
 import core.ecs.Entity
 import core.math.Matrix4
@@ -10,7 +11,7 @@ open class Object(private var parent: Object? = null) : Entity() {
     private val children = mutableListOf<Object>()
 
     companion object {
-        var sharedComponents = mutableListOf<Component>()
+        val services = ServiceLocator()
     }
 
     init {

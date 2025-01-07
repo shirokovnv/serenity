@@ -1,4 +1,4 @@
-package platform.components.input
+package platform.services.input
 
 interface MouseInputListener {
     fun onMouseMoved(xOffset: Float, yOffset: Float)

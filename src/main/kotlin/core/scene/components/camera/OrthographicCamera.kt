@@ -1,4 +1,4 @@
-package core.scene.camera
+package core.scene.components.camera
 
 import core.math.Matrix4
 

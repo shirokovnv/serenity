@@ -4,19 +4,29 @@ import core.scene.Object
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
+import platform.services.filesystem.ImageLoader
+import platform.services.filesystem.TextFileLoader
 import platform.services.input.KeyboardInput
 import platform.services.input.MouseInput
+import java.nio.ByteBuffer
 
 abstract class Application(private val settings: ApplicationSettings) {
 
     private var window: Long = 0
     private var isRunning = false
 
-    protected lateinit var keyboardInput: KeyboardInput
-    protected lateinit var mouseInput: MouseInput
+    inner class ApplicationServices {
+        lateinit var keyboardInput: KeyboardInput
+        lateinit var mouseInput: MouseInput
+        lateinit var imageLoader: ImageLoader
+        lateinit var textFileLoader: TextFileLoader
+    }
+
+    private var appServices = ApplicationServices()
 
     abstract fun oneTimeSceneInit()
 
@@ -37,8 +47,9 @@ abstract class Application(private val settings: ApplicationSettings) {
     fun launch() {
         create()
         printDeviceProperties()
-        registerInputCallbacks()
         registerSharedServices()
+        registerInputCallbacks()
+        setIcon()
         oneTimeSceneInit()
         run()
         destroy()
@@ -121,16 +132,33 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun registerInputCallbacks() {
-        keyboardInput = KeyboardInput(window)
-        mouseInput = MouseInput(window)
-
-        GLFW.glfwSetCursorPosCallback(window, mouseInput::mousePosCallback)
-        GLFW.glfwSetMouseButtonCallback(window, mouseInput::mouseButtonCallback)
-        GLFW.glfwSetKeyCallback(window, keyboardInput::keyCallback)
+        GLFW.glfwSetCursorPosCallback(window, appServices.mouseInput::mousePosCallback)
+        GLFW.glfwSetMouseButtonCallback(window, appServices.mouseInput::mouseButtonCallback)
+        GLFW.glfwSetKeyCallback(window, appServices.keyboardInput::keyCallback)
     }
 
     protected open fun registerSharedServices() {
-        Object.services.putService<KeyboardInput>(keyboardInput)
-        Object.services.putService<MouseInput>(mouseInput)
+        appServices.keyboardInput = KeyboardInput(window)
+        appServices.mouseInput = MouseInput(window)
+        appServices.imageLoader = ImageLoader()
+        appServices.textFileLoader = TextFileLoader()
+
+        Object.services.putService<KeyboardInput>(appServices.keyboardInput)
+        Object.services.putService<MouseInput>(appServices.mouseInput)
+        Object.services.putService<ImageLoader>(appServices.imageLoader)
+        Object.services.putService<TextFileLoader>(appServices.textFileLoader)
+    }
+
+    private fun setIcon() {
+        val bufferedImage: ByteBuffer = appServices.imageLoader.loadImageToByteBuffer("logo/icon.png")
+
+        val image = GLFWImage.malloc()
+
+        image[32, 32] = bufferedImage
+
+        val images = GLFWImage.malloc(1)
+        images.put(0, image)
+
+        GLFW.glfwSetWindowIcon(window, images)
     }
 }

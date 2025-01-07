@@ -1,5 +1,6 @@
 package platform
 
+import platform.Constants.NANOSECOND
 import kotlin.properties.Delegates
 
 sealed class FrameCounter(private var frameRate: Float) {
@@ -10,8 +11,6 @@ sealed class FrameCounter(private var frameRate: Float) {
 
     private var currentFrameTime by Delegates.notNull<Float>()
     private var fps by Delegates.notNull<Int>()
-
-    private val NANOSECOND = 1000000000L
 
     init {
         reset()

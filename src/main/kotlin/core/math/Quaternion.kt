@@ -37,6 +37,13 @@ class Quaternion {
         this.w = w
     }
 
+    constructor(quaternion: Quaternion) {
+        x = quaternion.x
+        y = quaternion.y
+        z = quaternion.z
+        w = quaternion.w
+    }
+
     fun length(): Float {
         return sqrt(x * x + y * y + z * z + w * w)
     }

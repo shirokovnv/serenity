@@ -1,14 +1,10 @@
 package core.scene.camera
 
 import core.math.Matrix4
-import core.math.Vector3
 import core.math.toRadians
 import kotlin.math.tan
 
 class PerspectiveCamera(
-    override var position: Vector3,
-    override var forward: Vector3,
-    override var up: Vector3,
     val width: Float,
     val height: Float,
     val fovY: Float,
@@ -18,15 +14,12 @@ class PerspectiveCamera(
 
     init {
         projectionType = ProjectionType.PERSPECTIVE
-
-        up.normalize()
-        forward.normalize()
     }
 
     override fun calculateProjectionMatrix(): Matrix4 {
         val tanFOV = tan((fovY * 0.5f).toRadians())
         val aspectRatio = width / height
-        val m = Matrix4()
+        val m = Matrix4().zero()
 
         m[0, 0] = 1.0f / (tanFOV * aspectRatio)
         m[0, 1] = 0.0f

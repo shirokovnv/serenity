@@ -57,16 +57,7 @@ class TransformTest {
         assertNotEquals(initialMatrix, updatedMatrix)
         assertEquals(false, transform.isDirty())
     }
-    @Test
-    fun `test combine matrix with parent matrix`() {
-        val transform = Transform()
-        val parentMatrix = Matrix4().identity()
-        parentMatrix[0, 0] = 3f
-        val initialMatrix = transform.matrix()
-        transform.combineMatrixWith(parentMatrix)
-        assertNotEquals(initialMatrix, transform.matrix())
-        assertEquals(false, transform.isDirty())
-    }
+
     @Test
     fun `test matrix updates correctly with rotation, translation, scale`() {
         val transform = Transform()

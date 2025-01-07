@@ -3,8 +3,8 @@ package core.ecs
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-data class Position(var x: Float, var y: Float) : Component
-data class Velocity(var vx: Float, var vy: Float) : Component
+data class Position(var x: Float, var y: Float) : Component()
+data class Velocity(var vx: Float, var vy: Float) : Component()
 
 class EntityTest {
     @Test

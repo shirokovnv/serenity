@@ -5,8 +5,12 @@ import kotlin.reflect.KClass
 class ServiceLocator {
     private val services = mutableMapOf<KClass<*>, Any>()
 
-    fun <Service: Any> putService(service: Service) {
-        services[service::class] = service
+    fun <Service: Any> putService(service: Service, serviceType: KClass<Service>) {
+        services[serviceType] = service
+    }
+
+    inline fun <reified Service: Any> putService(service: Service){
+        putService(service, Service::class)
     }
 
     fun <Service: Any> getService(serviceType: KClass<Service>): Service? {
@@ -18,7 +22,7 @@ class ServiceLocator {
     }
 
     fun <Service: Any> hasService(serviceType: KClass<Service>): Boolean {
-        return services.contains(serviceType)
+        return services.containsKey(serviceType)
     }
 
     inline fun <reified ServiceType: Any> hasService(): Boolean {

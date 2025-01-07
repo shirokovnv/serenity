@@ -6,7 +6,7 @@ import core.math.Vector3
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Transform : Component {
+class Transform : Component() {
     private var translation: Vector3 = Vector3(0f, 0f, 0f)
     private var rotation: Vector3 = Vector3(0f, 0f, 0f)
     private var scale: Vector3 = Vector3(1f, 1f, 1f)
@@ -42,13 +42,13 @@ class Transform : Component {
 
     fun matrix(): Matrix4 {
         if (isDirty) {
-            updateMatrix()
+            recalculateTransformations()
         }
 
         return Matrix4(matrix)
     }
 
-    fun updateMatrix() {
+    private fun recalculateTransformations() {
         // Convert euler angles to a quaternion
         val cr = cos(rotation.x * 0.5).toFloat()
         val sr = sin(rotation.x * 0.5).toFloat()
@@ -93,11 +93,6 @@ class Transform : Component {
         matrix[3, 2] = 0f
         matrix[3, 3] = 1f
 
-        isDirty = false
-    }
-
-    fun combineMatrixWith(other: Matrix4) {
-        matrix = other * matrix()
         isDirty = false
     }
 }

@@ -1,7 +1,5 @@
 package core.math
 
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Quaternion {

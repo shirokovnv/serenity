@@ -2,7 +2,7 @@ package platform
 
 import kotlin.properties.Delegates
 
-class FrameCounter(private var frameRate: Float) {
+sealed class FrameCounter(private var frameRate: Float) {
     private var frames by Delegates.notNull<Int>()
     private var frameCounter by Delegates.notNull<Long>()
     private var lastTime by Delegates.notNull<Long>()

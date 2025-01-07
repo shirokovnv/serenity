@@ -1,4 +1,4 @@
-package core.scene
+package core.scene.components
 
 import core.ecs.Component
 import core.math.Matrix4

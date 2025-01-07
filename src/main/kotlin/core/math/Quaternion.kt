@@ -1,7 +1,5 @@
 package core.math
 
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class Quaternion {
@@ -9,19 +7,6 @@ class Quaternion {
     var y = 0f
     var z = 0f
     var w = 0f
-
-    companion object {
-        fun fromAxisAngle(axis: Vector3, angle: Float): Quaternion {
-            val halfAngle = angle * 0.5f
-            val sinHalfAngle = sin(halfAngle)
-            return Quaternion(
-                axis.x * sinHalfAngle,
-                axis.y * sinHalfAngle,
-                axis.z * sinHalfAngle,
-                cos(halfAngle)
-            )
-        }
-    }
 
     constructor(x: Float = 0.0f, y: Float = 0.0f, z: Float = 0.0f, w: Float = 1.0f) {
         this.x = x

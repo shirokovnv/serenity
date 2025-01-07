@@ -3,7 +3,7 @@ package platform
 import platform.Constants.NANOSECOND
 import kotlin.properties.Delegates
 
-sealed class FrameCounter(private var frameRate: Float) {
+class FrameCounter(private var frameRate: Float) {
     private var frames by Delegates.notNull<Int>()
     private var frameCounter by Delegates.notNull<Long>()
     private var lastTime by Delegates.notNull<Long>()

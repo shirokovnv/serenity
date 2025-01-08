@@ -1,3 +1,6 @@
+import core.math.Rect3d
+import core.math.Vector3
+import core.scene.SceneGraph
 import platform.Application
 import platform.ApplicationSettings
 
@@ -9,8 +12,13 @@ val settings = ApplicationSettings(
 )
 
 class App(private val settings: ApplicationSettings): Application(settings) {
-    override fun oneTimeSceneInit() {
-
+    override fun oneTimeSceneInit(): SceneGraph {
+        return SceneGraph(
+            Rect3d(
+                Vector3(0f),
+                Vector3(1000f)
+            )
+        )
     }
 }
 

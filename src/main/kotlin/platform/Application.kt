@@ -1,6 +1,8 @@
 package platform
 
 import core.scene.Object
+import core.scene.SceneGraph
+import core.scene.TraversalType
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
 import graphics.rendering.passes.NormalPass
@@ -43,9 +45,12 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     private var appPipes = ApplicationPipelines()
 
-    abstract fun oneTimeSceneInit()
+    private lateinit var sceneGraph: SceneGraph
+
+    abstract fun oneTimeSceneInit(): SceneGraph
 
     private fun update() {
+        appPipes.updatePipeline.update(sceneGraph, TraversalType.BREADTH_FIRST)
     }
 
     private fun render() {
@@ -58,6 +63,8 @@ abstract class Application(private val settings: ApplicationSettings) {
         GL20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
+        appPipes.renderPipeline.render(sceneGraph, TraversalType.BREADTH_FIRST)
+
         GLFW.glfwSwapBuffers(window)
         GLFW.glfwPollEvents()
     }
@@ -68,8 +75,8 @@ abstract class Application(private val settings: ApplicationSettings) {
         registerSharedServices()
         registerPipelines()
         registerInputCallbacks()
+        registerSceneGraph()
         setIcon()
-        oneTimeSceneInit()
         run()
         destroy()
     }
@@ -180,6 +187,10 @@ abstract class Application(private val settings: ApplicationSettings) {
         appPipes.renderPipeline.addRenderPass(RefractionPass)
         appPipes.renderPipeline.addRenderPass(ShadowPass)
         appPipes.renderPipeline.addRenderPass(NormalPass)
+    }
+
+    protected open fun registerSceneGraph() {
+        sceneGraph = oneTimeSceneInit()
     }
 
     private fun setIcon() {

@@ -38,6 +38,10 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
         children.add(child)
     }
 
+    fun getChildren(): MutableList<Object> {
+        return children.toMutableList()
+    }
+
     fun clearChildren() {
         children.clear()
     }

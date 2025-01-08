@@ -1,10 +1,16 @@
 package graphics.rendering
 
 import core.scene.Object
+import core.scene.SceneGraph
+import core.scene.TraversalType
 import graphics.rendering.passes.RenderPass
 
 class RenderPipeline {
     private val renderPasses = mutableListOf<RenderPass>()
+
+    companion object {
+        private val objects = mutableListOf<Object>()
+    }
 
     fun addRenderPass(pass: RenderPass) {
         renderPasses.add(pass)
@@ -31,5 +37,15 @@ class RenderPipeline {
                 }
             }
         }
+    }
+
+    fun render(sceneGraph: SceneGraph, traversalType: TraversalType) {
+        objects.clear()
+
+        sceneGraph.traverse({
+            objects.add(it)
+        }, traversalType)
+
+        render(objects)
     }
 }

@@ -1,11 +1,11 @@
 package core.scene.camera
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.Matrix4
 import core.math.Vector3
 import core.scene.Transform
 
-abstract class Camera : Component() {
+abstract class Camera : BaseComponent() {
     protected lateinit var projectionType: ProjectionType
 
     val transform: Transform

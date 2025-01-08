@@ -1,9 +1,9 @@
 package core.scene
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.*
 
-class BoundingVolume(private var shape: Shape) : Component(), Volumetric {
+class BoundingVolume(private var shape: Shape) : BaseComponent(), Volumetric {
 
     fun intersectsWith(volumetric: Volumetric): Boolean {
 

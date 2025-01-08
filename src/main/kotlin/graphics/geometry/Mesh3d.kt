@@ -1,10 +1,10 @@
 package graphics.geometry
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.Vector2
 import core.math.Vector3
 
-open class Mesh3d : Component() {
+open class Mesh3d : BaseComponent() {
 
     private var vertices = mutableListOf<Vector3>()
     private var normals = mutableListOf<Vector3>()

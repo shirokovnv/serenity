@@ -1,9 +1,9 @@
 package graphics.geometry
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.Vector2
 
-open class Mesh2d : Component() {
+open class Mesh2d : BaseComponent() {
 
     private var vertices = mutableListOf<Vector2>()
     private var uvs = mutableListOf<Vector2>()

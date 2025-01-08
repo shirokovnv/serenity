@@ -1,6 +1,6 @@
 package core.scene.camera
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.Vector3
 import core.math.toRadians
 
@@ -23,7 +23,7 @@ enum class CameraRotation {
 class CameraController(
     var moveSpeed: Float,
     var mouseSensitivity: Float
-): Component() {
+): BaseComponent() {
 
     private val camera: Camera
         get() = owner()?.getComponent<Camera>()!!

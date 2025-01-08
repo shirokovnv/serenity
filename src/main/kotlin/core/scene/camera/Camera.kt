@@ -1,9 +1,9 @@
-package core.scene.components.camera
+package core.scene.camera
 
 import core.ecs.Component
 import core.math.Matrix4
 import core.math.Vector3
-import core.scene.components.Transform
+import core.scene.Transform
 
 abstract class Camera : Component() {
     protected lateinit var projectionType: ProjectionType

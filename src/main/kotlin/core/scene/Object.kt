@@ -5,8 +5,6 @@ import core.ecs.Entity
 import core.math.Matrix4
 import core.math.Rect3d
 import core.math.Vector3
-import core.scene.components.BoundingVolume
-import core.scene.components.Transform
 
 open class Object(private var parent: Object? = null) : Entity() {
 

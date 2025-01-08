@@ -1,4 +1,4 @@
-package platform
+package platform.services
 
 import platform.Constants.NANOSECOND
 import kotlin.properties.Delegates

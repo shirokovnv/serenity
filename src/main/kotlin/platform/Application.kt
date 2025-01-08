@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
+import platform.services.FrameCounter
 import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.TextFileLoader
 import platform.services.input.KeyboardInput
@@ -24,6 +25,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var mouseInput: MouseInput
         lateinit var imageLoader: ImageLoader
         lateinit var textFileLoader: TextFileLoader
+        lateinit var frameCounter: FrameCounter
     }
 
     private var appServices = ApplicationServices()
@@ -82,7 +84,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     private fun run() {
         isRunning = true
 
-        val frameCounter = FrameCounter(settings.frameRate)
+        val frameCounter = appServices.frameCounter
         while (isRunning) {
             var canRender = false
 
@@ -142,11 +144,13 @@ abstract class Application(private val settings: ApplicationSettings) {
         appServices.mouseInput = MouseInput(window)
         appServices.imageLoader = ImageLoader()
         appServices.textFileLoader = TextFileLoader()
+        appServices.frameCounter = FrameCounter(settings.frameRate)
 
         Object.services.putService<KeyboardInput>(appServices.keyboardInput)
         Object.services.putService<MouseInput>(appServices.mouseInput)
         Object.services.putService<ImageLoader>(appServices.imageLoader)
         Object.services.putService<TextFileLoader>(appServices.textFileLoader)
+        Object.services.putService<FrameCounter>(appServices.frameCounter)
     }
 
     private fun setIcon() {

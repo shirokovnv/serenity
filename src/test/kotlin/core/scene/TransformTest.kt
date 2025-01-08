@@ -2,7 +2,6 @@ package core.scene
 
 import core.math.Matrix4
 import core.math.Vector3
-import core.scene.components.Transform
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

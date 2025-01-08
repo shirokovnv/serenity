@@ -1,4 +1,4 @@
-package core.scene.components.camera
+package core.scene.camera
 
 import core.ecs.Component
 import core.math.Vector3

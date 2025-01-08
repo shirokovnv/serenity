@@ -1,4 +1,4 @@
-package graphics.components.geometry
+package graphics.geometry
 
 import core.ecs.Component
 import core.math.Vector2

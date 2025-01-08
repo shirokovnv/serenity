@@ -1,4 +1,4 @@
-package core.scene.components
+package core.scene
 
 import core.math.Shape
 

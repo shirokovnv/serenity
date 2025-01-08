@@ -1,4 +1,4 @@
-package core.scene.components.camera
+package core.scene.camera
 
 enum class ProjectionType {
     ORTHOGRAPHIC,

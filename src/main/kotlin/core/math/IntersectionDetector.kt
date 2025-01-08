@@ -1,6 +1,6 @@
 package core.math
 
-object ShapeIntersector {
+object IntersectionDetector {
     fun intersects(rectA: Rect2d, rectB: Rect2d): Boolean {
         return !(rectA.min.x > rectB.max.x
                 || rectA.max.x < rectB.min.x

@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test
 
 class BaseComponentTest {
     @Test
-    fun testInitialState() {
+    fun `test initial state`() {
         val component = BaseComponent()
         assertNull(component.owner())
         assertTrue(component.isActive())
     }
 
     @Test
-    fun testSetOwner() {
+    fun `test set owner`() {
         val component = BaseComponent()
         val owner = Entity()
 
@@ -27,7 +27,7 @@ class BaseComponentTest {
     }
 
     @Test
-    fun testSetActive() {
+    fun `test set active`() {
         val component = BaseComponent()
 
         component.setActive(false)

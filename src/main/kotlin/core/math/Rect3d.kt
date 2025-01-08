@@ -21,4 +21,18 @@ data class Rect3d(val min: Vector3, val max: Vector3): Shape {
             (max.y + min.y) * 0.5f,
             (max.z + min.z) * 0.5f
             )
+
+    val corners: List<Vector3>
+        get() {
+            return listOf(
+                Vector3(min.x, min.y, min.z),
+                Vector3(max.x, min.y, min.z),
+                Vector3(min.x, max.y, min.z),
+                Vector3(max.x, max.y, min.z),
+                Vector3(min.x, min.y, max.z),
+                Vector3(max.x, min.y, max.z),
+                Vector3(min.x, max.y, max.z),
+                Vector3(max.x, max.y, max.z)
+            )
+        }
 }

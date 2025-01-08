@@ -5,29 +5,46 @@ import core.math.*
 
 class BoundingVolume(private var shape: Shape) : BaseComponent(), Volumetric {
 
-    fun intersectsWith(volumetric: Volumetric): Boolean {
+    fun intersects(volumetric: Volumetric): Boolean {
+        return when {
+            shape is Rect2d && volumetric.shape() is Rect2d ->
+                IntersectionDetector.intersects(shape as Rect2d, volumetric.shape() as Rect2d)
 
-        if (shape is Rect2d && volumetric.shape() is Rect2d) {
-            return ShapeIntersector.intersects(shape as Rect2d, volumetric.shape() as Rect2d)
+            shape is Rect3d && volumetric.shape() is Rect3d ->
+                IntersectionDetector.intersects(shape as Rect3d, volumetric.shape() as Rect3d)
+
+            shape is Sphere && volumetric.shape() is Sphere ->
+                IntersectionDetector.intersects(shape as Sphere, volumetric.shape() as Sphere)
+
+            shape is Rect3d && volumetric.shape() is Sphere ->
+                IntersectionDetector.intersects(shape as Rect3d, volumetric.shape() as Sphere)
+
+            shape is Sphere && volumetric.shape() is Rect3d ->
+                return IntersectionDetector.intersects(volumetric.shape() as Rect3d, shape as Sphere)
+
+            else -> throw IllegalArgumentException("Unsupported shape type.")
         }
+    }
 
-        if (shape is Rect3d && volumetric.shape() is Rect3d) {
-            return ShapeIntersector.intersects(shape as Rect3d, volumetric.shape() as Rect3d)
+    fun contains(volumetric: Volumetric): Boolean {
+        return when {
+            shape is Rect2d && volumetric.shape() is Rect2d ->
+                OverlapDetector.contains(shape as Rect2d, volumetric.shape() as Rect2d)
+
+            shape is Rect3d && volumetric.shape() is Rect3d ->
+                OverlapDetector.contains(shape as Rect3d, volumetric.shape() as Rect3d)
+
+            shape is Sphere && volumetric.shape() is Sphere ->
+                OverlapDetector.contains(shape as Sphere, volumetric.shape() as Sphere)
+
+            shape is Sphere && volumetric.shape() is Rect3d ->
+                OverlapDetector.contains(shape as Sphere, volumetric.shape() as Rect3d)
+
+            shape is Rect3d && volumetric.shape() is Sphere ->
+                OverlapDetector.contains(shape as Rect3d, volumetric.shape() as Sphere)
+
+            else -> throw IllegalArgumentException("Unsupported shape type.")
         }
-
-        if (shape is Sphere && volumetric.shape() is Sphere) {
-            return ShapeIntersector.intersects(shape as Sphere, volumetric.shape() as Sphere)
-        }
-
-        if (shape is Rect3d && volumetric.shape() is Sphere) {
-            return ShapeIntersector.intersects(shape as Rect3d, volumetric.shape() as Sphere)
-        }
-
-        if (shape is Sphere && volumetric.shape() is Rect3d) {
-            return ShapeIntersector.intersects(volumetric.shape() as Rect3d, shape as Sphere)
-        }
-
-        throw IllegalArgumentException("Intersection not supported.")
     }
 
     override fun setShape(newShape: Shape) {

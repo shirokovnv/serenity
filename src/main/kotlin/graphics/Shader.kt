@@ -7,8 +7,8 @@ import org.lwjgl.opengl.GL31
 import kotlin.properties.Delegates
 
 abstract class Shader {
-    protected var program by Delegates.notNull<Int>()
-    protected val uniforms = HashMap<String, Int>()
+    private var program by Delegates.notNull<Int>()
+    private val uniforms = HashMap<String, Int>()
 
     init {
         program = glCreateProgram()

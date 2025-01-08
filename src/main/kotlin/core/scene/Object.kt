@@ -1,14 +1,16 @@
 package core.scene
 
 import core.di.ServiceLocator
+import core.ecs.Activatable
 import core.ecs.Entity
 import core.math.Matrix4
 import core.math.Rect3d
 import core.math.Vector3
 
-open class Object(private var parent: Object? = null) : Entity() {
+open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
     private val children = mutableListOf<Object>()
+    private var isActive: Boolean = true
 
     companion object {
         val services = ServiceLocator()
@@ -46,5 +48,13 @@ open class Object(private var parent: Object? = null) : Entity() {
 
     fun worldMatrix(): Matrix4 {
         return (parent?.worldMatrix()?.times(localMatrix())) ?: localMatrix()
+    }
+
+    override fun isActive(): Boolean {
+        return isActive
+    }
+
+    override fun setActive(active: Boolean) {
+        this.isActive = active
     }
 }

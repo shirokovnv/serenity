@@ -23,15 +23,15 @@ abstract class Camera : BaseComponent() {
     fun projectionType(): ProjectionType = projectionType
     fun position(): Vector3 {
         val m = transform.matrix()
-        return Vector3(m[3, 0], m[3, 1], m[3, 2])
+        return Vector3(m[0, 3], m[1, 3], m[2, 3])
     }
     fun forward(): Vector3 {
         val m = transform.matrix()
-        return Vector3(-m[2, 0], -m[2, 1], -m[2, 2]).normalize()
+        return Vector3(-m[0, 2], -m[1, 2], -m[2, 2]).normalize()
     }
     fun up(): Vector3 {
         val m = transform.matrix()
-        return Vector3(m[1, 0], m[1, 1], m[1, 2]).normalize()
+        return Vector3(m[0, 1], m[1, 1], m[2, 1]).normalize()
     }
     fun right(): Vector3 {
         val m = transform.matrix()

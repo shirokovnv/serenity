@@ -42,11 +42,11 @@ open class Object(private var parent: Object? = null) : Entity() {
         children.clear()
     }
 
-    fun getLocalMatrix(): Matrix4 {
+    fun localMatrix(): Matrix4 {
         return getComponent<Transform>()!!.matrix()
     }
 
-    fun getWorldMatrix(): Matrix4 {
-        return (parent?.getWorldMatrix()?.times(getLocalMatrix())) ?: getLocalMatrix()
+    fun worldMatrix(): Matrix4 {
+        return (parent?.worldMatrix()?.times(localMatrix())) ?: localMatrix()
     }
 }

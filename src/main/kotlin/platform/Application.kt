@@ -1,6 +1,12 @@
 package platform
 
 import core.scene.Object
+import graphics.rendering.RenderPipeline
+import graphics.rendering.UpdatePipeline
+import graphics.rendering.passes.NormalPass
+import graphics.rendering.passes.ReflectionPass
+import graphics.rendering.passes.RefractionPass
+import graphics.rendering.passes.ShadowPass
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -30,9 +36,19 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     private var appServices = ApplicationServices()
 
+    inner class ApplicationPipelines {
+        lateinit var updatePipeline: UpdatePipeline
+        lateinit var renderPipeline: RenderPipeline
+    }
+
+    private var appPipes = ApplicationPipelines()
+
     abstract fun oneTimeSceneInit()
 
-    fun render() {
+    private fun update() {
+    }
+
+    private fun render() {
         GL20.glFrontFace(GL20.GL_CCW)
         GL20.glEnable(GL20.GL_CULL_FACE)
         GL20.glCullFace(GL20.GL_BACK)
@@ -50,6 +66,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         create()
         printDeviceProperties()
         registerSharedServices()
+        registerPipelines()
         registerInputCallbacks()
         setIcon()
         oneTimeSceneInit()
@@ -96,6 +113,8 @@ abstract class Application(private val settings: ApplicationSettings) {
                 if (GLFW.glfwWindowShouldClose(window)) {
                     stop()
                 }
+
+                update()
 
                 frameCounter.updateFrameFps()
             }
@@ -151,6 +170,16 @@ abstract class Application(private val settings: ApplicationSettings) {
         Object.services.putService<ImageLoader>(appServices.imageLoader)
         Object.services.putService<TextFileLoader>(appServices.textFileLoader)
         Object.services.putService<FrameCounter>(appServices.frameCounter)
+    }
+
+    protected open fun registerPipelines() {
+        appPipes.updatePipeline = UpdatePipeline(appServices.frameCounter)
+        appPipes.renderPipeline = RenderPipeline()
+
+        appPipes.renderPipeline.addRenderPass(ReflectionPass)
+        appPipes.renderPipeline.addRenderPass(RefractionPass)
+        appPipes.renderPipeline.addRenderPass(ShadowPass)
+        appPipes.renderPipeline.addRenderPass(NormalPass)
     }
 
     private fun setIcon() {

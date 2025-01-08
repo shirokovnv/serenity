@@ -1,6 +1,14 @@
 package platform
 
 import core.scene.Object
+import core.scene.SceneGraph
+import core.scene.TraversalType
+import graphics.rendering.RenderPipeline
+import graphics.rendering.UpdatePipeline
+import graphics.rendering.passes.NormalPass
+import graphics.rendering.passes.ReflectionPass
+import graphics.rendering.passes.RefractionPass
+import graphics.rendering.passes.ShadowPass
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -8,6 +16,7 @@ import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
+import platform.services.FrameCounter
 import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.TextFileLoader
 import platform.services.input.KeyboardInput
@@ -24,13 +33,27 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var mouseInput: MouseInput
         lateinit var imageLoader: ImageLoader
         lateinit var textFileLoader: TextFileLoader
+        lateinit var frameCounter: FrameCounter
     }
 
     private var appServices = ApplicationServices()
 
-    abstract fun oneTimeSceneInit()
+    inner class ApplicationPipelines {
+        lateinit var updatePipeline: UpdatePipeline
+        lateinit var renderPipeline: RenderPipeline
+    }
 
-    fun render() {
+    private var appPipes = ApplicationPipelines()
+
+    private lateinit var sceneGraph: SceneGraph
+
+    abstract fun oneTimeSceneInit(): SceneGraph
+
+    private fun update() {
+        appPipes.updatePipeline.update(sceneGraph, TraversalType.BREADTH_FIRST)
+    }
+
+    private fun render() {
         GL20.glFrontFace(GL20.GL_CCW)
         GL20.glEnable(GL20.GL_CULL_FACE)
         GL20.glCullFace(GL20.GL_BACK)
@@ -40,6 +63,8 @@ abstract class Application(private val settings: ApplicationSettings) {
         GL20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
+        appPipes.renderPipeline.render(sceneGraph, TraversalType.BREADTH_FIRST)
+
         GLFW.glfwSwapBuffers(window)
         GLFW.glfwPollEvents()
     }
@@ -48,9 +73,10 @@ abstract class Application(private val settings: ApplicationSettings) {
         create()
         printDeviceProperties()
         registerSharedServices()
+        registerPipelines()
         registerInputCallbacks()
+        registerSceneGraph()
         setIcon()
-        oneTimeSceneInit()
         run()
         destroy()
     }
@@ -82,7 +108,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     private fun run() {
         isRunning = true
 
-        val frameCounter = FrameCounter(settings.frameRate)
+        val frameCounter = appServices.frameCounter
         while (isRunning) {
             var canRender = false
 
@@ -94,6 +120,8 @@ abstract class Application(private val settings: ApplicationSettings) {
                 if (GLFW.glfwWindowShouldClose(window)) {
                     stop()
                 }
+
+                update()
 
                 frameCounter.updateFrameFps()
             }
@@ -142,11 +170,27 @@ abstract class Application(private val settings: ApplicationSettings) {
         appServices.mouseInput = MouseInput(window)
         appServices.imageLoader = ImageLoader()
         appServices.textFileLoader = TextFileLoader()
+        appServices.frameCounter = FrameCounter(settings.frameRate)
 
         Object.services.putService<KeyboardInput>(appServices.keyboardInput)
         Object.services.putService<MouseInput>(appServices.mouseInput)
         Object.services.putService<ImageLoader>(appServices.imageLoader)
         Object.services.putService<TextFileLoader>(appServices.textFileLoader)
+        Object.services.putService<FrameCounter>(appServices.frameCounter)
+    }
+
+    protected open fun registerPipelines() {
+        appPipes.updatePipeline = UpdatePipeline(appServices.frameCounter)
+        appPipes.renderPipeline = RenderPipeline()
+
+        appPipes.renderPipeline.addRenderPass(ReflectionPass)
+        appPipes.renderPipeline.addRenderPass(RefractionPass)
+        appPipes.renderPipeline.addRenderPass(ShadowPass)
+        appPipes.renderPipeline.addRenderPass(NormalPass)
+    }
+
+    protected open fun registerSceneGraph() {
+        sceneGraph = oneTimeSceneInit()
     }
 
     private fun setIcon() {

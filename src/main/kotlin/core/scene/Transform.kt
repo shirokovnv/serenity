@@ -1,12 +1,12 @@
-package core.scene.components
+package core.scene
 
-import core.ecs.Component
+import core.ecs.BaseComponent
 import core.math.Matrix4
 import core.math.Vector3
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Transform : Component() {
+class Transform : BaseComponent() {
     private var translation: Vector3 = Vector3(0f, 0f, 0f)
     private var rotation: Vector3 = Vector3(0f, 0f, 0f)
     private var scale: Vector3 = Vector3(1f, 1f, 1f)

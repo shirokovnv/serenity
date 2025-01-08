@@ -1,4 +1,4 @@
-package core.scene.components.camera
+package core.scene.camera
 
 import core.math.Matrix4
 import core.math.toRadians

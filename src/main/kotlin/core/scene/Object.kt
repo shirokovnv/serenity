@@ -1,14 +1,16 @@
 package core.scene
 
 import core.di.ServiceLocator
-import core.ecs.Component
+import core.ecs.Activatable
 import core.ecs.Entity
 import core.math.Matrix4
-import core.scene.components.Transform
+import core.math.Rect3d
+import core.math.Vector3
 
-open class Object(private var parent: Object? = null) : Entity() {
+open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
     private val children = mutableListOf<Object>()
+    private var isActive: Boolean = true
 
     companion object {
         val services = ServiceLocator()
@@ -16,6 +18,14 @@ open class Object(private var parent: Object? = null) : Entity() {
 
     init {
         addComponent(Transform())
+        addComponent(
+            BoundingVolume(
+                Rect3d(
+                    Vector3(0f, 0f, 0f),
+                    Vector3(0f, 0f, 0f)
+                )
+            )
+        )
     }
 
     fun parent(): Object? = parent
@@ -28,17 +38,27 @@ open class Object(private var parent: Object? = null) : Entity() {
         children.add(child)
     }
 
+    fun getChildren(): MutableList<Object> {
+        return children.toMutableList()
+    }
+
     fun clearChildren() {
         children.clear()
     }
 
-    fun getLocalMatrix(): Matrix4 {
+    fun localMatrix(): Matrix4 {
         return getComponent<Transform>()!!.matrix()
     }
 
-    fun getWorldMatrix(): Matrix4 {
-        return if (parent != null)
-            parent!!.getWorldMatrix() * getLocalMatrix()
-        else getLocalMatrix()
+    fun worldMatrix(): Matrix4 {
+        return (parent?.worldMatrix()?.times(localMatrix())) ?: localMatrix()
+    }
+
+    override fun isActive(): Boolean {
+        return isActive
+    }
+
+    override fun setActive(active: Boolean) {
+        this.isActive = active
     }
 }

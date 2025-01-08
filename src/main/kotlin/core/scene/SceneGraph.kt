@@ -33,8 +33,8 @@ class SceneGraph(worldBounds: Rect3d) {
 
     fun traverse(visit: SceneObjectVisitor, traversalType: TraversalType) {
         when(traversalType) {
-            TraversalType.BREADTH_FIRST -> depthFirstTraversal(root, visit)
-            TraversalType.DEPTH_FIRST -> breadthFirstTraversal(root, visit)
+            TraversalType.BREADTH_FIRST -> breadthFirstTraversal(root, visit)
+            TraversalType.DEPTH_FIRST -> depthFirstTraversal(root, visit)
         }
     }
 

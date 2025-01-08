@@ -1,6 +1,7 @@
 package graphics.rendering
 
 import core.scene.Object
+import graphics.rendering.passes.RenderPass
 
 class RenderPipeline {
     private val renderPasses = mutableListOf<RenderPass>()

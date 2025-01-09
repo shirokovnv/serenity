@@ -1,33 +1,56 @@
-package graphics.surface
+package graphics.assets.surface
 
+import core.ecs.BaseComponent
 import core.math.*
+import graphics.assets.Asset
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30
 import org.lwjgl.opengl.GL31
-import kotlin.properties.Delegates
 
-abstract class Shader {
-    private var program by Delegates.notNull<Int>()
+abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, Self>, P: MaterialParams> : BaseComponent(), Asset {
+    private var programId: Int = 0
     private val uniforms = HashMap<String, Int>()
+    private val shaderIds = mutableListOf<Int>()
 
-    init {
-        program = glCreateProgram()
+    abstract fun setMaterial(material: T?)
+    abstract fun getMaterial(): T?
 
-        if (program == 0) {
+    override fun getId(): Int {
+        return programId
+    }
+
+    override fun create() {
+        programId = glCreateProgram()
+
+        if (programId == 0) {
             throw IllegalStateException("Unable to create shader program.")
         }
     }
 
-    fun bind() {
-        glUseProgram(program)
+    override fun destroy() {
+        if (programId != 0) {
+            shaderIds
+                .filter { shaderId -> shaderId != 0 }
+                .forEach { shaderId ->
+                    glDetachShader(programId, shaderId)
+                }
+            glDeleteProgram(programId)
+        }
+
+        programId = 0
+        shaderIds.clear()
     }
 
-    fun unbind() {
+    override fun bind() {
+        glUseProgram(programId)
+    }
+
+    override fun unbind() {
         glUseProgram(0)
     }
 
     fun addUniform(uniformName: String) {
-        val uniformLocation = glGetUniformLocation(program, uniformName)
+        val uniformLocation = glGetUniformLocation(programId, uniformName)
 
         if (uniformLocation == -0x1) {
             throw IllegalArgumentException("Could not find uniform: $uniformName")
@@ -37,7 +60,7 @@ abstract class Shader {
     }
 
     fun addUniformBlock(uniformName: String) {
-        val uniformLocation = GL31.glGetUniformBlockIndex(program, uniformName)
+        val uniformLocation = GL31.glGetUniformBlockIndex(programId, uniformName)
         if (uniformLocation == -0x1) {
             throw IllegalArgumentException("Could not find uniform block: $uniformName")
         }
@@ -59,18 +82,17 @@ abstract class Shader {
             throw IllegalStateException("Unable to compile shader: ${glGetShaderInfoLog(shader, 1024)}")
         }
 
-        glAttachShader(program, shader)
+        shaderIds.add(shader)
+        glAttachShader(programId, shader)
     }
 
     fun bindUniformBlock(uniformBlockName: String, uniformBlockBinding: Int) {
-        GL31.glUniformBlockBinding(program, uniforms[uniformBlockName]!!, uniformBlockBinding)
+        GL31.glUniformBlockBinding(programId, uniforms[uniformBlockName]!!, uniformBlockBinding)
     }
 
     fun bindFragDataLocation(name: String, index: Int) {
-        GL30.glBindFragDataLocation(program, index, name)
+        GL30.glBindFragDataLocation(programId, index, name)
     }
-
-    fun program(): Int = program
 
     fun setUniformi(uniformName: String, value: Int) {
         glUniform1i(uniforms[uniformName]!!, value)
@@ -95,4 +117,10 @@ abstract class Shader {
     fun setUniform(uniformName: String, value: Matrix4) {
         glUniformMatrix4fv(uniforms[uniformName]!!, true, value.toFloatBuffer())
     }
+}
+
+infix fun <Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, Self>, P: MaterialParams> Self.bind(material: T): Self {
+    this.setMaterial(material)
+    material.setShader(this)
+    return this
 }

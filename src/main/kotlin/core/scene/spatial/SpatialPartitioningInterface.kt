@@ -4,8 +4,8 @@ import core.scene.BoundingVolume
 import core.scene.Object
 
 interface SpatialPartitioningInterface {
-    fun addOrUpdateSceneObject(obj: Object)
-    fun remove(obj: Object)
+    fun insert(obj: Object)
+    fun remove(obj: Object): Boolean
     fun countObjects(): Int
-    fun findCollisions(volume: BoundingVolume): List<Object>
+    fun buildSearchResults(searchVolume: BoundingVolume): List<Object>
 }

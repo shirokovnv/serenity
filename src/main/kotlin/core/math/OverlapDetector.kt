@@ -33,7 +33,8 @@ object OverlapDetector {
     fun contains(rect: Rect3d, sphere: Sphere): Boolean {
         if (sphere.center.x < rect.min.x || sphere.center.x > rect.max.x ||
             sphere.center.y < rect.min.y || sphere.center.y > rect.max.y ||
-            sphere.center.z < rect.min.z || sphere.center.y > rect.max.z) {
+            sphere.center.z < rect.min.z || sphere.center.y > rect.max.z
+        ) {
             return false
         }
 

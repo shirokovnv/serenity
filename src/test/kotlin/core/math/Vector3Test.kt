@@ -204,6 +204,15 @@ class Vector3Test {
     }
 
     @Test
+    fun `test component1_2_3`() {
+        val vector3 = Vector3(1f, 2f, 3f)
+        val (x, y, z) = vector3
+        assertEquals(1f, x)
+        assertEquals(2f, y)
+        assertEquals(3f, z)
+    }
+
+    @Test
     fun `test equals`() {
         val vector1 = Vector3(1f, 2f, 3f)
         val vector2 = Vector3(1f, 2f, 3f)

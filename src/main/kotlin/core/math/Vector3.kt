@@ -142,6 +142,10 @@ class Vector3 {
         z *= scalar
     }
 
+    operator fun component1() = x
+    operator fun component2() = y
+    operator fun component3() = z
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Vector3) return false

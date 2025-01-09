@@ -1,5 +1,11 @@
 package core.math
 
+enum class Rect3dPlane {
+    XY,
+    XZ,
+    YZ
+}
+
 data class Rect3d(val min: Vector3, val max: Vector3): Shape {
 
     constructor(other: Rect3d) : this(Vector3(other.min), Vector3(other.max))

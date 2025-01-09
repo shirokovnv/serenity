@@ -4,7 +4,7 @@ import core.math.IntersectionDetector
 import core.math.OverlapDetector
 import core.math.Rect2d
 import core.math.Vector2
-import core.scene.BoundingVolume
+import core.scene.BoxAABB
 import core.scene.Object
 import java.util.*
 
@@ -24,7 +24,7 @@ class PointerQuadTree(
     private var bottomRight: PointerQuadTree? = null
 
     override fun insert(obj: Object): Boolean {
-        val objectBounds = obj.getComponent<BoundingVolume>()!!.toRect2d()
+        val objectBounds = obj.getComponent<BoxAABB>()!!.toRect2d()
 
         if (! (OverlapDetector.contains(bounds, objectBounds) || allowOutOfBounds)) {
             throw RuntimeException("Element is outside bounds.")
@@ -44,7 +44,7 @@ class PointerQuadTree(
     }
 
     override fun remove(obj: Object): Boolean {
-        val containingChild = getContainingChild(obj.getComponent<BoundingVolume>()!!.toRect2d())
+        val containingChild = getContainingChild(obj.getComponent<BoxAABB>()!!.toRect2d())
 
         val removed = containingChild?.remove(obj) ?: objects.remove(obj)
 
@@ -69,7 +69,7 @@ class PointerQuadTree(
         return count
     }
 
-    override fun buildSearchResults(searchVolume: BoundingVolume): List<Object> {
+    override fun buildSearchResults(searchVolume: BoxAABB): List<Object> {
         val queue = LinkedList<PointerQuadTree>()
         val searchResults = mutableListOf<Object>()
         val searchRect = searchVolume.toRect2d()
@@ -79,14 +79,12 @@ class PointerQuadTree(
         while (queue.isNotEmpty()) {
             val node = queue.pop()
 
-            val nodeRect = BoundingVolume(node.bounds).toRect2d()
-
-            if (!IntersectionDetector.intersects(nodeRect, searchVolume.toRect2d())) {
+            if (!IntersectionDetector.intersects(node.bounds, searchVolume.toRect2d())) {
                 continue
             }
 
             searchResults.addAll( node.objects.filter { obj ->
-                IntersectionDetector.intersects(obj.getComponent<BoundingVolume>()!!.toRect2d(), searchRect)
+                IntersectionDetector.intersects(obj.getComponent<BoxAABB>()!!.toRect2d(), searchRect)
             })
 
             if (!node.isLeaf()) {
@@ -134,7 +132,7 @@ class PointerQuadTree(
         val objectList = objects.toList()
 
         objectList.forEach { obj ->
-            val objectBounds = obj.getComponent<BoundingVolume>()!!.toRect2d()
+            val objectBounds = obj.getComponent<BoxAABB>()!!.toRect2d()
             val containingChild = getContainingChild(objectBounds)
 
             if (containingChild != null) {

@@ -20,7 +20,7 @@ class SceneGraph(worldBounds: Rect3d) {
     }
 
     fun newWorldBounds(worldBounds: Rect3d) {
-        root.getComponent<BoundingVolume>()!!.setShape(worldBounds)
+        root.getComponent<BoxAABB>()!!.setShape(worldBounds)
     }
 
     fun traverse(visit: SceneObjectVisitor, traversalOrder: TraversalOrder) {

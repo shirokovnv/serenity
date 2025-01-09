@@ -2,7 +2,7 @@ package core.scene.spatial
 
 import core.math.IntersectionDetector
 import core.math.Rect3d
-import core.scene.BoundingVolume
+import core.scene.BoxAABB
 import core.scene.Object
 import java.util.*
 
@@ -44,8 +44,7 @@ class LinearQuadTreeNode {
 
     fun findCollisions(searchRect: Rect3d): List<Object> {
         return objects.filter {obj ->
-            //IntersectionDetector.intersects(obj.getComponent<BoundingVolume>()!!.toRect3d(), searchRect)
-            obj.getComponent<BoundingVolume>()!!.intersects(BoundingVolume(searchRect))
+            IntersectionDetector.intersects(obj.getComponent<BoxAABB>()!!.shape(), searchRect)
         }
     }
 }

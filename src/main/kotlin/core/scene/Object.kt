@@ -22,7 +22,7 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     init {
         addComponent(Transform())
         addComponent(
-            BoundingVolume(
+            BoxAABB(
                 Rect3d(
                     Vector3(0f, 0f, 0f),
                     Vector3(0f, 0f, 0f)

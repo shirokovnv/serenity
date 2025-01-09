@@ -2,7 +2,7 @@ import core.ecs.Behaviour
 import core.math.Rect3d
 import core.math.Sphere
 import core.math.Vector3
-import core.scene.BoundingVolume
+import core.scene.BoxAABB
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Transform
@@ -54,7 +54,9 @@ class App(settings: ApplicationSettings): Application(settings) {
         //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90.0f.toRadians(), 180f.toRadians(), 0.0f))
         debugObj.addComponent(camera)
         debugObj.getComponent<Transform>()!!.setTranslation(Vector3(1f))
-        debugObj.getComponent<BoundingVolume>()!!.setShape(Sphere(Vector3(1f, 1f, 1f), 3f))
+        debugObj.getComponent<BoxAABB>()!!.setShape(
+            Rect3d(Vector3(1f), Vector3(3f))
+        )
 
         //camera.transform.setTranslation(Vector3(10f))
 
@@ -66,7 +68,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         quadTree.create(Rect3d(Vector3(0f, 0f, 0f), Vector3(10f, 10f, 10f)), 9)
         println(quadTree.insert(debugObj))
 
-        val searchVolume = BoundingVolume(Rect3d(
+        val searchVolume = BoxAABB(Rect3d(
             Vector3(3f, 3f, 3f),
             Vector3(10f, 10f, 10f)
         ))

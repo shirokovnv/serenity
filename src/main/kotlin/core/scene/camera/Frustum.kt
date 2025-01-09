@@ -1,7 +1,7 @@
 package core.scene.camera
 
 import core.math.*
-import core.scene.BoundingVolume
+import core.scene.BoxAABB
 import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.min
@@ -15,7 +15,7 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
     private var nearPlane = Plane.fromPoint(Vector3(0f), Vector3(0f))
     private var farPlane = Plane.fromPoint(Vector3(0f), Vector3(0f))
 
-    private var searchVolume = BoundingVolume(
+    private var searchVolume = BoxAABB(
         Rect3d(Vector3(0f), Vector3(0f))
     )
 
@@ -31,7 +31,7 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
         recalculateSearchVolume()
     }
 
-    fun searchVolume(): BoundingVolume {
+    fun searchVolume(): BoxAABB {
         return searchVolume
     }
 
@@ -213,15 +213,7 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
         return Rect3d(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ))
     }
 
-    fun checkIsOnFrustum(boundingVolume: BoundingVolume): Boolean {
-        return when(boundingVolume.shape()) {
-            is Rect3d -> checkRect3dInFrustum(boundingVolume.shape() as Rect3d)
-            is Sphere -> checkSphereInFrustum(boundingVolume.shape() as Sphere)
-            else -> throw IllegalStateException("Unsupported bounding volume shape.")
-        }
-    }
-
-    private fun checkSphereInFrustum(sphere: Sphere): Boolean {
+    fun checkSphereInFrustum(sphere: Sphere): Boolean {
         return !(PlaneClassifier.classifyWithSphere(leftPlane, sphere) == Plane.PlaneClassification.PLANE_BACK
                 || PlaneClassifier.classifyWithSphere(rightPlane, sphere) == Plane.PlaneClassification.PLANE_BACK
                 || PlaneClassifier.classifyWithSphere(topPlane, sphere) == Plane.PlaneClassification.PLANE_BACK
@@ -231,7 +223,7 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
                 )
     }
 
-    private fun checkRect3dInFrustum(rect3d: Rect3d): Boolean {
+    fun checkRect3dInFrustum(rect3d: Rect3d): Boolean {
         return !(PlaneClassifier.classifyWithRect3d(leftPlane, rect3d) == Plane.PlaneClassification.PLANE_BACK
                 || PlaneClassifier.classifyWithRect3d(rightPlane, rect3d) == Plane.PlaneClassification.PLANE_BACK
                 || PlaneClassifier.classifyWithRect3d(topPlane, rect3d) == Plane.PlaneClassification.PLANE_BACK

@@ -3,7 +3,7 @@ package core.scene.spatial
 import core.math.Rect3d
 import core.math.Vector3
 import core.math.helpers.highestBitSet
-import core.scene.BoundingVolume
+import core.scene.BoxAABB
 import core.scene.Object
 import kotlin.math.max
 import kotlin.math.min
@@ -81,7 +81,7 @@ class LinearQuadTree : SpatialPartitioningInterface {
     }
 
     override fun insert(obj: Object): Boolean {
-        val objRect = obj.getComponent<BoundingVolume>()!!.toRect3d()
+        val objRect = obj.getComponent<BoxAABB>()!!.shape()
 
         val byteRect = buildByteRect(objRect)
         val node = findTreeNode(byteRect) ?: throw RuntimeException("FAILED TO LOCATE QUAD NODE")
@@ -90,7 +90,7 @@ class LinearQuadTree : SpatialPartitioningInterface {
     }
 
     override fun remove(obj: Object): Boolean {
-        val objRect = obj.getComponent<BoundingVolume>()!!.toRect3d()
+        val objRect = obj.getComponent<BoxAABB>()!!.shape()
 
         val byteRect = buildByteRect(objRect)
         val node = findTreeNode(byteRect) ?: throw RuntimeException("FAILED TO LOCATE QUAD NODE")
@@ -106,8 +106,8 @@ class LinearQuadTree : SpatialPartitioningInterface {
         return count
     }
 
-    override fun buildSearchResults(searchVolume: BoundingVolume): List<Object> {
-        val searchRect = searchVolume.toRect3d()
+    override fun buildSearchResults(searchVolume: BoxAABB): List<Object> {
+        val searchRect = searchVolume.shape()
         val byteRect = buildByteRect(searchRect)
 
         var level = 0

@@ -1,12 +1,14 @@
 import core.ecs.Behaviour
 import core.math.Rect3d
+import core.math.Sphere
 import core.math.Vector3
-import core.math.toRadians
+import core.scene.BoundingVolume
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Transform
 import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
+import core.scene.spatial.LinearQuadTree
 import platform.Application
 import platform.ApplicationSettings
 
@@ -17,7 +19,7 @@ val settings = ApplicationSettings(
     "Serenity Engine - OPENGL"
 )
 
-class App(private val settings: ApplicationSettings): Application(settings) {
+class App(settings: ApplicationSettings): Application(settings) {
     override fun oneTimeSceneInit(): SceneGraph {
         val scene = SceneGraph(
             Rect3d(
@@ -51,12 +53,24 @@ class App(private val settings: ApplicationSettings): Application(settings) {
         //debugObj.getComponent<Transform>()!!.setScale(Vector3(30f))
         //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90.0f.toRadians(), 180f.toRadians(), 0.0f))
         debugObj.addComponent(camera)
+        debugObj.getComponent<Transform>()!!.setTranslation(Vector3(1f))
+        debugObj.getComponent<BoundingVolume>()!!.setShape(Sphere(Vector3(1f, 1f, 1f), 3f))
 
         //camera.transform.setTranslation(Vector3(10f))
 
         val frustum = Frustum(camera)
 
         println(frustum.searchVolume().shape())
+
+        val quadTree = LinearQuadTree()
+        quadTree.create(Rect3d(Vector3(0f, 0f, 0f), Vector3(10f, 10f, 10f)), 9)
+        println(quadTree.insert(debugObj))
+
+        val searchVolume = BoundingVolume(Rect3d(
+            Vector3(3f, 3f, 3f),
+            Vector3(10f, 10f, 10f)
+        ))
+        println(quadTree.buildSearchResults(searchVolume).size)
 
         return scene
     }

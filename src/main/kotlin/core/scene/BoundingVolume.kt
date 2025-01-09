@@ -88,14 +88,35 @@ class BoundingVolume(private var shape: Shape) : BaseComponent(), Volumetric {
 
             is Rect3d -> {
                 val rect = shape as Rect3d
-                Rect2d(Vector2(rect.min.x, rect.min.z), Vector2(rect.max.x, rect.max.z))
+                Rect2d(Vector2(rect.min.x, rect.min.y), Vector2(rect.max.x, rect.max.y))
             }
 
             is Sphere -> {
                 val sphere = shape as Sphere
                 Rect2d(
-                    Vector2(sphere.center.x - sphere.radius, sphere.center.z - sphere.radius),
-                    Vector2(sphere.center.x + sphere.radius, sphere.center.z + sphere.radius)
+                    Vector2(sphere.center.x - sphere.radius, sphere.center.y - sphere.radius),
+                    Vector2(sphere.center.x + sphere.radius, sphere.center.y + sphere.radius)
+                )
+            }
+
+            else -> throw IllegalStateException("Unsupported shape type.")
+        }
+    }
+
+    fun toRect3d(): Rect3d {
+        return when (shape) {
+            is Rect3d -> shape as Rect3d
+
+            is Rect2d -> {
+                val rect = shape as Rect2d
+                Rect3d(Vector3(rect.min.x, rect.min.y, 0.0f), Vector3(rect.max.x, rect.max.y, 0.0f))
+            }
+
+            is Sphere -> {
+                val sphere = shape as Sphere
+                Rect3d(
+                    Vector3(sphere.center.x - sphere.radius, sphere.center.y - sphere.radius, sphere.center.z - sphere.radius),
+                    Vector3(sphere.center.x + sphere.radius, sphere.center.y + sphere.radius, sphere.center.z + sphere.radius)
                 )
             }
 

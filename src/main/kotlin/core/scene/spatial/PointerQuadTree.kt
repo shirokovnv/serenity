@@ -6,7 +6,7 @@ import core.math.Rect2d
 import core.math.Vector2
 import core.scene.BoundingVolume
 import core.scene.Object
-import java.util.LinkedList
+import java.util.*
 
 class PointerQuadTree(
     private val bucketCapacity: Int,
@@ -16,14 +16,14 @@ class PointerQuadTree(
     private val allowOutOfBounds: Boolean = false
 ) : SpatialPartitioningInterface {
 
-    private val objects = mutableSetOf<Object>()
+    private val objects = Collections.synchronizedSet(mutableSetOf<Object>())
 
     private var topLeft: PointerQuadTree? = null
     private var topRight: PointerQuadTree? = null
     private var bottomLeft: PointerQuadTree? = null
     private var bottomRight: PointerQuadTree? = null
 
-    override fun insert(obj: Object) {
+    override fun insert(obj: Object): Boolean {
         val objectBounds = obj.getComponent<BoundingVolume>()!!.toRect2d()
 
         if (! (OverlapDetector.contains(bounds, objectBounds) || allowOutOfBounds)) {
@@ -37,13 +37,10 @@ class PointerQuadTree(
 
         val containingChild = getContainingChild(objectBounds)
 
-        if (containingChild != null) {
-            containingChild.insert(obj)
-        } else {
-            // If no child was returned, then this is either a leaf node, or the element's boundaries overlap multiple children.
+        return containingChild?.insert(obj)
+            ?: // If no child was returned, then this is either a leaf node, or the element's boundaries overlap multiple children.
             // Either way, the element gets assigned to this node.
-            objects.add(obj);
-        }
+            objects.add(obj)
     }
 
     override fun remove(obj: Object): Boolean {

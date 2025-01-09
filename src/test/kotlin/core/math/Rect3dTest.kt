@@ -59,6 +59,15 @@ class Rect3dTest {
     }
 
     @Test
+    fun `test size`() {
+        val rect = Rect3d(Vector3(1f, 2f, 3f), Vector3(5f, 6f, 3f))
+        val size = rect.size()
+        assertEquals(4f, size.x)
+        assertEquals(4f, size.y)
+        assertEquals(0f, size.z)
+    }
+
+    @Test
     fun `test rect3d with invalid coordinates throws exception`() {
         assertThrows(IllegalArgumentException::class.java) {
             Rect3d(Vector3(5f, 2f, 3f), Vector3(1f, 6f, 7f))

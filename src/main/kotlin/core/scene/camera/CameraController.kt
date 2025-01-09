@@ -2,7 +2,7 @@ package core.scene.camera
 
 import core.ecs.BaseComponent
 import core.math.Vector3
-import core.math.toRadians
+import core.math.extensions.toRadians
 
 enum class CameraMovement {
     FORWARD,

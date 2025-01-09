@@ -1,14 +1,6 @@
 package core.scene
 
 import core.math.Rect3d
-import java.util.*
-
-typealias SceneObjectVisitor = (Object) -> Unit
-
-enum class TraversalType {
-    BREADTH_FIRST,
-    DEPTH_FIRST
-}
 
 class SceneGraph(worldBounds: Rect3d) {
     private var root: Object = Object()
@@ -28,32 +20,10 @@ class SceneGraph(worldBounds: Rect3d) {
     }
 
     fun newWorldBounds(worldBounds: Rect3d) {
-        root.getComponent<BoundingVolume>()!!.setShape(worldBounds)
+        root.getComponent<BoxAABB>()!!.setShape(worldBounds)
     }
 
-    fun traverse(visit: SceneObjectVisitor, traversalType: TraversalType) {
-        when(traversalType) {
-            TraversalType.BREADTH_FIRST -> depthFirstTraversal(root, visit)
-            TraversalType.DEPTH_FIRST -> breadthFirstTraversal(root, visit)
-        }
-    }
-
-    private fun breadthFirstTraversal(root: Object, visit: SceneObjectVisitor) {
-        val queue: Queue<Object> = LinkedList()
-        queue.add(root)
-        while (queue.isNotEmpty()) {
-            val node = queue.remove()
-            visit(node)
-            for (child in node.getChildren()) {
-                queue.add(child)
-            }
-        }
-    }
-
-    private fun depthFirstTraversal(node: Object, visit: SceneObjectVisitor) {
-        visit(node)
-        for (child in node.getChildren()) {
-            depthFirstTraversal(child, visit)
-        }
+    fun traverse(visit: SceneObjectVisitor, traversalOrder: TraversalOrder) {
+        traverse(root, visit, traversalOrder)
     }
 }

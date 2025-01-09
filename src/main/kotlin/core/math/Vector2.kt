@@ -116,6 +116,9 @@ class Vector2 {
         y *= scalar
     }
 
+    operator fun component1() = x
+    operator fun component2() = y
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Vector2) return false

@@ -2,7 +2,7 @@ package graphics.rendering
 
 import core.scene.Object
 import core.scene.SceneGraph
-import core.scene.TraversalType
+import core.scene.TraversalOrder
 import graphics.rendering.passes.RenderPass
 
 class RenderPipeline {
@@ -39,12 +39,12 @@ class RenderPipeline {
         }
     }
 
-    fun render(sceneGraph: SceneGraph, traversalType: TraversalType) {
+    fun render(sceneGraph: SceneGraph, traversalOrder: TraversalOrder) {
         objects.clear()
 
         sceneGraph.traverse({
             objects.add(it)
-        }, traversalType)
+        }, traversalOrder)
 
         render(objects)
     }

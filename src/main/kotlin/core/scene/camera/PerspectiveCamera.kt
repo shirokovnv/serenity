@@ -1,7 +1,7 @@
 package core.scene.camera
 
 import core.math.Matrix4
-import core.math.toRadians
+import core.math.extensions.toRadians
 import kotlin.math.tan
 
 class PerspectiveCamera(

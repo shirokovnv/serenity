@@ -1,6 +1,9 @@
 package core.math
 
-object ShapeIntersector {
+import kotlin.math.max
+import kotlin.math.min
+
+object IntersectionDetector {
     fun intersects(rectA: Rect2d, rectB: Rect2d): Boolean {
         return !(rectA.min.x > rectB.max.x
                 || rectA.max.x < rectB.min.x
@@ -31,29 +34,15 @@ object ShapeIntersector {
     }
 
     fun intersects(rect: Rect3d, sphere: Sphere): Boolean {
-        val closestX = when {
-            sphere.center.x < rect.min.x -> rect.min.x
-            sphere.center.x > rect.max.x -> rect.max.x
-            else -> sphere.center.x
-        }
-
-        val closestY = when {
-            sphere.center.y < rect.min.y -> rect.min.y
-            sphere.center.y > rect.max.y -> rect.max.y
-            else -> sphere.center.y
-        }
-
-        val closestZ = when {
-            sphere.center.z < rect.min.z -> rect.min.z
-            sphere.center.z > rect.max.z -> rect.max.z
-            else -> sphere.center.z
-        }
+        val closestX = max(rect.min.x, min(sphere.center.x, rect.max.x))
+        val closestY = max(rect.min.y, min(sphere.center.y, rect.max.y))
+        val closestZ = max(rect.min.z, min(sphere.center.z, rect.max.z))
 
         val distX = sphere.center.x - closestX
         val distY = sphere.center.y - closestY
-        val distZ = sphere.center.z - closestZ;
+        val distZ = sphere.center.z - closestZ
 
-        val distanceSquared = distX * distX + distY * distY + distZ * distZ;
+        val distanceSquared = distX * distX + distY * distY + distZ * distZ
 
         return distanceSquared <= sphere.radius * sphere.radius
     }

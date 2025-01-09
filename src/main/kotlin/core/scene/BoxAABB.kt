@@ -13,7 +13,7 @@ class BoxAABB(private var shape: Rect3d) : BaseComponent(), Volumetric<Rect3d> {
         return shape
     }
 
-    fun toRect2d(rect3dPlane: Rect3dPlane = XZ): Rect2d {
+    fun toRect2d(rect3dPlane: Rect3dPlane = XY): Rect2d {
         return when (rect3dPlane) {
             XY -> Rect2d(Vector2(shape.min.x, shape.min.y), Vector2(shape.max.x, shape.max.y))
             XZ -> Rect2d(Vector2(shape.min.x, shape.min.z), Vector2(shape.max.x, shape.max.z))

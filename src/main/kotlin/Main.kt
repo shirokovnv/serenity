@@ -9,6 +9,7 @@ import core.scene.Transform
 import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
+import core.scene.spatial.SpatialHashGrid
 import platform.Application
 import platform.ApplicationSettings
 
@@ -69,12 +70,16 @@ class App(settings: ApplicationSettings): Application(settings) {
         println(quadTree.insert(debugObj))
 
         val searchVolume = BoxAABB(Rect3d(
-            Vector3(3f, 3f, 3f),
+            Vector3(3.1f, 3.1f, 3.1f),
             Vector3(10f, 10f, 10f)
         ))
         println(quadTree.buildSearchResults(searchVolume).size)
         println(quadTree.countObjects())
 
+        val spGrid = SpatialHashGrid(Rect3d(Vector3(0f), Vector3(1000f)), Vector3(64f, 64f, 32f))
+        spGrid.insert(debugObj)
+
+        println(spGrid.buildSearchResults(searchVolume))
 
         return scene
     }

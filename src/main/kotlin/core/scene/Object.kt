@@ -14,6 +14,7 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
     private val children = mutableListOf<Object>()
     private var flags: ObjectFlag = None
+    private var spatialIndices = arrayOf(Vector3(-1f), Vector3(-1f))
 
     companion object {
         val services = ServiceLocator()
@@ -84,5 +85,10 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
     fun hasExactFlags(targetFlag: ObjectFlag): Boolean {
         return this.flags.value and targetFlag.value == targetFlag.value
+    }
+
+    fun spatialIndices(): Array<Vector3> = spatialIndices
+    fun setSpatialIndices(newIndices: Array<Vector3>) {
+        this.spatialIndices = newIndices
     }
 }

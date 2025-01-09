@@ -20,10 +20,6 @@ class LinearQuadTreeNode {
         return objects.remove(member)
     }
 
-    fun isEmpty(): Boolean {
-        return objects.isEmpty()
-    }
-
     internal fun setup(
         parent: LinearQuadTreeNode?,
         child0: LinearQuadTreeNode?,
@@ -40,6 +36,10 @@ class LinearQuadTreeNode {
 
     fun getObjects(): List<Object> {
         return objects.toList()
+    }
+
+    fun countObjects(): Int {
+        return objects.size
     }
 
     fun findCollisions(searchRect: Rect3d): List<Object> {

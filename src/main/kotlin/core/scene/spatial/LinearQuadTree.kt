@@ -101,7 +101,7 @@ class LinearQuadTree : SpatialPartitioningInterface {
     override fun countObjects(): Int {
         var count = 0
         for(nodes in levelNodes) {
-            count += nodes?.size ?: 0
+            count += nodes?.filterNotNull()?.sumOf { it.countObjects() } ?: 0
         }
         return count
     }

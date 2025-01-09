@@ -71,6 +71,8 @@ class App(settings: ApplicationSettings): Application(settings) {
             Vector3(10f, 10f, 10f)
         ))
         println(quadTree.buildSearchResults(searchVolume).size)
+        println(quadTree.countObjects())
+
 
         return scene
     }

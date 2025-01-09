@@ -32,7 +32,7 @@ class App(private val settings: ApplicationSettings): Application(settings) {
             }
 
             override fun update(deltaTime: Float) {
-                //println("Updated $deltaTime")
+//                println("Updated $deltaTime")
             }
 
             override fun destroy() {

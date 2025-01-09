@@ -1,4 +1,4 @@
-package graphics.shader
+package graphics.surface
 
 import org.lwjgl.opengl.GL40.GL_VERTEX_SHADER
 import org.lwjgl.opengl.GL40.GL_TESS_CONTROL_SHADER

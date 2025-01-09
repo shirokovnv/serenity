@@ -1,4 +1,4 @@
-package graphics.shader
+package graphics.surface
 
 import core.math.*
 import org.lwjgl.opengl.GL20.*

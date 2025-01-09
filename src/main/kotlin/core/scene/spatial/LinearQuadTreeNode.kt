@@ -44,7 +44,8 @@ class LinearQuadTreeNode {
 
     fun findCollisions(searchRect: Rect3d): List<Object> {
         return objects.filter {obj ->
-            IntersectionDetector.intersects(obj.getComponent<BoundingVolume>()!!.toRect3d(), searchRect)
+            //IntersectionDetector.intersects(obj.getComponent<BoundingVolume>()!!.toRect3d(), searchRect)
+            obj.getComponent<BoundingVolume>()!!.intersects(BoundingVolume(searchRect))
         }
     }
 }

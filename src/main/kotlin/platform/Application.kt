@@ -2,7 +2,7 @@ package platform
 
 import core.scene.Object
 import core.scene.SceneGraph
-import core.scene.TraversalType
+import core.scene.TraversalOrder
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
 import graphics.rendering.passes.NormalPass
@@ -50,7 +50,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     abstract fun oneTimeSceneInit(): SceneGraph
 
     private fun update() {
-        appPipes.updatePipeline.update(sceneGraph, TraversalType.BREADTH_FIRST)
+        appPipes.updatePipeline.update(sceneGraph, TraversalOrder.BREADTH_FIRST)
     }
 
     private fun render() {
@@ -63,7 +63,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         GL20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
-        appPipes.renderPipeline.render(sceneGraph, TraversalType.BREADTH_FIRST)
+        appPipes.renderPipeline.render(sceneGraph, TraversalOrder.BREADTH_FIRST)
 
         GLFW.glfwSwapBuffers(window)
         GLFW.glfwPollEvents()

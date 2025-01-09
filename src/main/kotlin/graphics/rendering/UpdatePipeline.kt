@@ -4,7 +4,7 @@ import core.ecs.Behaviour
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Timer
-import core.scene.TraversalType
+import core.scene.TraversalOrder
 
 class UpdatePipeline(private val timer: Timer) {
     companion object {
@@ -20,12 +20,12 @@ class UpdatePipeline(private val timer: Timer) {
             }
     }
 
-    fun update(sceneGraph: SceneGraph, traversalType: TraversalType) {
+    fun update(sceneGraph: SceneGraph, traversalOrder: TraversalOrder) {
         objects.clear()
 
         sceneGraph.traverse({
             objects.add(it)
-        }, traversalType)
+        }, traversalOrder)
 
         update(objects)
     }

@@ -2,13 +2,13 @@ package graphics.assets.surface
 
 import core.math.Vector3
 
-data class DefaultMaterialParams(
-    val ambientColor: Vector3 = Vector3(0.0f),
-    val diffuseColor: Vector3 = Vector3(0.0f),
-    val specularColor: Vector3 = Vector3(0.0f),
-    val shininess: Float = 32.0f,
-    val transparency: Float = 1.0f,
-    val diffuseTextureId: Int = 0,
-    val specularTextureId: Int = 0,
-    val normalMapId: Int = 0
+class DefaultMaterialParams(
+    var ambientColor: Vector3 = Vector3(0.0f),
+    var diffuseColor: Vector3 = Vector3(0.0f),
+    var specularColor: Vector3 = Vector3(0.0f),
+    var shininess: Float = 32.0f,
+    var transparency: Float = 1.0f,
+    var diffuseTextureId: Int = 0,
+    var specularTextureId: Int = 0,
+    var normalMapId: Int = 0
 ) : MaterialParams

@@ -4,34 +4,34 @@ import graphics.assets.Asset
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
-class Texture2d(private var textureData: ImageData) : Asset {
+class Texture2d(private var imageData: ImageData) : Asset {
 
     override fun getId(): Int {
-        return textureData.id
+        return imageData.id
     }
 
     override fun create() {
-        textureData = ImageData(GL11.glGenTextures(), 0, 0)
+        imageData = ImageData(GL11.glGenTextures(), 0, 0)
     }
 
     override fun destroy() {
-        if (textureData.id != 0) {
-            GL11.glDeleteTextures(textureData.id)
+        if (imageData.id != 0) {
+            GL11.glDeleteTextures(imageData.id)
         }
-        textureData = ImageData.empty()
+        imageData = ImageData.empty()
     }
 
     override fun bind() {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureData.id)
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, imageData.id)
     }
 
     override fun unbind() {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0)
     }
 
-    fun getWidth(): Int = textureData.width
+    fun getWidth(): Int = imageData.width
 
-    fun getHeight(): Int = textureData.height
+    fun getHeight(): Int = imageData.height
 
     fun noFilter() {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST)

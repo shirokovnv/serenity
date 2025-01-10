@@ -5,7 +5,7 @@ import core.ecs.BaseComponent
 abstract class BaseMaterial<Self: BaseMaterial<Self, P, T>, P: MaterialParams, T: BaseShader<T, Self, P>> : BaseComponent() {
     abstract fun setShader(shader: T?)
     abstract fun getShader(): T?
-    abstract fun setParams(params: P)
+    abstract fun setParams(params: P): Self
     abstract fun getParams(): P
 }
 

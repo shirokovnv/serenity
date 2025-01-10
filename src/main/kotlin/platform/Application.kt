@@ -1,5 +1,6 @@
 package platform
 
+import core.ecs.Behaviour
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
@@ -191,6 +192,11 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     protected open fun registerSceneGraph() {
         sceneGraph = oneTimeSceneInit()
+
+        // TODO: separate
+        sceneGraph.traverse({obj ->
+            obj.getComponents<Behaviour>().forEach{ behaviour -> behaviour.create() }
+        }, TraversalOrder.DEPTH_FIRST)
     }
 
     private fun setIcon() {

@@ -10,6 +10,8 @@ import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
+import modules.terrain.tiled.TiledTerrain
+import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
 import platform.ApplicationSettings
 
@@ -31,7 +33,7 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         class DebugBehaviour : Behaviour() {
             override fun create() {
-                TODO("Not yet implemented")
+                println("Debug behaviour created")
             }
 
             override fun update(deltaTime: Float) {
@@ -39,7 +41,7 @@ class App(settings: ApplicationSettings): Application(settings) {
             }
 
             override fun destroy() {
-                TODO("Not yet implemented")
+                println("Debug behaviour destroyed")
             }
 
         }
@@ -58,6 +60,15 @@ class App(settings: ApplicationSettings): Application(settings) {
         debugObj.getComponent<BoxAABB>()!!.setShape(
             Rect3d(Vector3(1f), Vector3(3f))
         )
+
+        val tiledTerrain = TiledTerrain(
+            TiledTerrainConfig(
+                16,
+                Vector3(1600.0f, 360.0f, 1600.0f),
+                Vector3(0f)
+            )
+        )
+        scene.attachToRoot(tiledTerrain)
 
         //camera.transform.setTranslation(Vector3(10f))
 

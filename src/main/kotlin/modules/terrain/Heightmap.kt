@@ -1,6 +1,7 @@
 package modules.terrain
 
 import core.math.Vector2
+import core.math.Vector3
 import graphics.assets.texture.Texture2d
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
@@ -9,7 +10,7 @@ import kotlin.math.floor
 
 class Heightmap(
     private var heightMapTexture: Texture2d,
-    private val worldScale: Vector2
+    private val worldScale: Vector3
     ) {
 
     private lateinit var heightmapData: FloatBuffer
@@ -48,6 +49,8 @@ class Heightmap(
 
         return ix0 + sy * (ix1 - ix0)
     }
+
+    fun getTexture(): Texture2d = heightMapTexture
 
     private fun createHeightMapDataBuffer(): FloatBuffer {
         val heightmapDataBuffer: FloatBuffer = BufferUtils.createFloatBuffer(width * height)

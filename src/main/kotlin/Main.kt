@@ -1,19 +1,23 @@
 import core.ecs.Behaviour
 import core.math.Rect3d
-import core.math.Sphere
 import core.math.Vector3
+import core.math.extensions.toRadians
 import core.scene.BoxAABB
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Transform
+import core.scene.camera.Camera
 import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
+import graphics.assets.texture.Texture2d
+import modules.terrain.Heightmap
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
 import platform.ApplicationSettings
+import platform.services.filesystem.ImageLoader
 
 val settings = ApplicationSettings(
     1280,
@@ -52,20 +56,32 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         scene.attachToRoot(debugObj)
 
-        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 1000f)
+        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 10000f)
         //debugObj.getComponent<Transform>()!!.setScale(Vector3(30f))
         //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90.0f.toRadians(), 180f.toRadians(), 0.0f))
         debugObj.addComponent(camera)
-        debugObj.getComponent<Transform>()!!.setTranslation(Vector3(1f))
+        debugObj.getComponent<Transform>()!!.setTranslation(Vector3(0f, 300f, 0f))
+        //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90f.toRadians(), 0f, 0f))
         debugObj.getComponent<BoxAABB>()!!.setShape(
             Rect3d(Vector3(1f), Vector3(3f))
         )
 
+        Object.services.putService<Camera>(camera)
+
+        val worldScale = Vector3(1600.0f, 360.0f, 1600.0f)
+        val worldOffset = Vector3(0f)
+
+        val heightTexture = Texture2d(
+            Object.services.getService<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
+        )
+
+        val heightmap = Heightmap(heightTexture, worldScale)
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
+                heightmap,
                 16,
-                Vector3(1600.0f, 360.0f, 1600.0f),
-                Vector3(0f)
+                worldScale,
+                worldOffset
             )
         )
         scene.attachToRoot(tiledTerrain)

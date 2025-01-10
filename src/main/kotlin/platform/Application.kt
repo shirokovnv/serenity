@@ -55,9 +55,9 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun render() {
-        GL20.glFrontFace(GL20.GL_CCW)
-        GL20.glEnable(GL20.GL_CULL_FACE)
-        GL20.glCullFace(GL20.GL_BACK)
+        GL20.glFrontFace(GL20.GL_CW)
+//        GL20.glEnable(GL20.GL_CULL_FACE)
+//        GL20.glCullFace(GL20.GL_BACK)
         GL20.glEnable(GL20.GL_DEPTH_TEST)
 
         GL20.glClearDepth(1.0)

@@ -12,6 +12,13 @@ abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, 
     private val uniforms = HashMap<String, Int>()
     private val shaderIds = mutableListOf<Int>()
 
+    init {
+        create()
+    }
+
+    abstract fun setup()
+    abstract fun updateUniforms()
+
     abstract fun setMaterial(material: T?)
     abstract fun getMaterial(): T?
 
@@ -19,7 +26,7 @@ abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, 
         return programId
     }
 
-    override fun create() {
+    final override fun create() {
         programId = glCreateProgram()
 
         if (programId == 0) {
@@ -84,6 +91,20 @@ abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, 
 
         shaderIds.add(shader)
         glAttachShader(programId, shader)
+    }
+
+    fun linkAndValidate() {
+        glLinkProgram(programId)
+
+        if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
+            throw IllegalStateException("Unable to link program: ${glGetProgramInfoLog(programId, 1024)}")
+        }
+
+        glValidateProgram(programId)
+
+        if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
+            throw IllegalStateException("Unable to validate program: ${glGetProgramInfoLog(programId, 1024)}")
+        }
     }
 
     fun bindUniformBlock(uniformBlockName: String, uniformBlockBinding: Int) {

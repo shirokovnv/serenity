@@ -2,6 +2,9 @@ package modules.terrain.tiled
 
 import core.ecs.Behaviour
 import core.math.Vector2
+import core.scene.Object
+import core.scene.Transform
+import core.scene.camera.Camera
 import graphics.assets.surface.bind
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
@@ -19,6 +22,7 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
         material = TiledTerrainMaterial().setParams(materialParams)
         shader = TiledTerrainShader()
         shader bind material
+        shader.setup()
 
         val vertices = buildVertices()
 
@@ -32,10 +36,31 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
         }
 
         buffer = TiledTerrainBuffer(vertices, offsets)
+
+        val transform = owner()!!.getComponent<Transform>()!!
+        transform.setScale(config.worldScale)
+        transform.setTranslation(config.worldOffset)
+
+        val camera = Object.services.getService<Camera>()!!
+
+        config.heightmap.getTexture().bilinearFilter()
+
+        materialParams.apply {
+            world = transform.matrix()
+            view = camera.view
+            viewProjection = camera.viewProjection
+            heightmap = config.heightmap
+            gridScale = 1.0f / config.gridSize
+            minDistance = 1.0f
+            maxDistance = 1500.0f
+            minLOD = 1.0f
+            maxLOD = 16.0f
+            scaleY = config.worldScale.y
+        }
     }
 
     override fun update(deltaTime: Float) {
-        // DO NOTHING
+        //shader.updateUniforms()
     }
 
     override fun destroy() {
@@ -43,7 +68,10 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
     }
 
     override fun render(pass: RenderPass) {
+        shader.bind()
+        shader.updateUniforms()
         buffer.draw()
+        shader.unbind()
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {

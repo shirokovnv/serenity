@@ -7,6 +7,7 @@ uniform mat4 m_ViewProjection;
 uniform sampler2D heightmap;
 
 in vec2 mapCoord_GS[];
+out vec2 mapCoord_FS;
 out float height;
 
 /** FRUSTUM **/
@@ -92,6 +93,8 @@ void main() {
         {
             vec4 position = gl_in[i].gl_Position;
             height = position.y;
+
+            mapCoord_FS = mapCoord_GS[i];
 
             gl_Position = m_ViewProjection * position;
 

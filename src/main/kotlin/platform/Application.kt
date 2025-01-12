@@ -90,7 +90,7 @@ abstract class Application(private val settings: ApplicationSettings) {
 
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GL_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 6);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, 1)
@@ -196,7 +196,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         // TODO: separate
         sceneGraph.traverse({obj ->
             obj.getComponents<Behaviour>().forEach{ behaviour -> behaviour.create() }
-        }, TraversalOrder.DEPTH_FIRST)
+        }, TraversalOrder.BREADTH_FIRST)
     }
 
     private fun setIcon() {

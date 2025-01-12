@@ -1,10 +1,12 @@
 package modules.terrain.tiled
 
 import core.scene.Object
+import modules.terrain.TerrainNormalRenderer
 
-class TiledTerrain(private val config: TiledTerrainConfig) : Object() {
+class TiledTerrain(config: TiledTerrainConfig) : Object() {
 
     init {
+        addComponent(TerrainNormalRenderer(config.heightmap))
         addComponent(TiledTerrainBehaviour(config))
     }
 }

@@ -11,6 +11,7 @@ abstract class BaseShader<Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>>
     private var programId: Int = 0
     private val uniforms = HashMap<String, Int>()
     private val shaderIds = mutableListOf<Int>()
+    protected var shaderMaterial: T? = null
 
     init {
         create()
@@ -19,8 +20,12 @@ abstract class BaseShader<Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>>
     abstract fun setup()
     abstract fun updateUniforms()
 
-    abstract fun setMaterial(material: T?)
-    abstract fun getMaterial(): T?
+    fun setMaterial(material: T?) {
+        this.shaderMaterial = material
+    }
+    fun getMaterial(): T? {
+        return shaderMaterial
+    }
 
     override fun getId(): Int {
         return programId

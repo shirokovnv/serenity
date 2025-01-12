@@ -6,9 +6,11 @@ import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import graphics.assets.surface.bind
+import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.TerrainNormalRenderer
 
 class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(), Renderer {
     private lateinit var material: TiledTerrainMaterial
@@ -43,8 +45,6 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
 
         val camera = Object.services.getService<Camera>()!!
 
-        config.heightmap.getTexture().bilinearFilter()
-
         material.apply {
             world = transform.matrix()
             view = camera.view
@@ -57,6 +57,9 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
             maxLOD = 16.0f
             scaleY = config.worldScale.y
         }
+        material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+
+        println("TILED BEHAVIOUR INITIALIZED")
     }
 
     override fun update(deltaTime: Float) {

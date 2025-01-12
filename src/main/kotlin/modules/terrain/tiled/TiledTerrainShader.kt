@@ -3,17 +3,10 @@ package modules.terrain.tiled
 import core.scene.Object
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
-import org.lwjgl.opengl.GL13
-import org.lwjgl.opengl.GL13C
+import org.lwjgl.opengl.GL43
 import platform.services.filesystem.TextFileLoader
 
 class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
-    private var material: TiledTerrainMaterial? = null
-
-    override fun setMaterial(material: TiledTerrainMaterial?) {
-        this.material = material
-    }
-
     override fun setup() {
         val fileLoader = Object.services.getService<TextFileLoader>()!!
 
@@ -49,6 +42,7 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         addUniform("m_ViewProjection")
         addUniform("gridScale")
         addUniform("heightmap")
+        addUniform("normalmap")
         addUniform("minDistance")
         addUniform("maxDistance")
         addUniform("minLOD")
@@ -57,23 +51,23 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
     }
 
     override fun updateUniforms() {
-        setUniform("m_World", material!!.world)
-        setUniform("m_View", material!!.view)
-        setUniform("m_ViewProjection", material!!.viewProjection)
-        setUniformf("gridScale", material!!.gridScale)
+        setUniform("m_World", shaderMaterial!!.world)
+        setUniform("m_View", shaderMaterial!!.view)
+        setUniform("m_ViewProjection", shaderMaterial!!.viewProjection)
+        setUniformf("gridScale", shaderMaterial!!.gridScale)
 
-        GL13C.glActiveTexture(GL13.GL_TEXTURE0)
-        material!!.heightmap.getTexture().bind()
+        GL43.glActiveTexture(GL43.GL_TEXTURE0)
+        shaderMaterial!!.heightmap.getTexture().bind()
         setUniformi("heightmap", 0)
 
-        setUniformf("minDistance", material!!.minDistance)
-        setUniformf("maxDistance", material!!.maxDistance)
-        setUniformf("minLOD", material!!.minLOD)
-        setUniformf("maxLOD", material!!.maxLOD)
-        setUniformf("scaleY", material!!.scaleY)
-    }
+        GL43.glActiveTexture(GL43.GL_TEXTURE1)
+        shaderMaterial!!.normalmap.bind()
+        setUniformi("normalmap", 1)
 
-    override fun getMaterial(): TiledTerrainMaterial? {
-        return material
+        setUniformf("minDistance", shaderMaterial!!.minDistance)
+        setUniformf("maxDistance", shaderMaterial!!.maxDistance)
+        setUniformf("minLOD", shaderMaterial!!.minLOD)
+        setUniformf("maxLOD", shaderMaterial!!.maxLOD)
+        setUniformf("scaleY", shaderMaterial!!.scaleY)
     }
 }

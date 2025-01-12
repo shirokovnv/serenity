@@ -1,5 +1,6 @@
 package platform.services.filesystem
 
+import graphics.assets.texture.ImageData
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.stb.STBImage
@@ -10,7 +11,7 @@ import java.nio.file.Paths
 
 class ImageLoader {
 
-    fun loadImage(fileName: String): IntArray {
+    fun loadImage(fileName: String): ImageData {
         val imageBuffer: ByteBuffer = try {
             ioResourceToByteBuffer(fileName)
         } catch (e: IOException) {
@@ -63,7 +64,7 @@ class ImageLoader {
         }
 
         STBImage.stbi_image_free(image)
-        return intArrayOf(texId, w.get(), h.get())
+        return ImageData(texId, w.get(), h.get())
     }
 
     fun loadImageToByteBuffer(fileName: String): ByteBuffer {

@@ -1,5 +1,6 @@
 package platform
 
+import core.ecs.Behaviour
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
@@ -54,9 +55,9 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun render() {
-        GL20.glFrontFace(GL20.GL_CCW)
-        GL20.glEnable(GL20.GL_CULL_FACE)
-        GL20.glCullFace(GL20.GL_BACK)
+        GL20.glFrontFace(GL20.GL_CW)
+//        GL20.glEnable(GL20.GL_CULL_FACE)
+//        GL20.glCullFace(GL20.GL_BACK)
         GL20.glEnable(GL20.GL_DEPTH_TEST)
 
         GL20.glClearDepth(1.0)
@@ -89,7 +90,7 @@ abstract class Application(private val settings: ApplicationSettings) {
 
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GL_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 6);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
 
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, 1)
@@ -191,6 +192,11 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     protected open fun registerSceneGraph() {
         sceneGraph = oneTimeSceneInit()
+
+        // TODO: separate
+        sceneGraph.traverse({obj ->
+            obj.getComponents<Behaviour>().forEach{ behaviour -> behaviour.create() }
+        }, TraversalOrder.BREADTH_FIRST)
     }
 
     private fun setIcon() {

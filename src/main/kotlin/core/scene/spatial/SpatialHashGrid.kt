@@ -10,6 +10,7 @@ import kotlin.math.floor
 
 class SpatialHashGrid(private val bounds: Rect3d, private val dimensions: Vector3) : SpatialPartitioningInterface {
     private val cells: HashMap<String, HashSet<Object>> = HashMap()
+    private val objectIndexCache: HashMap<Object, Array<Vector3>> = HashMap()
 
     override fun insert(obj: Object): Boolean {
         val objRect = obj.getComponent<BoxAABB>()!!.shape()
@@ -17,42 +18,42 @@ class SpatialHashGrid(private val bounds: Rect3d, private val dimensions: Vector
         val i1 = getCellIndex(objRect.min)
         val i2 = getCellIndex(objRect.max)
 
+        var isAdded = true
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {
                 for (zi in i1.z.toInt()..i2.z.toInt()) {
                     val k = getKey(xi, yi, zi)
                     cells.computeIfAbsent(k) { HashSet() }
-                    obj.setSpatialIndices(arrayOf(i1, i2))
-                    return cells[k]?.add(obj) ?: false
+                    isAdded = isAdded and (cells[k]?.add(obj) ?: false )
                 }
             }
         }
 
-        return false
+        objectIndexCache[obj] = arrayOf(i1, i2)
+
+        return isAdded
     }
 
     override fun remove(obj: Object): Boolean {
-        val (i1, i2) = obj.spatialIndices()
+        val objectIndices = objectIndexCache[obj] ?: return false
+        val (i1, i2) = objectIndices
 
+        var isRemoved = true
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {
                 for (zi in i1.z.toInt()..i2.z.toInt()) {
                     val k = getKey(xi, yi, zi)
                     cells.computeIfAbsent(k) { HashSet() }
-                    val removed = cells[k]?.remove(obj) ?: false
-                    if (removed) {
-                        obj.setSpatialIndices(arrayOf(Vector3(-1f), Vector3(-1f)))
-                    }
-                    return removed
+                    isRemoved = isRemoved and (cells[k]?.remove(obj) ?: false)
                 }
             }
         }
 
-        return false
+        return isRemoved
     }
 
     override fun countObjects(): Int {
-        return cells.entries.sumOf { it.value.size }
+        return objectIndexCache.keys.size
     }
 
     override fun buildSearchResults(searchVolume: BoxAABB): List<Object> {

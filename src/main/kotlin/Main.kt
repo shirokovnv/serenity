@@ -80,7 +80,7 @@ class App(settings: ApplicationSettings): Application(settings) {
             Object.services.getService<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
         )
 
-        val heightmap = Heightmap(heightTexture, worldScale)
+        val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
                 heightmap,

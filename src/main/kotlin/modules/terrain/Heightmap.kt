@@ -10,12 +10,15 @@ import kotlin.math.floor
 
 class Heightmap(
     private var heightMapTexture: Texture2d,
-    private val worldScale: Vector3
+    private val worldScale: Vector3,
+    private val worldOffset: Vector3
     ) {
 
     private lateinit var heightmapData: FloatBuffer
-    private val width = heightMapTexture.getWidth()
-    private val height = heightMapTexture.getHeight()
+    private val width
+        get() = heightMapTexture.getWidth()
+    private val height
+        get() = heightMapTexture.getHeight()
 
     init {
         heightmapData = createHeightMapDataBuffer()
@@ -60,6 +63,12 @@ class Heightmap(
     }
 
     private fun worldToTexture(worldX: Float, worldY: Float): Vector2 {
-        return Vector2((worldX / worldScale.x) * width, (worldY / worldScale.y) * height)
+        val scaledX = (worldX - worldOffset.x) / worldScale.x
+        val scaledY = (worldY - worldOffset.y) / worldScale.y
+
+        val textureX = (scaledX * width).coerceIn(0f, (width - 1).toFloat())
+        val textureY = (scaledY * height).coerceIn(0f, (height - 1).toFloat())
+
+        return Vector2(textureX, textureY)
     }
 }

@@ -12,6 +12,7 @@ import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
+import modules.input.InputController
 import modules.terrain.Heightmap
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
@@ -53,6 +54,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         val debugObj = Object()
         val debugBehaviour = DebugBehaviour()
         debugObj.addComponent(debugBehaviour)
+        debugObj.addComponent(InputController())
 
         scene.attachToRoot(debugObj)
 

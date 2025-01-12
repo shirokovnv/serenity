@@ -68,7 +68,7 @@ class App(settings: ApplicationSettings): Application(settings) {
             Rect3d(Vector3(1f), Vector3(3f))
         )
 
-        val cameraController = CameraController(10.0f, 0.1f)
+        val cameraController = CameraController(5.0f, 0.1f)
         debugObj.addComponent(cameraController)
 
         Object.services.putService<Camera>(camera)

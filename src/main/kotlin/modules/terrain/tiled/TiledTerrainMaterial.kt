@@ -13,6 +13,10 @@ class TiledTerrainMaterial : BaseMaterial<TiledTerrainMaterial, TiledTerrainShad
     var gridScale by Delegates.notNull<Float>()
     lateinit var heightmap: Heightmap
     lateinit var normalmap: Texture2d
+    lateinit var blendmap: Texture2d
+    lateinit var grassTexture: Texture2d
+    lateinit var dirtTexture: Texture2d
+    lateinit var rockTexture: Texture2d
     var minDistance by Delegates.notNull<Float>()
     var maxDistance by Delegates.notNull<Float>()
     var minLOD by Delegates.notNull<Float>()

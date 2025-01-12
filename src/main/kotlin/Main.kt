@@ -81,7 +81,6 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
-        heightmap.getTexture().bilinearFilter()
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
                 heightmap,

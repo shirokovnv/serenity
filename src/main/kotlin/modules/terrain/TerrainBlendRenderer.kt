@@ -3,19 +3,21 @@ package modules.terrain
 import core.ecs.Behaviour
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
+import graphics.assets.texture.texture2dPrintDataCallback
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import org.lwjgl.opengl.*
 import kotlin.math.ln
 
-class TerrainNormalRenderer(
-    private val heightmap: Heightmap,
-    private val normalStrength: Float = 60f
+class TerrainBlendRenderer(
+    private var heightmap: Heightmap,
+    private var elevationData: Array<ElevationData>
 ) : Behaviour(), Renderer {
+
     private var isFirstFrame: Boolean = true
-    private lateinit var shader: TerrainNormalShader
-    private lateinit var material: TerrainNormalMaterial
+    private lateinit var shader: TerrainBlendShader
+    private lateinit var material: TerrainBlendMaterial
 
     private val width: Int
         get() = heightmap.getTexture().getWidth()
@@ -23,17 +25,18 @@ class TerrainNormalRenderer(
     private val height: Int
         get() = heightmap.getTexture().getHeight()
 
-    fun getMaterial(): TerrainNormalMaterial = material
+    fun getMaterial(): TerrainBlendMaterial = material
 
     override fun create() {
-        material = TerrainNormalMaterial()
-        shader = TerrainNormalShader()
+        material = TerrainBlendMaterial()
+        shader = TerrainBlendShader()
         shader bind material
 
+        material.elevationData = elevationData
         material.heightmap = heightmap
-        material.normalStrength = normalStrength
-        material.normalmap = Texture2d(width, height)
-        material.normalmap.bind()
+        material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+        material.blendmap = Texture2d(width, height)
+        material.blendmap.bind()
 
         GL42.glTexStorage2D(
             GL11.GL_TEXTURE_2D,
@@ -42,10 +45,11 @@ class TerrainNormalRenderer(
             width,
             height
         )
-        material.normalmap.bilinearFilter()
+
+        material.blendmap.bilinearFilter()
         shader.setup()
 
-        println("NORMAL MAP RENDER BEHAVIOUR INITIALIZED")
+        println("BLEND MAP RENDER BEHAVIOUR INITIALIZED")
     }
 
     override fun update(deltaTime: Float) {
@@ -59,7 +63,7 @@ class TerrainNormalRenderer(
             shader.bind()
             shader.updateUniforms()
 
-            GL42.glBindImageTexture(0, material.normalmap.getId(), 0, false, 0, GL15.GL_WRITE_ONLY, GL30.GL_RGBA32F)
+            GL42.glBindImageTexture(0, material.blendmap.getId(), 0, false, 0, GL15.GL_WRITE_ONLY, GL30.GL_RGBA32F)
             GL43.glDispatchCompute(width / 16, height / 16, 1)
 
             val error = GL43.glGetError()
@@ -68,13 +72,13 @@ class TerrainNormalRenderer(
             }
 
             GL43.glFinish()
-            material.normalmap.bind()
-            material.normalmap.bilinearFilter()
+            material.blendmap.bind()
+            material.blendmap.bilinearFilter()
             shader.unbind()
 
             isFirstFrame = false
 
-            println("NORMAL MAP COMPUTED")
+            println("BLEND MAP COMPUTED")
         }
     }
 

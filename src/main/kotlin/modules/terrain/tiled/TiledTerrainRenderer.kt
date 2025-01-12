@@ -10,9 +10,11 @@ import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.TerrainBlendRenderer
 import modules.terrain.TerrainNormalRenderer
+import platform.services.filesystem.ImageLoader
 
-class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(), Renderer {
+class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour(), Renderer {
     private lateinit var material: TiledTerrainMaterial
     private lateinit var shader: TiledTerrainShader
 
@@ -58,6 +60,22 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
             scaleY = config.worldScale.y
         }
         material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+        material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
+
+        // ground textures
+        val imageLoader = Object.services.getService<ImageLoader>()!!
+        material.grassTexture = Texture2d(imageLoader.loadImage("textures/terrain/grass_01.jpg"))
+        material.dirtTexture = Texture2d(imageLoader.loadImage("textures/terrain/dirt_01.jpg"))
+        material.rockTexture = Texture2d(imageLoader.loadImage("textures/terrain/rock_01.jpg"))
+
+        material.grassTexture.bind()
+        material.grassTexture.bilinearFilter()
+
+        material.dirtTexture.bind()
+        material.dirtTexture.bilinearFilter()
+
+        material.rockTexture.bind()
+        material.rockTexture.bilinearFilter()
 
         println("TILED BEHAVIOUR INITIALIZED")
     }

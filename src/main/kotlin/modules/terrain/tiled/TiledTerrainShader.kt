@@ -18,27 +18,27 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         val fileLoader = Object.services.getService<TextFileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/TiledTerrain_VS.glsl")!!,
+            fileLoader.load("shaders/terrain/tiled/Terrain_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/TiledTerrain_TC.glsl")!!,
+            fileLoader.load("shaders/terrain/tiled/Terrain_TC.glsl")!!,
             ShaderType.TESSELLATION_CONTROL_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/TiledTerrain_TE.glsl")!!,
+            fileLoader.load("shaders/terrain/tiled/Terrain_TE.glsl")!!,
             ShaderType.TESSELLATION_EVALUATION_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/TiledTerrain_GS.glsl")!!,
+            fileLoader.load("shaders/terrain/tiled/Terrain_GS.glsl")!!,
             ShaderType.GEOMETRY_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/TiledTerrain_FS.glsl")!!,
+            fileLoader.load("shaders/terrain/tiled/Terrain_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

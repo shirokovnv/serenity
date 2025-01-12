@@ -11,15 +11,16 @@ import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 
 class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(), Renderer {
-    private lateinit var materialParams: TiledTerrainMaterialParams
     private lateinit var material: TiledTerrainMaterial
     private lateinit var shader: TiledTerrainShader
 
     private lateinit var buffer: TiledTerrainBuffer
 
+    private val transform: Transform
+        get() = owner()!!.getComponent<Transform>()!!
+
     override fun create() {
-        materialParams = TiledTerrainMaterialParams()
-        material = TiledTerrainMaterial().setParams(materialParams)
+        material = TiledTerrainMaterial()
         shader = TiledTerrainShader()
         shader bind material
         shader.setup()
@@ -37,7 +38,6 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
 
         buffer = TiledTerrainBuffer(vertices, offsets)
 
-        val transform = owner()!!.getComponent<Transform>()!!
         transform.setScale(config.worldScale)
         transform.setTranslation(config.worldOffset)
 
@@ -45,7 +45,7 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
 
         config.heightmap.getTexture().bilinearFilter()
 
-        materialParams.apply {
+        material.apply {
             world = transform.matrix()
             view = camera.view
             viewProjection = camera.viewProjection
@@ -60,7 +60,13 @@ class TiledTerrainBehaviour(private val config: TiledTerrainConfig) : Behaviour(
     }
 
     override fun update(deltaTime: Float) {
-        //shader.updateUniforms()
+        val camera = Object.services.getService<Camera>()!!
+
+        material.apply {
+            world = transform.matrix()
+            view = camera.view
+            viewProjection = camera.viewProjection
+        }
     }
 
     override fun destroy() {

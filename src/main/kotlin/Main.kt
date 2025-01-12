@@ -1,12 +1,12 @@
 import core.ecs.Behaviour
 import core.math.Rect3d
 import core.math.Vector3
-import core.math.extensions.toRadians
 import core.scene.BoxAABB
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Transform
 import core.scene.camera.Camera
+import core.scene.camera.CameraController
 import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
@@ -65,6 +65,9 @@ class App(settings: ApplicationSettings): Application(settings) {
         debugObj.getComponent<BoxAABB>()!!.setShape(
             Rect3d(Vector3(1f), Vector3(3f))
         )
+
+        val cameraController = CameraController(10.0f, 0.1f)
+        debugObj.addComponent(cameraController)
 
         Object.services.putService<Camera>(camera)
 

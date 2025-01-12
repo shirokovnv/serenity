@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30
 import org.lwjgl.opengl.GL31
 
-abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, Self>, P: MaterialParams> : BaseComponent(), Asset {
+abstract class BaseShader<Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>> : BaseComponent(), Asset {
     private var programId: Int = 0
     private val uniforms = HashMap<String, Int>()
     private val shaderIds = mutableListOf<Int>()
@@ -140,7 +140,7 @@ abstract class BaseShader<Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, 
     }
 }
 
-infix fun <Self : BaseShader<Self, T, P>, T : BaseMaterial<T, P, Self>, P: MaterialParams> Self.bind(material: T): Self {
+infix fun <Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>> Self.bind(material: T): Self {
     this.setMaterial(material)
     material.setShader(this)
     return this

@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL13C
 import platform.services.filesystem.TextFileLoader
 
-class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial, TiledTerrainMaterialParams>() {
+class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
     private var material: TiledTerrainMaterial? = null
 
     override fun setMaterial(material: TiledTerrainMaterial?) {
@@ -57,20 +57,20 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial, T
     }
 
     override fun updateUniforms() {
-        setUniform("m_World", material!!.getParams().world)
-        setUniform("m_View", material!!.getParams().view)
-        setUniform("m_ViewProjection", material!!.getParams().viewProjection)
-        setUniformf("gridScale", material!!.getParams().gridScale)
+        setUniform("m_World", material!!.world)
+        setUniform("m_View", material!!.view)
+        setUniform("m_ViewProjection", material!!.viewProjection)
+        setUniformf("gridScale", material!!.gridScale)
 
         GL13C.glActiveTexture(GL13.GL_TEXTURE0)
-        material!!.getParams().heightmap.getTexture().bind()
+        material!!.heightmap.getTexture().bind()
         setUniformi("heightmap", 0)
 
-        setUniformf("minDistance", material!!.getParams().minDistance)
-        setUniformf("maxDistance", material!!.getParams().maxDistance)
-        setUniformf("minLOD", material!!.getParams().minLOD)
-        setUniformf("maxLOD", material!!.getParams().maxLOD)
-        setUniformf("scaleY", material!!.getParams().scaleY)
+        setUniformf("minDistance", material!!.minDistance)
+        setUniformf("maxDistance", material!!.maxDistance)
+        setUniformf("minLOD", material!!.minLOD)
+        setUniformf("maxLOD", material!!.maxLOD)
+        setUniformf("scaleY", material!!.scaleY)
     }
 
     override fun getMaterial(): TiledTerrainMaterial? {

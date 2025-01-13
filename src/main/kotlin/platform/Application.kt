@@ -158,6 +158,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         println("Max Uniform Buffer Bindings: ${GL31.GL_MAX_UNIFORM_BUFFER_BINDINGS} bytes")
         println("Max Uniform Block Size: ${GL31.GL_MAX_UNIFORM_BLOCK_SIZE} bytes")
         println("Max SSBO Block Size: ${GL43.GL_MAX_SHADER_STORAGE_BLOCK_SIZE} bytes")
+        println("Max Texture Units: ${GL11.glGetInteger(GL43.GL_MAX_TEXTURE_IMAGE_UNITS)}")
     }
 
     private fun registerInputCallbacks() {

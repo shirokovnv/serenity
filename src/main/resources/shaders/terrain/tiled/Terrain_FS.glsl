@@ -1,34 +1,73 @@
 #version 430
 
-in float height;
 in vec2 mapCoord_FS;
-out vec4 color;
+in vec3 position_FS;
+in vec3 tangent_FS;
+out vec4 outColor;
 
 uniform sampler2D normalmap;
 uniform sampler2D blendmap;
-uniform sampler2D grassTexture;
-uniform sampler2D dirtTexture;
-uniform sampler2D rockTexture;
+uniform float tbnRange;
+uniform float tbnThreshold;
+uniform vec3 cameraPosition;
 
-uniform float scaleY;
+struct Material {
+    sampler2D diffusemap;
+    sampler2D normalmap;
+    sampler2D displacementmap;
+    float verticalScale;
+    float horizontalScale;
+};
+
+uniform Material materials[3];
+// 0 - grass
+// 1 - dirt
+// 2 - rock
+
+// TODO: Move to light params
+const vec3 direction = vec3(0.1, -1, 0.1);
+const float intensity = 0.8;
+
+float diffuse(vec3 direction, vec3 normal, float intensity)
+{
+    return max(0.04, dot(normal, -direction) * intensity);
+}
 
 void main()
 {
-    float scaledHeight = height / scaleY;
-    vec3 normalColor = texture(normalmap, mapCoord_FS).rgb;
-    vec3 heightColor = vec3(scaledHeight, scaledHeight, scaledHeight);
+    float dist = length(cameraPosition - position_FS);
+    vec3 normal = normalize(texture(normalmap, mapCoord_FS).rbg);
 
-    vec3 grassColor = texture(grassTexture, mapCoord_FS).rgb;
-    vec3 dirtColor = texture(dirtTexture, mapCoord_FS).rgb;
-    vec3 rockColor = texture(rockTexture, mapCoord_FS).rgb;
+    vec4 blendValues = texture(blendmap, mapCoord_FS).rgba;
+    float[4] blendValueArray = float[](blendValues.r, blendValues.g, blendValues.b, blendValues.a);
 
-    vec3 blendColor = texture(blendmap, mapCoord_FS).rgb;
+    if (dist < tbnRange - tbnThreshold)
+    {
+        float attenuation = clamp(-dist / (tbnRange - tbnThreshold) + 1, 0.0, 1.0);
 
-    grassColor *= blendColor.r;
-    dirtColor *= blendColor.g;
-    rockColor *= blendColor.b;
+        vec3 bitangent = normalize(cross(tangent_FS, normal));
+        mat3 TBN = mat3(bitangent, normal, tangent_FS);
 
-    vec3 totalBlendColor = grassColor + dirtColor + rockColor;
+        vec3 bumpNormal;
+        for (int i = 0; i < 3; i++) {
+            bumpNormal += (2 * (texture(materials[i].normalmap, mapCoord_FS * materials[i].horizontalScale).rbg) - 1) * blendValueArray[i];
+        }
 
-    color = vec4(totalBlendColor * heightColor, 1);
+        bumpNormal = normalize(bumpNormal);
+        bumpNormal.xz *= attenuation;
+
+        normal = normalize(TBN * bumpNormal);
+    }
+
+    vec3 fragColor = vec3(0, 0, 0);
+
+    for (int i = 0; i < 3; i++) {
+        fragColor += texture(materials[i].diffusemap, mapCoord_FS * materials[i].horizontalScale).rgb
+        * blendValueArray[i];
+    }
+
+    float diffuse = diffuse(direction, normal, intensity);
+    fragColor *= diffuse;
+
+    outColor = vec4(fragColor, 1.0);
 }

@@ -18,6 +18,7 @@ class TiledTerrain(config: TiledTerrainConfig) : Object() {
             rockElevationData
         )
 
+        config.heightmap.getTexture().bind()
         config.heightmap.getTexture().bilinearFilter()
 
         addComponent(TerrainNormalRenderer(config.heightmap))

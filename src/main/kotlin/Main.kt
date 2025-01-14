@@ -13,6 +13,7 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import modules.input.InputController
+import modules.sky.SkyDome
 import modules.terrain.Heightmap
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
@@ -90,6 +91,8 @@ class App(settings: ApplicationSettings): Application(settings) {
             )
         )
         scene.attachToRoot(tiledTerrain)
+
+        scene.attachToRoot(SkyDome())
 
         //camera.transform.setTranslation(Vector3(10f))
 

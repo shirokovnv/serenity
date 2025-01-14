@@ -37,4 +37,8 @@ open class Mesh3d : BaseComponent() {
     fun hasVertices(): Boolean = vertices.isNotEmpty()
     fun hasNormals(): Boolean = normals.isNotEmpty()
     fun hasUVs(): Boolean = uvs.isNotEmpty()
+
+    fun countVertices(): Int = vertices.size
+    fun countNormals(): Int = normals.size
+    fun countUVs(): Int = uvs.size
 }

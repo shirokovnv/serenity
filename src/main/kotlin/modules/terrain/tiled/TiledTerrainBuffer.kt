@@ -70,14 +70,14 @@ class TiledTerrainBuffer(
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, BufferUtil.createFlippedBuffer(vertices), GL15.GL_STATIC_DRAW)
 
-        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, java.lang.Float.BYTES * 2, 0)
+        GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
         GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES, numVertices)
 
         // OFFSET VECTORS
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, instanceBufferId)
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, BufferUtil.createFlippedBuffer(offsets), GL15.GL_STATIC_DRAW)
 
-        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, java.lang.Float.BYTES * 2, 0)
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, Float.SIZE_BYTES * 2, 0)
         GL33.glVertexAttribDivisor(1, 1)
 
         GL30.glBindVertexArray(0)

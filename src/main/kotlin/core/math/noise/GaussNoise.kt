@@ -2,12 +2,12 @@ package core.math.noise
 
 import core.math.Vector2
 import kotlin.math.cos
-import kotlin.math.sqrt
 import kotlin.math.ln
 import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
 
-class GaussNoise {
+class GaussNoise : NoiseInterface {
     fun gaussRandomPair(mean: Float, stdDeviation: Float): Vector2 {
         val u1 = Random.nextFloat()
         val u2 = Random.nextFloat()

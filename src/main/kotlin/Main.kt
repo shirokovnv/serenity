@@ -12,6 +12,7 @@ import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
+import graphics.assets.texture.TextureFactory
 import modules.input.InputController
 import modules.sky.SkyDome
 import modules.terrain.Heightmap
@@ -82,9 +83,17 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
+        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
+            512,
+            512,
+            0.02f,
+            3,
+            1f,
+            0.3f
+        ), worldScale, worldOffset)
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                heightmap,
+                randomHeightmap,
                 16,
                 worldScale,
                 worldOffset

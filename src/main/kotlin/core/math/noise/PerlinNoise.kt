@@ -1,13 +1,13 @@
 package core.math.noise
 
 import core.math.Vector2
-import kotlin.math.floor
-import kotlin.math.sin
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.random.Random
 
-class PerlinNoise {
+class PerlinNoise : NoiseInterface {
     companion object {
         private const val TABLE_SIZE = 256
         private const val TABLE_MASK = TABLE_SIZE - 1

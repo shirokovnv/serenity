@@ -67,7 +67,23 @@ class PerlinNoise {
         return avgX0 + sy * (avgX1 - avgX0)
     }
 
+    // TODO: fix some issues with integer scales, for ex x = 1, y = 1, scale = 1 always returns 0
     fun noise(x: Int, y: Int, scale: Float): Float {
         return noise(x.toFloat(), y.toFloat(), scale)
+    }
+
+    fun octaveNoise(x: Float, y: Float, scale: Float, octaves: Int, amplitude: Float, persistence: Float): Float {
+        var total = 0.0f
+        var maxValue = 0.0f
+        var currentAmplitude = amplitude
+
+        for (i in 0..<octaves) {
+            total += noise(x, y, scale) * currentAmplitude
+
+            maxValue += amplitude
+            currentAmplitude *= persistence
+        }
+
+        return total / (maxValue + 0.0001f)
     }
 }

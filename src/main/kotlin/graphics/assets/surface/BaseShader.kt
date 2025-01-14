@@ -143,6 +143,28 @@ abstract class BaseShader<Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>>
     fun setUniform(uniformName: String, value: Matrix4) {
         glUniformMatrix4fv(uniforms[uniformName]!!, true, value.toFloatBuffer())
     }
+
+    protected fun preprocessShader(source: String, includeSources: Map<String, String>): String {
+        val includeRegex = """#include\s+([<"](.*?)[">])""".toRegex()
+        var preprocessedSource = source
+        var matchResult = includeRegex.find(preprocessedSource)
+
+        while (matchResult != null) {
+            val includeFileName = matchResult.groupValues[2]
+
+            if(includeSources.containsKey(includeFileName))
+            {
+                val includeSource = includeSources[includeFileName]!!
+                val preprocessedIncludeSource = preprocessShader(includeSource, includeSources)
+                preprocessedSource = preprocessedSource.replace(matchResult.value, preprocessedIncludeSource)
+            }
+            else{
+                throw IllegalStateException("Unable to find include source with name: $includeFileName")
+            }
+            matchResult = includeRegex.find(preprocessedSource)
+        }
+        return preprocessedSource
+    }
 }
 
 infix fun <Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>> Self.bind(material: T): Self {

@@ -10,29 +10,39 @@ import platform.services.filesystem.TextFileLoader
 class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
     override fun setup() {
         val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val frustumInc = fileLoader.load("shaders/include/Frustum.glsl")!!
+
+        val vertexShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_VS.glsl")!!
+        val fragmentShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_FS.glsl")!!
+        val tessControlShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_TC.glsl")!!
+        val tessEvalShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_TE.glsl")!!
+        val geomShaderSource = preprocessShader(
+            fileLoader.load("shaders/terrain/tiled/Terrain_GS.glsl")!!,
+            mapOf("Frustum.glsl" to frustumInc)
+        )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/Terrain_VS.glsl")!!,
+            vertexShaderSource,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/Terrain_TC.glsl")!!,
+            tessControlShaderSource,
             ShaderType.TESSELLATION_CONTROL_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/Terrain_TE.glsl")!!,
+            tessEvalShaderSource,
             ShaderType.TESSELLATION_EVALUATION_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/Terrain_GS.glsl")!!,
+            geomShaderSource,
             ShaderType.GEOMETRY_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/terrain/tiled/Terrain_FS.glsl")!!,
+            fragmentShaderSource,
             ShaderType.FRAGMENT_SHADER
         )
 

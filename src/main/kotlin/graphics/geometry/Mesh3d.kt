@@ -9,6 +9,7 @@ open class Mesh3d : BaseComponent() {
     private var vertices = mutableListOf<Vector3>()
     private var normals = mutableListOf<Vector3>()
     private var uvs = mutableListOf<Vector2>()
+    private var indices = mutableListOf<Int>()
 
     fun getVertices(): MutableList<Vector3> {
         return vertices.toMutableList()
@@ -20,6 +21,10 @@ open class Mesh3d : BaseComponent() {
 
     fun getUVs(): MutableList<Vector2> {
         return uvs.toMutableList()
+    }
+
+    fun getIndices(): MutableList<Int> {
+        return indices.toMutableList()
     }
 
     fun setVertices(vertices: List<Vector3>) {
@@ -34,11 +39,17 @@ open class Mesh3d : BaseComponent() {
         this.uvs = uvs.toMutableList()
     }
 
+    fun setIndices(indices: List<Int>) {
+        this.indices = indices.toMutableList()
+    }
+
     fun hasVertices(): Boolean = vertices.isNotEmpty()
     fun hasNormals(): Boolean = normals.isNotEmpty()
     fun hasUVs(): Boolean = uvs.isNotEmpty()
+    fun hasIndices(): Boolean = indices.isNotEmpty()
 
     fun countVertices(): Int = vertices.size
     fun countNormals(): Int = normals.size
     fun countUVs(): Int = uvs.size
+    fun countIndices(): Int = indices.size
 }

@@ -5,7 +5,6 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL40C
 import java.nio.FloatBuffer
-import kotlin.math.tanh
 
 typealias TextureNoiseCallback = (
     x: Float,
@@ -30,9 +29,9 @@ object TextureFactory {
         return buildTextureWithNoiseCallback(width, height, perlinNoise, params, ::octaveNoiseCallback)
     }
 
-    fun fromGaussNoise(width: Int, height: Int, mean: Float, deviation: Float): Texture2d {
+    fun fromGaussNoise(width: Int, height: Int, scale: Float = 1.0f): Texture2d {
         val gaussNoise = GaussNoise()
-        val params = GaussNoiseParams(mean, deviation)
+        val params = GaussNoiseParams(scale)
         return buildTextureWithNoiseCallback(width, height, gaussNoise, params, ::gaussNoiseCallback)
     }
 
@@ -98,7 +97,7 @@ fun gaussNoiseCallback(x: Float, y: Float, buffer: FloatBuffer, noiseInstance: N
     }
 
     for (i in 0..<3) {
-        val noise = noiseInstance.gaussRandom(params.mean, params.deviation)
-        buffer.put(0.5f * tanh(noise) + 0.5f)
+        val noise = noiseInstance.gaussRandom()
+        buffer.put(noise / params.scale)
     }
 }

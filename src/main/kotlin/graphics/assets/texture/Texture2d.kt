@@ -65,6 +65,16 @@ class Texture2d(private val width: Int, private val height: Int) : Asset {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR)
     }
 
+    fun wrapModeRepeat() {
+        GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_S, GL43.GL_REPEAT)
+        GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_T, GL43.GL_REPEAT)
+    }
+
+    fun wrapModeClampToBorder() {
+        GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_S, GL43.GL_CLAMP_TO_BORDER)
+        GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_T, GL43.GL_CLAMP_TO_BORDER)
+    }
+
     fun processTextureData(callback: ProcessTextureDataCallback) {
         val textureBuffer = BufferUtils.createFloatBuffer(width * height * 4)
 

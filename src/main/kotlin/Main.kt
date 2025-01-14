@@ -14,6 +14,7 @@ import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
 import modules.input.InputController
+import modules.ocean.Ocean
 import modules.sky.SkyDome
 import modules.terrain.Heightmap
 import modules.terrain.tiled.TiledTerrain
@@ -100,8 +101,12 @@ class App(settings: ApplicationSettings): Application(settings) {
             )
         )
         scene.attachToRoot(tiledTerrain)
+        val ocean = Ocean()
+        ocean.getComponent<Transform>()!!.setScale(worldScale)
+        scene.attachToRoot(ocean)
 
         scene.attachToRoot(SkyDome())
+
 
         //camera.transform.setTranslation(Vector3(10f))
 

@@ -1,3 +1,3 @@
 package core.math.noise
 
-data class GaussNoiseParams(val mean: Float, val deviation: Float) : NoiseParams
+data class GaussNoiseParams(val scale: Float = 1.0f) : NoiseParams

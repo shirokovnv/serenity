@@ -3,7 +3,7 @@ package modules.terrain.tiled
 import core.math.Matrix4
 import graphics.assets.surface.BaseMaterial
 import graphics.assets.texture.Texture2d
-import modules.terrain.Heightmap
+import modules.terrain.heightmap.Heightmap
 import kotlin.properties.Delegates
 
 enum class TiledTerrainTextureType {

@@ -16,7 +16,9 @@ import graphics.assets.texture.TextureFactory
 import modules.light.SunLightController
 import modules.ocean.Ocean
 import modules.sky.SkyDome
-import modules.terrain.Heightmap
+import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.DiamondSquareGenerator
+import modules.terrain.heightmap.DiamondSquareParams
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
@@ -92,9 +94,17 @@ class App(settings: ApplicationSettings): Application(settings) {
             2f,
             0.25f
         ), worldScale, worldOffset)
+        val diamondSquareHeightmap = Heightmap.fromGenerator(
+            DiamondSquareGenerator(),
+            DiamondSquareParams(3f, 40f),
+            1024,
+            1024,
+            worldScale,
+            worldOffset
+        )
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                heightmap,
+                diamondSquareHeightmap,
                 16,
                 worldScale,
                 worldOffset

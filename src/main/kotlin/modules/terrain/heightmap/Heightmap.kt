@@ -1,8 +1,9 @@
-package modules.terrain
+package modules.terrain.heightmap
 
 import core.math.Vector2
 import core.math.Vector3
 import graphics.assets.texture.Texture2d
+import graphics.assets.texture.TextureFactory
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.nio.FloatBuffer
@@ -12,7 +13,23 @@ class Heightmap(
     private var heightMapTexture: Texture2d,
     private val worldScale: Vector3,
     private val worldOffset: Vector3
-    ) {
+) {
+
+    companion object {
+        fun <TGenerator : HeightmapGenerationInterface<TParams>, TParams : HeightmapGenerationParams> fromGenerator(
+            generator: TGenerator,
+            params: TParams,
+            width: Int,
+            height: Int,
+            worldOffset: Vector3,
+            worldScale: Vector3
+        ): Heightmap {
+
+            val heightMapBuffer = generator.generate(width, height, params)
+            val heightTexture = TextureFactory.fromBuffer(heightMapBuffer, width, height)
+            return Heightmap(heightTexture, worldScale, worldOffset)
+        }
+    }
 
     private lateinit var heightmapData: FloatBuffer
     private val width

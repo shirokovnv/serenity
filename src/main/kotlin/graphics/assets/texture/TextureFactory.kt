@@ -35,6 +35,32 @@ object TextureFactory {
         return buildTextureWithNoiseCallback(width, height, gaussNoise, params, ::gaussNoiseCallback)
     }
 
+    fun fromBuffer(textureBuffer: FloatBuffer, width: Int, height: Int): Texture2d {
+
+        if (textureBuffer.capacity() != width * height * 4) {
+            throw IllegalStateException("Wrong texture buffer capacity.")
+        }
+
+        val texture2d = Texture2d(width, height)
+        texture2d.bind()
+        texture2d.bilinearFilter()
+
+        GL11.glTexImage2D(
+            GL11.GL_TEXTURE_2D,
+            0,
+            GL40C.GL_RGBA32F,
+            width,
+            height,
+            0,
+            GL11.GL_RGBA,
+            GL11.GL_FLOAT,
+            textureBuffer
+        )
+        texture2d.unbind()
+
+        return texture2d
+    }
+
     private fun buildTextureWithNoiseCallback(
         width: Int,
         height: Int,
@@ -45,8 +71,8 @@ object TextureFactory {
         val texture2d = Texture2d(width, height)
         val buffer = BufferUtils.createFloatBuffer(width * height * 4)
 
-        for (y in 0..<height) {
-            for (x in 0..<width) {
+        for (x in 0..<width) {
+            for (y in 0..<height) {
                 callback(x.toFloat(), y.toFloat(), buffer, noiseInstance, params)
             }
         }

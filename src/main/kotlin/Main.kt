@@ -13,7 +13,6 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
-import modules.input.InputController
 import modules.light.SunLightController
 import modules.ocean.Ocean
 import modules.sky.SkyDome
@@ -58,7 +57,6 @@ class App(settings: ApplicationSettings): Application(settings) {
         val debugObj = Object()
         val debugBehaviour = DebugBehaviour()
         debugObj.addComponent(debugBehaviour)
-        debugObj.addComponent(InputController())
         debugObj.addComponent(SunLightController())
 
         scene.attachToRoot(debugObj)

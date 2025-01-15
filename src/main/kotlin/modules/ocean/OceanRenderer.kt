@@ -68,7 +68,6 @@ class OceanRenderer(private val params: OceanParams): Behaviour(), Renderer {
     override fun update(deltaTime: Float) {
         material.view = view
         material.time = glfwGetTime().toFloat()
-        material.colorMap = texInitializer.normalTex
     }
 
     override fun destroy() {

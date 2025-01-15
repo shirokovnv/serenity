@@ -10,6 +10,9 @@ uniform sampler2D blendmap;
 uniform float tbnRange;
 uniform float tbnThreshold;
 uniform vec3 cameraPosition;
+uniform vec3 sunVector;
+uniform float sunIntensity;
+uniform vec3 sunColor;
 
 struct Material {
     sampler2D diffusemap;
@@ -66,8 +69,9 @@ void main()
         * blendValueArray[i];
     }
 
-    float diffuse = diffuse(direction, normal, intensity);
-    fragColor *= diffuse;
+    float s = sunIntensity;
+    float diffuse = diffuse(-sunVector, normal, sunIntensity);
+    fragColor *= diffuse * sunColor;
 
     outColor = vec4(fragColor, 1.0);
 }

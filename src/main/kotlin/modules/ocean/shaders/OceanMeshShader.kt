@@ -2,6 +2,7 @@ package modules.ocean.shaders
 
 import core.scene.Object
 import graphics.assets.surface.ShaderType
+import modules.light.SunLightManager
 import modules.ocean.OceanShader
 import org.lwjgl.opengl.GL43.*
 import platform.services.filesystem.TextFileLoader
@@ -28,7 +29,9 @@ class OceanMeshShader: OceanShader() {
         addUniform("u_displacement_map")
         addUniform("u_normal_map")
         addUniform("u_resolution")
-        addUniform("u_color_texture")
+        addUniform("sunVector")
+        addUniform("sunIntensity")
+        addUniform("sunColor")
     }
 
     override fun updateUniforms() {
@@ -45,8 +48,8 @@ class OceanMeshShader: OceanShader() {
         shaderMaterial!!.normalMap.bind()
         setUniformi("u_normal_map", 1)
 
-        glActiveTexture(GL_TEXTURE2)
-        shaderMaterial!!.colorMap.bind()
-        setUniformi("u_color_texture", 2)
+        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
+        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
+        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
     }
 }

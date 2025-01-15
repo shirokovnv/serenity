@@ -13,15 +13,13 @@ in struct data
 
 } fragment;
 
-uniform sampler2D u_color_texture;
 uniform mat4 view;       // View matrix (rigid transform) of the camera - to compute the camera position
+uniform vec3 sunVector;
+uniform float sunIntensity;
+uniform vec3 sunColor;
 
 vec3 u_bg_color = vec3(157.0, 221.0, 237.0) / 256.0;
 float u_fog_dmax = 5000.f;
-
-// TODO: Move to light params
-const vec3 direction = vec3(0.1, -1, 0.1);
-const float intensity = 0.8;
 
 float diffuse(vec3 direction, vec3 normal, float intensity)
 {
@@ -54,12 +52,9 @@ void main() {
 
     color_object *= mix(w_color0, w_color1, cosTheta);
 
-    float diffuse = diffuse(direction, N, intensity);
-    vec3 color_shading = diffuse * color_object;
+    float diffuse = diffuse(-sunVector, N, sunIntensity);
+    vec3 color_shading = diffuse * color_object * sunColor;
     color_shading = color_shading * (1 - a_bruma) + a_bruma * color_bruma;
-
-    // Texture color
-    vec3 texColor = texture(u_color_texture, fragment.uv).rgb;
 
     // Output color, with the alpha component
     FragColor = vec4(color_shading, 1.0f);

@@ -4,6 +4,7 @@ import core.scene.Object
 import core.scene.camera.Camera
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
+import modules.light.SunLightManager
 import org.lwjgl.opengl.GL43
 import platform.services.filesystem.TextFileLoader
 
@@ -63,6 +64,9 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         addUniform("scaleY")
         addUniform("tbnRange")
         addUniform("tbnThreshold")
+        addUniform("sunVector")
+        addUniform("sunIntensity")
+        addUniform("sunColor")
 
         for (i in TiledTerrainTextureType.entries) {
             addUniform("materials[${i.ordinal}].diffusemap")
@@ -123,5 +127,8 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         setUniformf("scaleY", shaderMaterial!!.scaleY)
         setUniformf("tbnRange", shaderMaterial!!.tbnRange)
         setUniformf("tbnThreshold", shaderMaterial!!.tbnThreshold)
+        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
+        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
+        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
     }
 }

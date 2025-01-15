@@ -76,12 +76,14 @@ class PerlinNoise : NoiseInterface {
         var total = 0.0f
         var maxValue = 0.0f
         var currentAmplitude = amplitude
+        var currentScale = scale
 
         for (i in 0..<octaves) {
-            total += noise(x, y, scale) * currentAmplitude
+            total += noise(x, y, currentScale) * currentAmplitude
 
             maxValue += amplitude
             currentAmplitude *= persistence
+            currentScale *= 2
         }
 
         return total / (maxValue + 0.0001f)

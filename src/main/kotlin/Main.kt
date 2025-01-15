@@ -87,10 +87,10 @@ class App(settings: ApplicationSettings): Application(settings) {
         val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
             1024,
             1024,
-            0.02f,
-            3,
-            1f,
-            0.3f
+            0.05f,
+            8,
+            2f,
+            0.25f
         ), worldScale, worldOffset)
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(

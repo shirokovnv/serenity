@@ -59,7 +59,7 @@ class OceanRenderer(private val params: OceanParams): Behaviour(), Renderer {
             params.windMagnitude * sin(params.windAngle.toRadians())
         )
 
-        val oceanMesh = OceanMesh(params.fftResolution)
+        val oceanMesh = OceanMesh(params.meshResolution, (params.meshResolution / params.fftResolution).toFloat())
         oceanBuffer = OceanBuffer(oceanMesh)
 
         println("OCEAN RENDER BEHAVIOUR INITIALIZED")

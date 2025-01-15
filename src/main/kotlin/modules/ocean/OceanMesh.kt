@@ -4,7 +4,7 @@ import core.math.Vector2
 import core.math.Vector3
 import graphics.geometry.Mesh3d
 
-class OceanMesh(private val gridSize: Int): Mesh3d() {
+class OceanMesh(private val gridSize: Int, private val uvScale: Float = 1.0f): Mesh3d() {
     init {
         val halfSize = 1.0f
         val step = 2.0f * halfSize / (gridSize - 1)
@@ -18,8 +18,8 @@ class OceanMesh(private val gridSize: Int): Mesh3d() {
             for (x in 0..<gridSize) {
                 val xPos = -halfSize + x * step
                 val zPos = -halfSize + y * step
-                val u = x.toFloat() / (gridSize - 1)
-                val v = y.toFloat() / (gridSize - 1)
+                val u = x.toFloat() / (gridSize - 1) * uvScale
+                val v = y.toFloat() / (gridSize - 1) * uvScale
 
                 vertices.add(Vector3(xPos, 0f, zPos))
                 uvs.add(Vector2(u, v))

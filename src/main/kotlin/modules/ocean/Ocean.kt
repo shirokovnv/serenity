@@ -9,9 +9,9 @@ class Ocean: Object() {
         val oceanParams = OceanParams(
             512,
             256,
-            8.0f,
+            10.0f,
             45.0f,
-            4.0f,
+            10.0f,
         0.5f
         )
 

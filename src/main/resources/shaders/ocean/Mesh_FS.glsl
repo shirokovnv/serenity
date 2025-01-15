@@ -13,8 +13,6 @@ in struct data
 
 } fragment;
 
-in float dy;
-
 uniform sampler2D u_color_texture;
 uniform mat4 view;       // View matrix (rigid transform) of the camera - to compute the camera position
 
@@ -27,7 +25,7 @@ const float intensity = 0.8;
 
 float diffuse(vec3 direction, vec3 normal, float intensity)
 {
-    return max(0.04, dot(normal, -direction) * intensity);
+    return max(0.3, dot(normal, -direction) * intensity);
 }
 
 void main() {
@@ -52,12 +50,17 @@ void main() {
     // Change color object according to height displacement
     vec3 inner_color = vec3(36.0, 139.0, 171.0)/256.0;
     vec3 outter_color = vec3(1, 1, 1);
-    color_object *= mix(inner_color, outter_color, dy/3.0);
+
+    vec3 w_color0 = vec3(0.15f, 0.4f, 0.5f);
+    vec3 w_color1 = vec3(0.1f, 0.15f, 0.3f);
+    float cosTheta = clamp(dot(-camera_position, fragment.normal), 0.0f, 1.0f);
+
+    color_object *= mix(w_color1, w_color0, cosTheta);
 
     vec3 base_color = vec3(249.0/256.0, 215.0/256.0, 228.0/256.0);
 
     float diffuse = diffuse(direction, fragment.normal, intensity);
-    vec3 color_shading = diffuse * base_color * color_object;
+    vec3 color_shading = diffuse /*** base_color*/ * color_object;
     color_shading = color_shading * (1-a_bruma) + a_bruma * color_bruma;
 
     // Texture color

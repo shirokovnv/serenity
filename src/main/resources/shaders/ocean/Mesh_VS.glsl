@@ -24,15 +24,12 @@ out struct data
     vec3 color;    // vertex color
     vec2 uv;       // vertex uv
 } fragment;
-out float dy;
-
-const float PI = 3.14159265f;
 
 // Deformer function for position
 vec3 deformer(vec3 p0)
 {
     vec3 result = p0 + vec3(texture(u_displacement_map, vertex_uv).rgb / float(u_resolution * u_resolution));
-    result.y += texture(u_displacement_map, vertex_uv).g /( u_resolution * u_resolution * 0.05 );
+    result.y += texture(u_displacement_map, vertex_uv).g / (u_resolution * u_resolution * 0.05);
 
     return result;
 }
@@ -55,11 +52,8 @@ void main()
     // Fill the parameters sent to the fragment shader
     fragment.position = position.xyz;
     fragment.normal = normal.xyz;
-    fragment.color = vec3(1,1,1);
+    fragment.color = vec3(1, 1, 1);
     fragment.uv = vertex_uv;
-
-    // dy = texture(u_displacement_map, vertex_uv).g;
-    dy = deformer(vertex_position).y;
 
     // gl_Position is a built-in variable which is the expected output of the vertex shader
     gl_Position = position_projected; // gl_Position is the projected vertex position (in normalized device coordinates)

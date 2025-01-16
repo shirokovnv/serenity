@@ -9,11 +9,12 @@ uniform vec4 highColor = vec4(0.08, 0.16, 0.32, 1.0);
 
 in vec2 mapCoord_FS;
 in float height;
+in vec4 sunlitColor;
 
 void main()
 {
     vec4 texColor = texture(cloudTexture, mapCoord_FS);
     vec4 skyColor = mix(lowColor, highColor, height);
 
-    fragColor = texColor * 0.7 + skyColor * 0.3;
+    fragColor = (texColor * 0.7 + skyColor * 0.3) * sunlitColor;
 }

@@ -1,12 +1,13 @@
 package modules.sky
 
-import graphics.assets.buffer.Buffer
+import graphics.assets.Asset
+import graphics.rendering.Drawable
 import org.lwjgl.opengl.GL43.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.IntBuffer
 
-class SkyDomeBuffer(private val skyDomeMesh: SkyDomeMesh): Buffer {
+class SkyDomeBuffer(private val skyDomeMesh: SkyDomeMesh): Asset, Drawable {
     private var vboId: Int = 0
     private var vaoId: Int = 0
     private var numVertices: Int = 0

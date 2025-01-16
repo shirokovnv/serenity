@@ -1,15 +1,16 @@
 package modules.terrain.tiled
 
 import core.math.Vector2
-import graphics.assets.buffer.Buffer
+import graphics.assets.Asset
 import graphics.assets.buffer.BufferUtil
+import graphics.rendering.Drawable
 import org.lwjgl.opengl.*
 import kotlin.properties.Delegates
 
 class TiledTerrainBuffer(
     private val vertices: Array<Vector2>,
     private val offsets: Array<Vector2>
-) : Buffer {
+) : Asset, Drawable {
     private var vboId by Delegates.notNull<Int>()
     private var instanceBufferId by Delegates.notNull<Int>()
     private var vaoId by Delegates.notNull<Int>()

@@ -1,12 +1,13 @@
 package modules.ocean
 
-import graphics.assets.buffer.Buffer
+import graphics.assets.Asset
+import graphics.rendering.Drawable
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL43.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class OceanBuffer(private val oceanMesh: OceanMesh): Buffer {
+class OceanBuffer(private val oceanMesh: OceanMesh): Asset, Drawable {
     private var vboId: Int = 0
     private var vaoId: Int = 0
     private var eboId: Int = 0

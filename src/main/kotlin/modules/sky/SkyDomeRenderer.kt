@@ -2,8 +2,8 @@ package modules.sky
 
 import core.ecs.Behaviour
 import core.math.Matrix4
+import core.math.Vector2
 import core.math.Vector3
-import core.math.extensions.toRadians
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
@@ -12,6 +12,7 @@ import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.light.AtmosphereConstantsSsbo
 import platform.services.filesystem.ImageLoader
 
 class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Behaviour(), Renderer {
@@ -27,6 +28,9 @@ class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Beh
     private val worldViewProjection: Matrix4
         get() = camera.viewProjection * (owner()!! as Object).worldMatrix()
 
+    private val atmosphereConstantsSsbo: AtmosphereConstantsSsbo
+        get() = Object.services.getService<AtmosphereConstantsSsbo>()!!
+
     override fun create() {
         material = SkyDomeMaterial()
         shader = SkyDomeShader()
@@ -38,6 +42,7 @@ class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Beh
 
         material.worldViewProjection = worldViewProjection
         material.cloudTexture = cloudTexture
+        material.cloudAnimationOffset = Vector2(0f, 0f)
 
         shader.setup()
 
@@ -50,8 +55,8 @@ class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Beh
     override fun update(deltaTime: Float) {
         rotationAngle += params.rotationSpeed
         owner()!!.getComponent<Transform>()!!.setTranslation(camera.position() - Vector3(0f, params.yOffset, 0f))
-        owner()!!.getComponent<Transform>()!!.setRotation(Vector3(0f, rotationAngle.toRadians(), 0f))
 
+        material.cloudAnimationOffset.plusAssign(Vector2(deltaTime * params.rotationSpeed, 0f))
         material.worldViewProjection = worldViewProjection
     }
 
@@ -61,7 +66,10 @@ class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Beh
     override fun render(pass: RenderPass) {
         shader.bind()
         shader.updateUniforms()
+        atmosphereConstantsSsbo.setBindingPoint(0)
+        atmosphereConstantsSsbo.bind()
         buffer.draw()
+        atmosphereConstantsSsbo.unbind()
         shader.unbind()
     }
 

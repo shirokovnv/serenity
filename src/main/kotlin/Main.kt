@@ -13,6 +13,7 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
+import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.ocean.Ocean
 import modules.sky.SkyDome
@@ -60,6 +61,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         val debugBehaviour = DebugBehaviour()
         debugObj.addComponent(debugBehaviour)
         debugObj.addComponent(SunLightController())
+        debugObj.addComponent(AtmosphereController())
 
         scene.attachToRoot(debugObj)
 
@@ -86,14 +88,14 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
-        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
-            1024,
-            1024,
-            0.05f,
-            8,
-            2f,
-            0.25f
-        ), worldScale, worldOffset)
+//        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
+//            1024,
+//            1024,
+//            0.05f,
+//            8,
+//            2f,
+//            0.25f
+//        ), worldScale, worldOffset)
         val diamondSquareHeightmap = Heightmap.fromGenerator(
             DiamondSquareGenerator(),
             DiamondSquareParams(3f, 40f),

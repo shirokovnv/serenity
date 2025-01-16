@@ -88,14 +88,14 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
-//        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
-//            1024,
-//            1024,
-//            0.05f,
-//            8,
-//            2f,
-//            0.25f
-//        ), worldScale, worldOffset)
+        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
+            1024,
+            1024,
+            0.01f,
+            5,
+            0.3f,
+            0.3f
+        ), worldScale, worldOffset)
         val diamondSquareHeightmap = Heightmap.fromGenerator(
             DiamondSquareGenerator(),
             DiamondSquareParams(3f, 40f),
@@ -106,7 +106,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                diamondSquareHeightmap,
+                randomHeightmap,
                 16,
                 worldScale,
                 worldOffset

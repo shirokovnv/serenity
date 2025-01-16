@@ -1,6 +1,7 @@
 package core.math.noise
 
 import core.math.Vector2
+import core.math.extensions.clamp
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.pow
@@ -81,7 +82,7 @@ class PerlinNoise : NoiseInterface {
         for (i in 0..<octaves) {
             total += noise(x, y, currentScale) * currentAmplitude
 
-            maxValue += amplitude
+            maxValue += currentAmplitude
             currentAmplitude *= persistence
             currentScale *= 2
         }

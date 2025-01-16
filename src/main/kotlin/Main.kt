@@ -13,6 +13,7 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
+import modules.flora.palm.Palm
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.ocean.Ocean
@@ -113,10 +114,15 @@ class App(settings: ApplicationSettings): Application(settings) {
             )
         )
         scene.attachToRoot(tiledTerrain)
+
+        val palm = Palm()
+        palm.getComponent<Transform>()!!.setScale(Vector3(100f, 100f, 100f))
+        palm.getComponent<Transform>()!!.setTranslation(Vector3(0f, 100f, 0f))
+        scene.attachToRoot(palm)
+
         val ocean = Ocean()
         ocean.getComponent<Transform>()!!.setScale(worldScale)
         scene.attachToRoot(ocean)
-
         scene.attachToRoot(SkyDome())
 
 

@@ -27,7 +27,6 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
         material = TiledTerrainMaterial()
         shader = TiledTerrainShader()
         shader bind material
-        shader.setup()
 
         val vertices = buildVertices()
 
@@ -54,7 +53,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
             heightmap = config.heightmap
             gridScale = 1.0f / config.gridSize
             minDistance = 1.0f
-            maxDistance = 1500.0f
+            maxDistance = 4500.0f
             minLOD = 1.0f
             maxLOD = 16.0f
             scaleY = config.worldScale.y
@@ -64,18 +63,31 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
 
         // ground textures
         val imageLoader = Object.services.getService<ImageLoader>()!!
-        material.grassTexture = Texture2d(imageLoader.loadImage("textures/terrain/grass_01.jpg"))
-        material.dirtTexture = Texture2d(imageLoader.loadImage("textures/terrain/dirt_01.jpg"))
-        material.rockTexture = Texture2d(imageLoader.loadImage("textures/terrain/rock_01.jpg"))
+        material.materialDetailMap[TiledTerrainTextureType.GRASS_TEXTURE] = TiledTerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_disp.jpg")),
+            1.0f,
+            100.0f
+        )
 
-        material.grassTexture.bind()
-        material.grassTexture.bilinearFilter()
+        material.materialDetailMap[TiledTerrainTextureType.DIRT_TEXTURE] = TiledTerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_disp.jpg")),
+            1.0f,
+            100.0f
+        )
 
-        material.dirtTexture.bind()
-        material.dirtTexture.bilinearFilter()
+        material.materialDetailMap[TiledTerrainTextureType.ROCK_TEXTURE] = TiledTerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_disp.jpg")),
+            2.0f,
+            100.0f
+        )
 
-        material.rockTexture.bind()
-        material.rockTexture.bilinearFilter()
+        shader.setup()
 
         println("TILED BEHAVIOUR INITIALIZED")
     }

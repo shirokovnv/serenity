@@ -12,8 +12,14 @@ import core.scene.camera.PerspectiveCamera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
-import modules.input.InputController
-import modules.terrain.Heightmap
+import graphics.assets.texture.TextureFactory
+import modules.light.AtmosphereController
+import modules.light.SunLightController
+import modules.ocean.Ocean
+import modules.sky.SkyDome
+import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.DiamondSquareGenerator
+import modules.terrain.heightmap.DiamondSquareParams
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
@@ -54,7 +60,8 @@ class App(settings: ApplicationSettings): Application(settings) {
         val debugObj = Object()
         val debugBehaviour = DebugBehaviour()
         debugObj.addComponent(debugBehaviour)
-        debugObj.addComponent(InputController())
+        debugObj.addComponent(SunLightController())
+        debugObj.addComponent(AtmosphereController())
 
         scene.attachToRoot(debugObj)
 
@@ -68,7 +75,7 @@ class App(settings: ApplicationSettings): Application(settings) {
             Rect3d(Vector3(1f), Vector3(3f))
         )
 
-        val cameraController = CameraController(5.0f, 0.1f)
+        val cameraController = CameraController(0.5f, 0.1f)
         debugObj.addComponent(cameraController)
 
         Object.services.putService<Camera>(camera)
@@ -81,15 +88,37 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
+//        val randomHeightmap = Heightmap(TextureFactory.fromPerlinNoise(
+//            1024,
+//            1024,
+//            0.05f,
+//            8,
+//            2f,
+//            0.25f
+//        ), worldScale, worldOffset)
+        val diamondSquareHeightmap = Heightmap.fromGenerator(
+            DiamondSquareGenerator(),
+            DiamondSquareParams(3f, 40f),
+            1024,
+            1024,
+            worldScale,
+            worldOffset
+        )
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                heightmap,
+                diamondSquareHeightmap,
                 16,
                 worldScale,
                 worldOffset
             )
         )
         scene.attachToRoot(tiledTerrain)
+        val ocean = Ocean()
+        ocean.getComponent<Transform>()!!.setScale(worldScale)
+        scene.attachToRoot(ocean)
+
+        scene.attachToRoot(SkyDome())
+
 
         //camera.transform.setTranslation(Vector3(10f))
 

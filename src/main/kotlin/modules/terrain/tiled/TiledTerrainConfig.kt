@@ -1,7 +1,7 @@
 package modules.terrain.tiled
 
 import core.math.Vector3
-import modules.terrain.Heightmap
+import modules.terrain.heightmap.Heightmap
 
 data class TiledTerrainConfig(
     val heightmap: Heightmap,

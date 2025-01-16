@@ -1,13 +1,13 @@
 package core.math.noise
 
 import core.math.Vector2
-import kotlin.math.floor
-import kotlin.math.sin
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.random.Random
 
-class PerlinNoise {
+class PerlinNoise : NoiseInterface {
     companion object {
         private const val TABLE_SIZE = 256
         private const val TABLE_MASK = TABLE_SIZE - 1
@@ -67,7 +67,25 @@ class PerlinNoise {
         return avgX0 + sy * (avgX1 - avgX0)
     }
 
+    // TODO: fix some issues with integer scales, for ex x = 1, y = 1, scale = 1 always returns 0
     fun noise(x: Int, y: Int, scale: Float): Float {
         return noise(x.toFloat(), y.toFloat(), scale)
+    }
+
+    fun octaveNoise(x: Float, y: Float, scale: Float, octaves: Int, amplitude: Float, persistence: Float): Float {
+        var total = 0.0f
+        var maxValue = 0.0f
+        var currentAmplitude = amplitude
+        var currentScale = scale
+
+        for (i in 0..<octaves) {
+            total += noise(x, y, currentScale) * currentAmplitude
+
+            maxValue += amplitude
+            currentAmplitude *= persistence
+            currentScale *= 2
+        }
+
+        return total / (maxValue + 0.0001f)
     }
 }

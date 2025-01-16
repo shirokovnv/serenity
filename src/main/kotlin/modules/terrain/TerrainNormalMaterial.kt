@@ -2,6 +2,7 @@ package modules.terrain
 
 import graphics.assets.surface.BaseMaterial
 import graphics.assets.texture.Texture2d
+import modules.terrain.heightmap.Heightmap
 import kotlin.properties.Delegates
 
 class TerrainNormalMaterial : BaseMaterial<TerrainNormalMaterial, TerrainNormalShader>() {

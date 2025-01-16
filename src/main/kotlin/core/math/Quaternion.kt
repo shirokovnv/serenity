@@ -241,3 +241,7 @@ class Quaternion {
         return "[$x,$y,$z,$w]"
     }
 }
+
+fun Quaternion.toFloatArray(): FloatArray {
+    return arrayOf(x, y, z, w).toFloatArray()
+}

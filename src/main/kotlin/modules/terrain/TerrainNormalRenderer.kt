@@ -6,6 +6,7 @@ import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.heightmap.Heightmap
 import org.lwjgl.opengl.*
 import kotlin.math.ln
 

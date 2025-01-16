@@ -5,6 +5,7 @@ import core.math.Vector3
 import core.math.extensions.toRadians
 import core.scene.Object
 import org.lwjgl.glfw.GLFW
+import org.lwjgl.opengl.GL11
 import platform.services.input.KeyboardInput
 import platform.services.input.KeyboardInputListener
 import platform.services.input.MouseInput
@@ -30,6 +31,8 @@ class CameraController(
     private var moveSpeed: Float,
     private var mouseSensitivity: Float
 ): Behaviour(), KeyboardInputListener, MouseInputListener {
+
+    private var isWireframe: Boolean = false
 
     private val camera: Camera
         get() = owner()?.getComponent<Camera>()!!
@@ -63,6 +66,10 @@ class CameraController(
     override fun onKeyPressed(key: Int) {
         getDirection(key)?.let { direction ->
             movement[direction] = true
+        }
+
+        when(key) {
+            GLFW.GLFW_KEY_5 -> toggleWireframeMode()
         }
     }
 
@@ -105,6 +112,16 @@ class CameraController(
         val yOffsetModified = yOffset * mouseSensitivity
 
         camera.rotate(Vector3(yOffsetModified.toRadians(), -xOffsetModified.toRadians(), 0f))
+    }
+
+    private fun toggleWireframeMode() {
+        if (isWireframe) {
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
+        } else {
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
+        }
+
+        isWireframe = !isWireframe
     }
 
     override fun onMouseMoved(xOffset: Float, yOffset: Float) {

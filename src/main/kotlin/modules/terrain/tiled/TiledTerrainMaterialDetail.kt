@@ -1,6 +1,5 @@
 package modules.terrain.tiled
 
-import graphics.assets.surface.MaterialParams
 import graphics.assets.texture.Texture2d
 
 data class TiledTerrainMaterialDetail(
@@ -9,7 +8,7 @@ data class TiledTerrainMaterialDetail(
     val displacementMap: Texture2d,
     val verticalScale: Float,
     val horizontalScale: Float
-) : MaterialParams {
+) {
     init {
         diffuseMap.bind()
         diffuseMap.trilinearFilter()

@@ -48,7 +48,7 @@ class ModelDataLoader {
 
         val materialsMeshData = mutableMapOf<String, ModelMeshData>()
         materialsTokens.forEach { (materialName, tokens) ->
-            tokens.addAll(allTokens)
+            tokens.addAll(filterTokensByMaterial(materialName, allTokens))
 
             val modelMeshData = ModelMeshData()
             tokens.forEach { token ->
@@ -83,6 +83,24 @@ class ModelDataLoader {
         }
 
         return materialsModelData
+    }
+
+    private fun filterTokensByMaterial(materialName: String, allTokens: List<Token>): List<Token> {
+        val filteredTokens = mutableListOf<Token>()
+        var currentMaterial = ModelMtlData.DEFAULT_MATERIAL_NAME
+        for (token in allTokens) {
+            if (token.type == TokenType.USEMTL) {
+                currentMaterial = token.line.substringAfter("usemtl ").trim()
+            }
+            if (token.type == TokenType.VERTEX || token.type == TokenType.TEXTURE_COORDINATE || token.type == TokenType.NORMAL) {
+                filteredTokens.add(token)
+            } else
+            if (currentMaterial == materialName && (token.type == TokenType.FACE || token.type == TokenType.USEMTL)) {
+                filteredTokens.add(token)
+            }
+        }
+
+        return filteredTokens
     }
 
     private fun removeUnusedVertices(vertices: MutableList<Vertex>) {

@@ -115,9 +115,11 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         scene.attachToRoot(tiledTerrain)
 
+        Object.services.putService<Heightmap>(randomHeightmap)
+
         val palm = Palm()
-        palm.getComponent<Transform>()!!.setScale(Vector3(100f, 100f, 100f))
-        palm.getComponent<Transform>()!!.setTranslation(Vector3(0f, 100f, 0f))
+        palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
+        //palm.getComponent<Transform>()!!.setTranslation(Vector3(0f, 100f, 0f))
         scene.attachToRoot(palm)
 
         val ocean = Ocean()

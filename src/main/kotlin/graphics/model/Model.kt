@@ -49,6 +49,14 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
         return instanceMatrices.toMutableList()
     }
 
+    fun getMaterialNames(): List<String> {
+        return modelData.keys.toMutableList()
+    }
+
+    fun getMtlDataByName(materialName: String): ModelMtlData? {
+        return modelData[materialName]?.material
+    }
+
     fun addInstances(listOfMatrices: MutableList<Matrix4>) {
         instanceMatrices.addAll(listOfMatrices)
     }
@@ -90,5 +98,18 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
         modelData.keys.forEach { materialName ->
             drawByMaterial(materialName)
         }
+    }
+
+    fun setupTextureFilters() {
+        modelData
+            .values
+            .filter { it.material?.textures != null }
+            .flatMap { it.material?.textures?.values!! }
+            .filter { it.texture != null }
+            .forEach {
+                println("${it.texture} ${it.name}")
+                it.texture!!.bind()
+                it.texture!!.bilinearFilter()
+            }
     }
 }

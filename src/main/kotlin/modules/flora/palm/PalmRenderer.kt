@@ -2,6 +2,7 @@ package modules.flora.palm
 
 import core.ecs.Behaviour
 import core.math.Matrix4
+import core.math.Vector2
 import core.math.Vector3
 import core.scene.Object
 import core.scene.Transform
@@ -13,11 +14,10 @@ import graphics.model.ModelShader
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.PoissonDiscSampler
+import modules.terrain.heightmap.PoissonDiscSamplerParams
 import platform.services.filesystem.ObjLoader
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
 
 class PalmRenderer : Behaviour(), Renderer {
     lateinit var material: ModelMaterial
@@ -34,14 +34,29 @@ class PalmRenderer : Behaviour(), Renderer {
         val objLoader = Object.services.getService<ObjLoader>()!!
         palmModel = objLoader.load("models/palm/PalmTree_1.obj", "models/palm/PalmTree_1.mtl")
 
-        for (i in 0..100) {
+        val sampler = PoissonDiscSampler()
+        val sampleRegionSize = Vector2(1600f, 1600f)
+        val heightmap = Object.services.getService<Heightmap>()!!
+
+        val points = sampler.generatePoints(heightmap, PoissonDiscSamplerParams(
+            250f,
+            sampleRegionSize,
+            30,
+            0.3f,
+            0.7f,
+            0.3f
+        ))
+
+        for (p in points) {
             val transform = Transform()
-            val angle = Random.nextFloat() * 2 * PI.toFloat()
-            val direction = Vector3(cos(angle) * i * 10f, 0f, sin(angle) * i * 10f)
-            transform.setTranslation(direction)
+            val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.getWorldScale().y
+            val position = Vector3(p.x, height, p.y)
+            transform.setTranslation(position)
+            transform.setScale(Vector3(10f))
             palmModel.addInstance(transform.matrix())
         }
         palmModel.createBuffers()
+        palmModel.setupTextureFilters()
 
         material = ModelMaterial()
         shader = ModelShader()
@@ -60,9 +75,14 @@ class PalmRenderer : Behaviour(), Renderer {
     }
 
     override fun render(pass: RenderPass) {
+        val materialNames = palmModel.getMaterialNames()
+
         shader.bind()
-        shader.updateUniforms()
-        palmModel.draw()
+        materialNames.forEach { materialName ->
+            material.updateByMtlData(palmModel.getMtlDataByName(materialName))
+            shader.updateUniforms()
+            palmModel.drawByMaterial(materialName)
+        }
         shader.unbind()
     }
 

@@ -3,6 +3,7 @@ package graphics.model
 import core.scene.Object
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
+import modules.light.SunLightManager
 import org.lwjgl.opengl.GL43.*
 import platform.services.filesystem.TextFileLoader
 
@@ -33,12 +34,18 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         addUniform("isNormalMapUsed")
         addUniform("isSpecularMapUsed")
         addUniform("alphaThreshold")
+        addUniform("sunVector")
+        addUniform("sunColor")
+        addUniform("sunIntensity")
     }
 
     override fun updateUniforms() {
         setUniform("m_WorldViewProjection", shaderMaterial!!.worldViewProjection)
         setUniformi("isInstanced", if (shaderMaterial!!.isInstanced) 1 else 0)
         setUniformf("alphaThreshold", shaderMaterial!!.alphaThreshold)
+        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
+        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
+        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
 
         val isAmbientMapUsed = if (shaderMaterial!!.ambientMap != null) 1 else 0
         val isDiffuseMapUsed = if (shaderMaterial!!.diffuseMap != null) 1 else 0

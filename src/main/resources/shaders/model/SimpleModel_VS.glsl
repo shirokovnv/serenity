@@ -8,7 +8,12 @@ layout (location = 3) in mat4 instance;
 uniform mat4 m_WorldViewProjection = mat4(1.0);
 uniform bool isInstanced = false;
 
-out vec2 fragUV;
+// Output variables sent to the fragment shader
+out struct data
+{
+    vec3 normal;   // normal position in world space
+    vec2 uv;       // vertex uv
+} fragment;
 
 void main() {
     vec4 localPosition = vec4(position, 1.0f);
@@ -16,5 +21,6 @@ void main() {
         localPosition = instance * localPosition;
     }
     gl_Position = m_WorldViewProjection * localPosition;
-    fragUV = uvs;
+    fragment.normal = normal;
+    fragment.uv = uvs;
 }

@@ -47,10 +47,10 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
         setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
 
-        val isAmbientMapUsed = if (shaderMaterial!!.ambientMap != null) 1 else 0
-        val isDiffuseMapUsed = if (shaderMaterial!!.diffuseMap != null) 1 else 0
-        val isNormalMapUsed = if (shaderMaterial!!.normalMap != null) 1 else 0
-        val isSpecularMapUsed = if (shaderMaterial!!.specularMap != null) 1 else 0
+        val isAmbientMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.AMBIENT_TEXTURE) != null) 1 else 0
+        val isDiffuseMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.DIFFUSE_TEXTURE) != null) 1 else 0
+        val isNormalMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.NORMAL_TEXTURE) != null) 1 else 0
+        val isSpecularMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.SPECULAR_TEXTURE) != null) 1 else 0
 
         setUniformi("isAmbientMapUsed", isAmbientMapUsed)
         setUniformi("isDiffuseMapUsed", isDiffuseMapUsed)
@@ -59,25 +59,25 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
 
         if (isAmbientMapUsed == 1) {
             glActiveTexture(GL_TEXTURE0)
-            shaderMaterial!!.ambientMap!!.bind()
+            shaderMaterial!!.mtlData?.getTexture(TextureType.AMBIENT_TEXTURE)?.bind()
             setUniformi("ambientMap", 0)
         }
 
         if (isDiffuseMapUsed == 1) {
             glActiveTexture(GL_TEXTURE1)
-            shaderMaterial!!.diffuseMap!!.bind()
+            shaderMaterial!!.mtlData?.getTexture(TextureType.DIFFUSE_TEXTURE)?.bind()
             setUniformi("diffuseMap", 1)
         }
 
         if (isNormalMapUsed == 1) {
             glActiveTexture(GL_TEXTURE2)
-            shaderMaterial!!.normalMap!!.bind()
+            shaderMaterial!!.mtlData?.getTexture(TextureType.NORMAL_TEXTURE)?.bind()
             setUniformi("normalMap", 2)
         }
 
         if (isSpecularMapUsed == 1) {
             glActiveTexture(GL_TEXTURE3)
-            shaderMaterial!!.specularMap!!.bind()
+            shaderMaterial!!.mtlData?.getTexture(TextureType.SPECULAR_TEXTURE)?.bind()
             setUniformi("specularMap", 3)
         }
     }

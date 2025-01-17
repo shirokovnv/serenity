@@ -26,17 +26,17 @@ class ModelMtlParser {
                     "kd" -> currentMaterial.diffuseColor = parseVector3String(value)
                     "ks" -> currentMaterial.specularColor = parseVector3String(value)
                     "ns" -> currentMaterial.shininess = value.toFloatOrNull() ?: 0f
-                    "map_kd" -> currentMaterial.textures[ModelMaterialTextureType.DIFFUSE_TEXTURE] =
-                        ModelMaterialTextureToken(value)
+                    "map_kd" -> currentMaterial.textures[TextureType.DIFFUSE_TEXTURE] =
+                        TextureToken(value)
 
-                    "map_ka" -> currentMaterial.textures[ModelMaterialTextureType.AMBIENT_TEXTURE] =
-                        ModelMaterialTextureToken(value)
+                    "map_ka" -> currentMaterial.textures[TextureType.AMBIENT_TEXTURE] =
+                        TextureToken(value)
 
-                    "map_ks" -> currentMaterial.textures[ModelMaterialTextureType.SPECULAR_TEXTURE] =
-                        ModelMaterialTextureToken(value)
+                    "map_ks" -> currentMaterial.textures[TextureType.SPECULAR_TEXTURE] =
+                        TextureToken(value)
 
-                    "map_bump" -> currentMaterial.textures[ModelMaterialTextureType.NORMAL_TEXTURE] =
-                        ModelMaterialTextureToken(value)
+                    "map_bump" -> currentMaterial.textures[TextureType.NORMAL_TEXTURE] =
+                        TextureToken(value)
 
                     else -> {}
                 }

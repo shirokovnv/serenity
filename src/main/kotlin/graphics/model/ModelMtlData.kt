@@ -3,14 +3,14 @@ package graphics.model
 import core.math.Vector3
 import graphics.assets.texture.Texture2d
 
-enum class ModelMaterialTextureType {
+enum class TextureType {
     AMBIENT_TEXTURE,
     DIFFUSE_TEXTURE,
     SPECULAR_TEXTURE,
     NORMAL_TEXTURE
 }
 
-class ModelMaterialTextureToken(var name: String? = null, var texture: Texture2d? = null)
+class TextureToken(var name: String? = null, var texture: Texture2d? = null)
 
 class ModelMtlData {
 
@@ -24,7 +24,11 @@ class ModelMtlData {
     var specularColor: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
     var shininess: Float = 0.0f
 
-    var textures = HashMap<ModelMaterialTextureType, ModelMaterialTextureToken>()
+    var textures = HashMap<TextureType, TextureToken>()
+
+    fun getTexture(textureType: TextureType): Texture2d? {
+        return textures[textureType]?.texture
+    }
 
     override fun toString(): String {
         return "ModelMaterial(name=$name, " +

@@ -39,7 +39,7 @@ class PalmRenderer : Behaviour(), Renderer {
         val heightmap = Object.services.getService<Heightmap>()!!
 
         val points = sampler.generatePoints(heightmap, PoissonDiscSamplerParams(
-            250f,
+            50f,
             sampleRegionSize,
             30,
             0.3f,
@@ -79,7 +79,7 @@ class PalmRenderer : Behaviour(), Renderer {
 
         shader.bind()
         materialNames.forEach { materialName ->
-            material.updateByMtlData(palmModel.getMtlDataByName(materialName))
+            material.mtlData = palmModel.getMtlDataByName(materialName)
             shader.updateUniforms()
             palmModel.drawByMaterial(materialName)
         }

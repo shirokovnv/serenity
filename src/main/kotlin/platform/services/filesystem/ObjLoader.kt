@@ -1,14 +1,14 @@
 package platform.services.filesystem
 
 import graphics.assets.texture.Texture2d
-import graphics.model.ModelData
-import graphics.model.ModelLoader
+import graphics.model.Model
+import graphics.model.ModelDataLoader
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
 
 class ObjLoader(private val fileLoader: TextFileLoader, private val imageLoader: ImageLoader) {
-    fun load(objFilePath: String, mtlFilePath: String? = null): MutableMap<String, ModelData> {
+    fun load(objFilePath: String, mtlFilePath: String? = null): Model {
 
         val objSource = fileLoader.load(objFilePath)
         val mtlSource = if (mtlFilePath != null) fileLoader.load(mtlFilePath) else null
@@ -18,10 +18,10 @@ class ObjLoader(private val fileLoader: TextFileLoader, private val imageLoader:
         }
 
         val (_, dir) = splitPath(objFilePath)
-        val modelLoader = ModelLoader()
-        val mapOfModels = modelLoader.load(objSource, mtlSource)
+        val modelDataLoader = ModelDataLoader()
+        val modelMeshData = modelDataLoader.load(objSource, mtlSource)
 
-        mapOfModels
+        modelMeshData
             .values
             .filter { it.material != null && it.material.textures.isNotEmpty() }
             .forEach { modelData ->
@@ -36,7 +36,7 @@ class ObjLoader(private val fileLoader: TextFileLoader, private val imageLoader:
                 }
             }
 
-        return mapOfModels
+        return Model(modelMeshData)
     }
 
     private fun combinePath(dir: String?, filename: String): String {

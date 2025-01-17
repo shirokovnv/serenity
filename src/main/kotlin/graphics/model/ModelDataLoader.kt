@@ -5,7 +5,7 @@ import core.math.Vector3
 import java.io.BufferedReader
 import java.io.StringReader
 
-class ModelLoader {
+class ModelDataLoader {
 
     fun load(objFileContent: String, mtlFileContent: String? = null): MutableMap<String, ModelData> {
 

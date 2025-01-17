@@ -1,13 +1,11 @@
-package modules.flora.palm
+package graphics.model
 
 import graphics.assets.Asset
-import graphics.model.ModelData
-import graphics.rendering.Drawable
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL43.*
 import java.nio.IntBuffer
 
-class PalmBuffer(private val palmData: ModelData) : Asset, Drawable {
+class ModelDataBuffer(private val modelData: ModelData) : Asset {
     private var vaoId: Int = 0
     private var vboId: Int = 0
     private var eboId: Int = 0
@@ -37,20 +35,12 @@ class PalmBuffer(private val palmData: ModelData) : Asset, Drawable {
 
     override fun bind() {
         glBindVertexArray(vaoId)
-    }
-
-    override fun unbind() {
-        glBindVertexArray(0)
-    }
-
-    override fun draw() {
-        glBindVertexArray(vaoId)
         glEnableVertexAttribArray(0)
         glEnableVertexAttribArray(1)
         glEnableVertexAttribArray(2)
+    }
 
-        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0)
-
+    override fun unbind() {
         glDisableVertexAttribArray(0)
         glDisableVertexAttribArray(1)
         glDisableVertexAttribArray(2)
@@ -58,10 +48,10 @@ class PalmBuffer(private val palmData: ModelData) : Asset, Drawable {
     }
 
     private fun populateBuffers() {
-        val vertices = palmData.vertices
-        val textures = palmData.textureCoordinates
-        val normals = palmData.normals
-        val indices = palmData.indices
+        val vertices = modelData.vertices
+        val textures = modelData.textureCoordinates
+        val normals = modelData.normals
+        val indices = modelData.indices
 
         numVertices = vertices.size / 3
         numIndices = indices.size

@@ -15,7 +15,7 @@ class ImageLoader {
         val imageBuffer: ByteBuffer = try {
             ioResourceToByteBuffer(fileName)
         } catch (e: IOException) {
-            throw RuntimeException(e)
+            throw e
         }
         val w = BufferUtils.createIntBuffer(1)
         val h = BufferUtils.createIntBuffer(1)
@@ -102,6 +102,10 @@ class ImageLoader {
                 val bytes = source.readBytes()
                 buffer = BufferUtils.createByteBuffer(bytes.size).put(bytes).flip()
             }
+        }
+
+        if (buffer == null) {
+            throw IOException("Unable to load resource: $resource")
         }
 
         return buffer!!

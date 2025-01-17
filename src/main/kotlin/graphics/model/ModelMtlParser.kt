@@ -9,6 +9,7 @@ class ModelMtlParser {
 
         mtlContent.lineSequence()
             .filter { it.isNotBlank() }
+            .map { it.trim() }
             .forEach { line ->
                 val parts = line.split(" ", limit = 2)
                 val keyword = parts[0].lowercase()
@@ -20,14 +21,23 @@ class ModelMtlParser {
                         currentMaterial.name = value
                         materials[value] = currentMaterial
                     }
+
                     "ka" -> currentMaterial.ambientColor = parseVector3String(value)
                     "kd" -> currentMaterial.diffuseColor = parseVector3String(value)
                     "ks" -> currentMaterial.specularColor = parseVector3String(value)
                     "ns" -> currentMaterial.shininess = value.toFloatOrNull() ?: 0f
-                    "map_kd" -> currentMaterial.textures[ModelMaterialTextureType.DIFFUSE_TEXTURE] = null
-                    "map_ka" -> currentMaterial.textures[ModelMaterialTextureType.AMBIENT_TEXTURE] = null
-                    "map_ks" -> currentMaterial.textures[ModelMaterialTextureType.SPECULAR_TEXTURE] = null
-                    "map_bump" -> currentMaterial.textures[ModelMaterialTextureType.NORMAL_TEXTURE] = null
+                    "map_kd" -> currentMaterial.textures[ModelMaterialTextureType.DIFFUSE_TEXTURE] =
+                        ModelMaterialTextureToken(value)
+
+                    "map_ka" -> currentMaterial.textures[ModelMaterialTextureType.AMBIENT_TEXTURE] =
+                        ModelMaterialTextureToken(value)
+
+                    "map_ks" -> currentMaterial.textures[ModelMaterialTextureType.SPECULAR_TEXTURE] =
+                        ModelMaterialTextureToken(value)
+
+                    "map_bump" -> currentMaterial.textures[ModelMaterialTextureType.NORMAL_TEXTURE] =
+                        ModelMaterialTextureToken(value)
+
                     else -> {}
                 }
             }

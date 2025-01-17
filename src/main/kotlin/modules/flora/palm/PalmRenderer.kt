@@ -9,6 +9,7 @@ import graphics.model.ModelLoader
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import platform.services.filesystem.ObjLoader
 import platform.services.filesystem.TextFileLoader
 
 class PalmRenderer: Behaviour(), Renderer {
@@ -23,12 +24,9 @@ class PalmRenderer: Behaviour(), Renderer {
         get() = viewProjection * (owner()!! as Object).worldMatrix()
 
     override fun create() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
-        val objLoader = ModelLoader()
+        val objLoader = Object.services.getService<ObjLoader>()!!
+        val palmData = objLoader.load("models/palm/PalmTree_1.obj", "models/palm/PalmTree_1.mtl")
 
-        val palmObjSource = fileLoader.load("models/palm/PalmTree_1.obj")!!
-        val palmMtlSource = fileLoader.load("models/palm/PalmTree_1.mtl")!!
-        val palmData = objLoader.load(palmObjSource, palmMtlSource)
         buffers = mutableMapOf()
 
         palmData.forEach { (materialName, modelData) ->

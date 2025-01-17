@@ -10,6 +10,8 @@ enum class ModelMaterialTextureType {
     NORMAL_TEXTURE
 }
 
+class ModelMaterialTextureToken(var name: String? = null, var texture: Texture2d? = null)
+
 class ModelMaterial {
 
     companion object {
@@ -22,5 +24,14 @@ class ModelMaterial {
     var specularColor: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
     var shininess: Float = 0.0f
 
-    var textures = HashMap<ModelMaterialTextureType, Texture2d?>()
+    var textures = HashMap<ModelMaterialTextureType, ModelMaterialTextureToken>()
+
+    override fun toString(): String {
+        return "ModelMaterial(name=$name, " +
+                "ambientColor=$ambientColor, " +
+                "diffuseColor=$diffuseColor, " +
+                "specularColor=$specularColor, " +
+                "shininess=$shininess, " +
+                "textures=${textures.values}"
+    }
 }

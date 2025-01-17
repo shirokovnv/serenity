@@ -7,12 +7,21 @@ import java.io.StringReader
 
 class ModelLoader {
 
-    fun load(objFileContent: String): MutableMap<String, ModelData> {
-        val materialsTokens = mutableMapOf<String, MutableList<Token>>()
-        var currentMaterial = "default"
+    fun load(objFileContent: String, mtlFileContent: String? = null): MutableMap<String, ModelData> {
 
-        val tokenizer = ModelDataTokenizer()
-        val parser = ModelDataParser()
+        val mtls = mutableMapOf<String, ModelMaterial>()
+        if (mtlFileContent != null) {
+            val mtlParser = ModelMtlParser()
+            mtls.putAll(mtlParser.parseMTL(mtlFileContent))
+        } else {
+            mtls[ModelMaterial.DEFAULT_MATERIAL_NAME] = ModelMaterial()
+        }
+
+        val materialsTokens = mutableMapOf<String, MutableList<Token>>()
+        var currentMaterial = ModelMaterial.DEFAULT_MATERIAL_NAME
+
+        val modelTokenizer = ModelDataTokenizer()
+        val modelParser = ModelDataParser()
 
         val allTokens = mutableListOf<Token>()
 
@@ -20,7 +29,7 @@ class ModelLoader {
         BufferedReader(StringReader(objFileContent)).use { reader ->
             line = reader.readLine()
             while (line != null) {
-                val token = tokenizer.tokenize(line!!)
+                val token = modelTokenizer.tokenize(line!!)
                 if (token.type == TokenType.USEMTL) {
                     currentMaterial = token.line.substringAfter("usemtl ").trim()
                     if (!materialsTokens.containsKey(currentMaterial)) {
@@ -43,7 +52,7 @@ class ModelLoader {
 
             val modelMeshData = ModelMeshData()
             tokens.forEach { token ->
-                parser.parse(token, modelMeshData)
+                modelParser.parse(token, modelMeshData)
             }
 
             materialsMeshData[materialName] = modelMeshData
@@ -63,9 +72,16 @@ class ModelLoader {
             val indicesArray = convertIndicesListToArray(modelMeshData.indices)
 
             materialsModelData[materialName] =
-                ModelData(verticesArray, texturesArray, normalsArray, indicesArray, furthest)
+                ModelData(
+                    verticesArray,
+                    texturesArray,
+                    normalsArray,
+                    indicesArray,
+                    furthest,
+                    mtls[materialName]
+                )
         }
-println(materialsModelData.keys)
+
         return materialsModelData
     }
 

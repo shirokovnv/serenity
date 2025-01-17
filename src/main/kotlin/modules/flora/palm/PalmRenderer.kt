@@ -26,8 +26,9 @@ class PalmRenderer: Behaviour(), Renderer {
         val fileLoader = Object.services.getService<TextFileLoader>()!!
         val objLoader = ModelLoader()
 
-        val palmSource = fileLoader.load("models/palm/PalmTree_1.obj")!!
-        val palmData = objLoader.load(palmSource)
+        val palmObjSource = fileLoader.load("models/palm/PalmTree_1.obj")!!
+        val palmMtlSource = fileLoader.load("models/palm/PalmTree_1.mtl")!!
+        val palmData = objLoader.load(palmObjSource, palmMtlSource)
         buffers = mutableMapOf()
 
         palmData.forEach { (materialName, modelData) ->

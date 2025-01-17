@@ -5,7 +5,8 @@ data class ModelData(
     val textureCoordinates: FloatArray,
     val normals: FloatArray,
     val indices: IntArray,
-    val furthestPoint: Float
+    val furthestPoint: Float,
+    val material: ModelMaterial? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -18,6 +19,7 @@ data class ModelData(
         if (!normals.contentEquals(other.normals)) return false
         if (!indices.contentEquals(other.indices)) return false
         if (furthestPoint != other.furthestPoint) return false
+        if (material != other.material) return false
 
         return true
     }
@@ -28,6 +30,7 @@ data class ModelData(
         result = 31 * result + normals.contentHashCode()
         result = 31 * result + indices.contentHashCode()
         result = 31 * result + furthestPoint.hashCode()
+        result = 31 * result + material.hashCode()
         return result
     }
 }

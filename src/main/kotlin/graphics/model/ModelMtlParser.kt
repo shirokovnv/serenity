@@ -3,9 +3,9 @@ package graphics.model
 import core.math.Vector3
 
 class ModelMtlParser {
-    fun parseMTL(mtlContent: String): MutableMap<String, ModelMaterial> {
-        val materials = mutableMapOf<String, ModelMaterial>()
-        var currentMaterial = ModelMaterial()
+    fun parseMTL(mtlContent: String): MutableMap<String, ModelMtlData> {
+        val materials = mutableMapOf<String, ModelMtlData>()
+        var currentMaterial = ModelMtlData()
 
         mtlContent.lineSequence()
             .filter { it.isNotBlank() }
@@ -17,7 +17,7 @@ class ModelMtlParser {
 
                 when (keyword) {
                     "newmtl" -> {
-                        currentMaterial = ModelMaterial()
+                        currentMaterial = ModelMtlData()
                         currentMaterial.name = value
                         materials[value] = currentMaterial
                     }

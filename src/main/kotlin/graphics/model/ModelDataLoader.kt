@@ -9,16 +9,16 @@ class ModelDataLoader {
 
     fun load(objFileContent: String, mtlFileContent: String? = null): MutableMap<String, ModelData> {
 
-        val mtls = mutableMapOf<String, ModelMaterial>()
+        val mtls = mutableMapOf<String, ModelMtlData>()
         if (mtlFileContent != null) {
             val mtlParser = ModelMtlParser()
             mtls.putAll(mtlParser.parseMTL(mtlFileContent))
         } else {
-            mtls[ModelMaterial.DEFAULT_MATERIAL_NAME] = ModelMaterial()
+            mtls[ModelMtlData.DEFAULT_MATERIAL_NAME] = ModelMtlData()
         }
 
         val materialsTokens = mutableMapOf<String, MutableList<Token>>()
-        var currentMaterial = ModelMaterial.DEFAULT_MATERIAL_NAME
+        var currentMaterial = ModelMtlData.DEFAULT_MATERIAL_NAME
 
         val modelTokenizer = ModelDataTokenizer()
         val modelParser = ModelDataParser()

@@ -8,6 +8,8 @@ import core.scene.Transform
 import core.scene.camera.Camera
 import graphics.assets.surface.bind
 import graphics.model.Model
+import graphics.model.ModelMaterial
+import graphics.model.ModelShader
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
@@ -18,8 +20,8 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 class PalmRenderer : Behaviour(), Renderer {
-    private lateinit var material: PalmMaterial
-    private lateinit var shader: PalmShader
+    lateinit var material: ModelMaterial
+    private lateinit var shader: ModelShader
     private lateinit var palmModel: Model
 
     private val viewProjection: Matrix4
@@ -41,10 +43,9 @@ class PalmRenderer : Behaviour(), Renderer {
         }
         palmModel.createBuffers()
 
-        material = PalmMaterial()
-        shader = PalmShader()
+        material = ModelMaterial()
+        shader = ModelShader()
         shader bind material
-
         shader.setup()
 
         println("PALM RENDER BEHAVIOUR INITIALIZED")
@@ -52,6 +53,7 @@ class PalmRenderer : Behaviour(), Renderer {
 
     override fun update(deltaTime: Float) {
         material.worldViewProjection = worldViewProjection
+        material.isInstanced = palmModel.isInstanced()
     }
 
     override fun destroy() {

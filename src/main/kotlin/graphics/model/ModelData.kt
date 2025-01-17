@@ -6,7 +6,7 @@ data class ModelData(
     val normals: FloatArray,
     val indices: IntArray,
     val furthestPoint: Float,
-    val material: ModelMaterial? = null
+    val material: ModelMtlData? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

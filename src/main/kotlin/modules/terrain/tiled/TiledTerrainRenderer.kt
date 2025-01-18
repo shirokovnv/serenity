@@ -53,7 +53,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
             heightmap = config.heightmap
             gridScale = 1.0f / config.gridSize
             minDistance = 1.0f
-            maxDistance = 4500.0f
+            maxDistance = 1500.0f
             minLOD = 1.0f
             maxLOD = 16.0f
             scaleY = config.worldScale.y

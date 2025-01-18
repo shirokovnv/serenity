@@ -40,14 +40,42 @@ class ObjLoader(private val fileLoader: TextFileLoader, private val imageLoader:
     }
 
     private fun combinePath(dir: String?, filename: String): String {
-        return if (dir.isNullOrBlank()) filename
-        else Paths.get(dir, filename).toString()
+        val normalizedDir = dir?.replace('\\', '/')
+        return if (normalizedDir.isNullOrBlank()) {
+            filename
+        } else if (isResourcePath(normalizedDir)) {
+            // Path is a resource path, do not try to use Paths.get().
+            if (normalizedDir.endsWith("/")) {
+                "$normalizedDir$filename"
+            } else {
+                "$normalizedDir/$filename"
+            }
+        } else {
+            // Path is a file system path.
+            Paths.get(normalizedDir, filename).toString()
+        }
     }
 
     private fun splitPath(path: String): Pair<String?, String?> {
-        val file = File(path)
-        val fileName = file.name
-        val parentPath = file.parent
-        return Pair(fileName, parentPath)
+        val normalizedPath = path.replace('\\', '/')
+
+        return if (isResourcePath(normalizedPath)) { // classpath
+            val fileName = normalizedPath.substringAfterLast("/")
+            val parentPath = normalizedPath.substringBeforeLast("/", "")
+            if (parentPath.isEmpty()) {
+                Pair(fileName, null)
+            } else {
+                Pair(fileName, parentPath)
+            }
+        } else { // file path
+            val file = File(normalizedPath)
+            val fileName = file.name
+            val parentPath = file.parent
+            Pair(fileName, parentPath)
+        }
+    }
+
+    private fun isResourcePath(path: String): Boolean {
+        return !File(path).exists()
     }
 }

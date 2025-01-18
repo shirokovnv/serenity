@@ -14,15 +14,15 @@ import graphics.model.ModelShader
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
-import modules.terrain.heightmap.Heightmap
-import modules.terrain.heightmap.PoissonDiscSampler
-import modules.terrain.heightmap.PoissonDiscSamplerParams
+import modules.terrain.heightmap.*
 import platform.services.filesystem.ObjLoader
+import kotlin.math.PI
+import kotlin.random.Random
 
 class PalmRenderer : Behaviour(), Renderer {
     lateinit var material: ModelMaterial
     private lateinit var shader: ModelShader
-    private lateinit var palmModel: Model
+    private lateinit var models: MutableList<Model>
 
     private val viewProjection: Matrix4
         get() = Object.services.getService<Camera>()!!.viewProjection
@@ -32,31 +32,65 @@ class PalmRenderer : Behaviour(), Renderer {
 
     override fun create() {
         val objLoader = Object.services.getService<ObjLoader>()!!
-        palmModel = objLoader.load("models/palm/PalmTree_1.obj", "models/palm/PalmTree_1.mtl")
 
         val sampler = PoissonDiscSampler()
         val sampleRegionSize = Vector2(1600f, 1600f)
         val heightmap = Object.services.getService<Heightmap>()!!
 
+        models = mutableListOf()
+        val modelFiles = mapOf(
+            "models/tree/PalmTree_1.obj" to "models/tree/PalmTree_1.mtl",
+            "models/tree/PalmTree_2.obj" to "models/tree/PalmTree_2.mtl",
+
+//            "models/tree/NormalTree_1.obj" to "models/tree/NormalTree_1.mtl",
+//            "models/tree/NormalTree_2.obj" to "models/tree/NormalTree_2.mtl",
+//
+//            "models/tree/BirchTree_1.obj" to "models/tree/BirchTree_1.mtl",
+//            "models/tree/BirchTree_2.obj" to "models/tree/BirchTree_2.mtl",
+//
+//            "models/tree/MapleTree_1.obj" to "models/tree/MapleTree_1.mtl",
+//            "models/tree/MapleTree_2.obj" to "models/tree/MapleTree_2.mtl",
+//
+//            "models/tree/PineTree_1.obj" to "models/tree/PineTree_1.mtl",
+//            "models/tree/PineTree_2.obj" to "models/tree/PineTree_2.mtl",
+        )
+
+        modelFiles.forEach{ (obj, mtl) ->
+            val model = objLoader.load(obj, mtl)
+            models.add(model)
+        }
+
         val points = sampler.generatePoints(heightmap, PoissonDiscSamplerParams(
-            50f,
+            35f,
             sampleRegionSize,
             30,
             0.3f,
             0.7f,
-            0.3f
+            0.5f
         ))
+
+        println("NUM SAMPLING POINTS: ${points.size}")
 
         for (p in points) {
             val transform = Transform()
             val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.getWorldScale().y
             val position = Vector3(p.x, height, p.y)
+
+            val angle = Random.nextFloat() * 2 * PI.toFloat()
+            val rotation = Vector3(0f, angle, 0f)
+
+            transform.setRotation(rotation)
             transform.setTranslation(position)
             transform.setScale(Vector3(10f))
-            palmModel.addInstance(transform.matrix())
+
+            val randomModel = models.random()
+            randomModel.addInstance(transform.matrix())
         }
-        palmModel.createBuffers()
-        palmModel.setupTextureFilters()
+
+        models.forEach{
+            it.createBuffers()
+            it.setupTextureFilters()
+        }
 
         material = ModelMaterial()
         shader = ModelShader()
@@ -68,21 +102,23 @@ class PalmRenderer : Behaviour(), Renderer {
 
     override fun update(deltaTime: Float) {
         material.worldViewProjection = worldViewProjection
-        material.isInstanced = palmModel.isInstanced()
     }
 
     override fun destroy() {
     }
 
     override fun render(pass: RenderPass) {
-        val materialNames = palmModel.getMaterialNames()
-
         shader.bind()
-        materialNames.forEach { materialName ->
-            material.mtlData = palmModel.getMtlDataByName(materialName)
-            shader.updateUniforms()
-            palmModel.drawByMaterial(materialName)
+        models.forEach {model ->
+            val mtlNames = model.getMaterialNames()
+            mtlNames.forEach{ mtlName ->
+                material.mtlData = model.getMtlDataByName(mtlName)
+                material.isInstanced = model.isInstanced()
+                shader.updateUniforms()
+                model.drawByMaterial(mtlName)
+            }
         }
+
         shader.unbind()
     }
 

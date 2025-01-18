@@ -99,15 +99,15 @@ class App(settings: ApplicationSettings): Application(settings) {
         ), worldScale, worldOffset)
         val diamondSquareHeightmap = Heightmap.fromGenerator(
             DiamondSquareGenerator(),
-            DiamondSquareParams(3f, 40f),
+            DiamondSquareParams(2f, 40f),
             1024,
             1024,
-            worldScale,
-            worldOffset
+            worldOffset,
+            worldScale
         )
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                randomHeightmap,
+                diamondSquareHeightmap,
                 16,
                 worldScale,
                 worldOffset
@@ -115,7 +115,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         scene.attachToRoot(tiledTerrain)
 
-        Object.services.putService<Heightmap>(randomHeightmap)
+        Object.services.putService<Heightmap>(diamondSquareHeightmap)
 
         val palm = Palm()
         palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))

@@ -34,8 +34,8 @@ class PalmRenderer : Behaviour(), Renderer {
         val objLoader = Object.services.getService<ObjLoader>()!!
 
         val sampler = PoissonDiscSampler()
-        val sampleRegionSize = Vector2(1600f, 1600f)
         val heightmap = Object.services.getService<Heightmap>()!!
+        val sampleRegionSize = Vector2(heightmap.getWorldScale().x, heightmap.getWorldScale().z)
 
         models = mutableListOf()
         val modelFiles = mapOf(
@@ -61,12 +61,12 @@ class PalmRenderer : Behaviour(), Renderer {
         }
 
         val points = sampler.generatePoints(heightmap, PoissonDiscSamplerParams(
-            35f,
+            50f,
             sampleRegionSize,
             30,
-            0.3f,
-            0.7f,
-            0.5f
+            0.2f,
+            0.9f,
+            0.3f
         ))
 
         println("NUM SAMPLING POINTS: ${points.size}")

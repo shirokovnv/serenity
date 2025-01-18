@@ -57,28 +57,25 @@ class ModelDataParser {
 
     private fun parseFaceToken(line: String, modelMeshData: ModelMeshData) {
         val currentLine = line.split(" ")
-        if (currentLine.size == 4) {
-            val vertex1 = currentLine[1].split("/")
-            val vertex2 = currentLine[2].split("/")
-            val vertex3 = currentLine[3].split("/")
-            processVertex(vertex1.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex2.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex3.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-        } else if (currentLine.size == 5) {
-            val vertex1 = currentLine[1].split("/")
-            val vertex2 = currentLine[2].split("/")
-            val vertex3 = currentLine[3].split("/")
-            val vertex4 = currentLine[4].split("/")
+        if (currentLine.size < 4) {
+            // Nothing to do, invalid face
+            return
+        }
+        // Extract all vertices from the face
+        val vertices = currentLine.subList(1, currentLine.size).map { it.split("/").toTypedArray() }
 
-            // Triangle 1: v1, v2, v3
-            processVertex(vertex1.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex2.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex3.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-
-            // Triangle 2: v1, v3, v4
-            processVertex(vertex1.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex3.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
-            processVertex(vertex4.toTypedArray(), modelMeshData.vertices, modelMeshData.indices)
+        // Triangulate the face, if necessary
+        if (vertices.size == 3) {
+            processVertex(vertices[0], modelMeshData.vertices, modelMeshData.indices)
+            processVertex(vertices[1], modelMeshData.vertices, modelMeshData.indices)
+            processVertex(vertices[2], modelMeshData.vertices, modelMeshData.indices)
+        } else if (vertices.size > 3) {
+            val centerVertex = vertices[0]
+            for (i in 1..<vertices.size - 1) {
+                processVertex(centerVertex, modelMeshData.vertices, modelMeshData.indices)
+                processVertex(vertices[i], modelMeshData.vertices, modelMeshData.indices)
+                processVertex(vertices[i + 1], modelMeshData.vertices, modelMeshData.indices)
+            }
         }
     }
 

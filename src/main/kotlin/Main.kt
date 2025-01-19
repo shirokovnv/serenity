@@ -5,10 +5,7 @@ import core.scene.BoxAABB
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.Transform
-import core.scene.camera.Camera
-import core.scene.camera.CameraController
-import core.scene.camera.Frustum
-import core.scene.camera.PerspectiveCamera
+import core.scene.camera.*
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
@@ -67,11 +64,8 @@ class App(settings: ApplicationSettings): Application(settings) {
         scene.attachToRoot(debugObj)
 
         val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 10000f)
-        //debugObj.getComponent<Transform>()!!.setScale(Vector3(30f))
-        //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90.0f.toRadians(), 180f.toRadians(), 0.0f))
         debugObj.addComponent(camera)
         debugObj.getComponent<Transform>()!!.setTranslation(Vector3(0f, 300f, 0f))
-        //debugObj.getComponent<Transform>()!!.setRotation(Vector3(90f.toRadians(), 0f, 0f))
         debugObj.getComponent<BoxAABB>()!!.setShape(
             Rect3d(Vector3(1f), Vector3(3f))
         )
@@ -80,6 +74,12 @@ class App(settings: ApplicationSettings): Application(settings) {
         debugObj.addComponent(cameraController)
 
         Object.services.putService<Camera>(camera)
+
+        // ORTHO camera
+        val orthographicCamera = OrthographicCamera(-25f, 25f, -25f, 25f, 0.1f, 1000f)
+        debugObj.addComponent(orthographicCamera)
+
+        Object.services.putService<OrthographicCamera>(orthographicCamera)
 
         val worldScale = Vector3(1600.0f, 360.0f, 1600.0f)
         val worldOffset = Vector3(0f)
@@ -127,8 +127,6 @@ class App(settings: ApplicationSettings): Application(settings) {
         scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome())
 
-
-        //camera.transform.setTranslation(Vector3(10f))
 
         val frustum = Frustum(camera)
 

@@ -10,6 +10,8 @@ import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.ReflectionPass
 import graphics.rendering.passes.RefractionPass
 import graphics.rendering.passes.ShadowPass
+import graphics.rendering.viewport.Viewport
+import graphics.rendering.viewport.ViewportInterface
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -170,6 +172,9 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     protected open fun registerSharedServices() {
+        val viewPort = Viewport(settings.screenWidth, settings.screenHeight)
+        Object.services.putService<ViewportInterface>(viewPort)
+
         appServices.keyboardInput = KeyboardInput(window)
         appServices.mouseInput = MouseInput(window)
         appServices.imageLoader = ImageLoader()

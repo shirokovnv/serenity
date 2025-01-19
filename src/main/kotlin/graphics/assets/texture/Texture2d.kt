@@ -3,7 +3,6 @@ package graphics.assets.texture
 import graphics.assets.Asset
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL30
 import org.lwjgl.opengl.GL43
 import java.nio.FloatBuffer
 
@@ -61,7 +60,7 @@ class Texture2d(private val width: Int, private val height: Int) : Asset {
 
     fun trilinearFilter() {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR)
-        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D)
+        GL43.glGenerateMipmap(GL11.GL_TEXTURE_2D)
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR)
     }
 
@@ -73,6 +72,11 @@ class Texture2d(private val width: Int, private val height: Int) : Asset {
     fun wrapModeClampToBorder() {
         GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_S, GL43.GL_CLAMP_TO_BORDER)
         GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_T, GL43.GL_CLAMP_TO_BORDER)
+    }
+
+    fun wrapModeClampToEdge() {
+        GL43.glTexParameterIi(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_S, GL43.GL_CLAMP_TO_EDGE)
+        GL43.glTexParameterIi(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_T, GL43.GL_CLAMP_TO_EDGE)
     }
 
     fun processTextureData(callback: ProcessTextureDataCallback) {

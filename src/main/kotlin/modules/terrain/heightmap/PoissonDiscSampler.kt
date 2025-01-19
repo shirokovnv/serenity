@@ -25,6 +25,7 @@ class PoissonDiscSampler {
     ): List<Vector2> {
         val cellSize = params.radius / sqrt(2f)
 
+        // TODO: sampleRegionSize can be determined from the heightmap
         val gridWidth = ceil(params.sampleRegionSize.x / cellSize).toInt()
         val gridHeight = ceil(params.sampleRegionSize.y / cellSize).toInt()
         val grid = Array(gridWidth) { IntArray(gridHeight) }

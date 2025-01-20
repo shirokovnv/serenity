@@ -1,11 +1,9 @@
 package core.scene.camera
 
 import core.math.*
+import core.math.extensions.toRadians
 import core.scene.BoxAABB
-import kotlin.math.PI
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.tan
+import kotlin.math.*
 
 class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes: Boolean = true) {
     private var topPlane = Plane.fromPoint(Vector3(0f), Vector3(0f))
@@ -33,6 +31,32 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
 
     fun searchVolume(): BoxAABB {
         return searchVolume
+    }
+
+    // @see https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html
+    fun calculateBoundingSphere(): Sphere {
+        val w = camera.width
+        val h = camera.height
+        val near = camera.zNear
+        val far = camera.zFar
+        val fov = camera.fovY
+
+        val k = sqrt((1 + (h * h) / (w * w))) * tan((fov * 0.5f).toRadians())
+        val k2 = k * k
+        val k4 = k2 * k2
+
+        val center: Vector3
+        val radius: Float
+
+        if (k2 >= (far - near) / (far + near)) {
+            center = Vector3(0f, 0f, -far)
+            radius = far * k
+        } else {
+            center = Vector3(0f, 0f, -0.5f * (far + near) * (1 + k2))
+            radius = 0.5f * sqrt(((far - near) * (far - near) + 2 * (far * far + near * near) * k2 + (far + near) * (far + near) * k4))
+        }
+
+        return Sphere(center, radius)
     }
 
     fun recalculatePlanes() {

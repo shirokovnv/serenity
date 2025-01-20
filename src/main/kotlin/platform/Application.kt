@@ -10,6 +10,8 @@ import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.ReflectionPass
 import graphics.rendering.passes.RefractionPass
 import graphics.rendering.passes.ShadowPass
+import graphics.rendering.viewport.Viewport
+import graphics.rendering.viewport.ViewportInterface
 import org.lwjgl.glfw.Callbacks
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -19,6 +21,7 @@ import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
 import platform.services.FrameCounter
 import platform.services.filesystem.ImageLoader
+import platform.services.filesystem.ObjLoader
 import platform.services.filesystem.TextFileLoader
 import platform.services.input.KeyboardInput
 import platform.services.input.MouseInput
@@ -34,6 +37,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var mouseInput: MouseInput
         lateinit var imageLoader: ImageLoader
         lateinit var textFileLoader: TextFileLoader
+        lateinit var objLoader: ObjLoader
         lateinit var frameCounter: FrameCounter
     }
 
@@ -168,16 +172,21 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     protected open fun registerSharedServices() {
+        val viewPort = Viewport(settings.screenWidth, settings.screenHeight)
+        Object.services.putService<ViewportInterface>(viewPort)
+
         appServices.keyboardInput = KeyboardInput(window)
         appServices.mouseInput = MouseInput(window)
         appServices.imageLoader = ImageLoader()
         appServices.textFileLoader = TextFileLoader()
+        appServices.objLoader = ObjLoader(appServices.textFileLoader, appServices.imageLoader)
         appServices.frameCounter = FrameCounter(settings.frameRate)
 
         Object.services.putService<KeyboardInput>(appServices.keyboardInput)
         Object.services.putService<MouseInput>(appServices.mouseInput)
         Object.services.putService<ImageLoader>(appServices.imageLoader)
         Object.services.putService<TextFileLoader>(appServices.textFileLoader)
+        Object.services.putService<ObjLoader>(appServices.objLoader)
         Object.services.putService<FrameCounter>(appServices.frameCounter)
     }
 

@@ -8,13 +8,18 @@ import modules.light.SunLightManager
 import org.lwjgl.opengl.GL43
 import platform.services.filesystem.TextFileLoader
 
-class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
+class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
     override fun setup() {
         val fileLoader = Object.services.getService<TextFileLoader>()!!
         val frustumInc = fileLoader.load("shaders/include/Frustum.glsl")!!
+        val shadowInc = fileLoader.load("shaders/include/Shadow.glsl")!!
 
         val vertexShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_VS.glsl")!!
-        val fragmentShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_FS.glsl")!!
+        val fragmentShaderSource = preprocessShader(
+            fileLoader.load("shaders/terrain/tiled/Terrain_FS.glsl")!!,
+            mapOf("Shadow.glsl" to shadowInc)
+        )
+
         val tessControlShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_TC.glsl")!!
         val tessEvalShaderSource = fileLoader.load("shaders/terrain/tiled/Terrain_TE.glsl")!!
         val geomShaderSource = preprocessShader(
@@ -52,11 +57,13 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         addUniform("m_World")
         addUniform("m_View")
         addUniform("m_ViewProjection")
+        addUniform("m_LightViewProjection")
         addUniform("cameraPosition")
         addUniform("gridScale")
         addUniform("heightmap")
         addUniform("normalmap")
         addUniform("blendmap")
+        addUniform("shadowmap")
         addUniform("minDistance")
         addUniform("maxDistance")
         addUniform("minLOD")
@@ -81,6 +88,7 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         setUniform("m_World", shaderMaterial!!.world)
         setUniform("m_View", shaderMaterial!!.view)
         setUniform("m_ViewProjection", shaderMaterial!!.viewProjection)
+        setUniform("m_LightViewProjection", shaderMaterial!!.lightViewProjection)
         setUniform("cameraPosition", Object.services.getService<Camera>()!!.position())
         setUniformf("gridScale", shaderMaterial!!.gridScale)
 
@@ -96,7 +104,11 @@ class TiledTerrainShader: BaseShader<TiledTerrainShader, TiledTerrainMaterial>()
         shaderMaterial!!.blendmap.bind()
         setUniformi("blendmap", 2)
 
-        var texUnit = 3
+        GL43.glActiveTexture(GL43.GL_TEXTURE3)
+        shaderMaterial!!.shadowmap.bind()
+        setUniformi("shadowmap", 3)
+
+        var texUnit = 4
         lateinit var materialDetail: TiledTerrainMaterialDetail
         for (i in TiledTerrainTextureType.entries) {
             materialDetail = shaderMaterial!!.materialDetailMap[i]!!

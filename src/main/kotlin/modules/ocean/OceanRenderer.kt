@@ -3,8 +3,10 @@ package modules.ocean
 import core.ecs.Behaviour
 import core.math.Matrix4
 import core.math.Vector2
+import core.math.Vector3
 import core.math.extensions.toRadians
 import core.scene.Object
+import core.scene.Transform
 import core.scene.camera.Camera
 import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
@@ -68,6 +70,15 @@ class OceanRenderer(private val params: OceanParams): Behaviour(), Renderer {
     override fun update(deltaTime: Float) {
         material.view = view
         material.time = glfwGetTime().toFloat()
+
+        (owner()!! as Object).getComponent<Transform>()!!.setTranslation(Vector3(0f, 60f, 0f))
+        material.model = model
+
+//        (owner()!! as Object).getComponent<Transform>()!!.setTranslation(
+//            Vector3(camera.position().x, 0f, camera.position().z)
+//        )
+//
+//        material.model = model
     }
 
     override fun destroy() {

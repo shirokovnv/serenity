@@ -15,10 +15,6 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     private val children = mutableListOf<Object>()
     private var flags: ObjectFlag = None
 
-    companion object {
-        val services = ResourceManager()
-    }
-
     init {
         addComponent(Transform())
         addComponent(

@@ -14,57 +14,61 @@ class SkyDomeMesh(
 
     init {
         val vertices = mutableListOf<Vector3>()
+        val uvs = mutableListOf<Vector2>()
 
         val pitchAngle = 90.0f / numRows
         val headingAngle = 360.0f / numCols
-        val apex = Vector3(0.0f, radius, 0.0f)
 
-        var pitch = -90.0f
-        for (heading in generateSequence(0.0f) { it + headingAngle }.takeWhile { it < 360.0f }) {
-            vertices.add(Vector3(apex))
+        for (i in 0..<numRows) {
+            val latitude = (i * pitchAngle).toRadians()
 
-            val pos1 = initBySphericalCoordinates(radius, pitch + pitchAngle, heading + headingAngle)
-            vertices.add(pos1)
+            for (j in 0..<numCols) {
+                val heading = (j * headingAngle).toRadians()
 
-            val pos2 = initBySphericalCoordinates(radius, pitch + pitchAngle, heading)
-            vertices.add(pos2)
-        }
+                val x = radius * cos(latitude) * sin(heading)
+                val y = radius * sin(latitude)
+                val z = radius * cos(latitude) * cos(heading)
 
-        pitch = -90.0f + pitchAngle
-        while (pitch < 0) {
-            for (heading in generateSequence(0.0f) { it + headingAngle }.takeWhile { it < 360.0f }) {
+                val pos0 = Vector3(x, y, z)
+                val headingNext = ((j + 1) * headingAngle).toRadians()
 
-                val pos0 = initBySphericalCoordinates(radius, pitch, heading)
-                val pos1 = initBySphericalCoordinates(radius, pitch, heading + headingAngle)
-                val pos2 = initBySphericalCoordinates(radius, pitch + pitchAngle, heading)
-                val pos3 = initBySphericalCoordinates(radius, pitch + pitchAngle, heading + headingAngle)
+                val xNext = radius * cos(latitude) * sin(headingNext)
+                val yNext = radius * sin(latitude)
+                val zNext = radius * cos(latitude) * cos(headingNext)
 
-                vertices.addAll(arrayOf(pos0, pos1, pos2, pos1, pos3, pos2))
+                val pos1 = Vector3(xNext, yNext, zNext)
 
+                val latitudeNext = ((i + 1) * pitchAngle).toRadians()
+                val xNextLat = radius * cos(latitudeNext) * sin(heading)
+                val yNextLat = radius * sin(latitudeNext)
+                val zNextLat = radius * cos(latitudeNext) * cos(heading)
+
+                val pos2 = Vector3(xNextLat, yNextLat, zNextLat)
+
+                val xNextLatHeading = radius * cos(latitudeNext) * sin(headingNext)
+                val yNextLatHeading = radius * sin(latitudeNext)
+                val zNextLatHeading = radius * cos(latitudeNext) * cos(headingNext)
+
+                val pos3 = Vector3(xNextLatHeading, yNextLatHeading, zNextLatHeading)
+
+                val uv0 = calculateUV(j, i, numRows)
+                val uv1 = calculateUV(j+1, i, numRows)
+                val uv2 = calculateUV(j, i+1, numRows)
+                val uv3 = calculateUV(j+1, i+1, numRows)
+
+                vertices.addAll(listOf(pos0, pos1, pos2, pos1, pos3, pos2))
+                uvs.addAll(listOf(uv0, uv1, uv2, uv1, uv3, uv2))
             }
-            pitch += pitchAngle
-        }
-
-        val uvs = mutableListOf<Vector2>()
-        vertices.forEach { vertex ->
-            val pn = Vector3(vertex).normalize()
-            val uv = Vector2(
-                asin(pn.x) / PI.toFloat() + 0.5f,
-                asin(pn.y) / PI.toFloat() + 0.5f
-            )
-
-            uvs.add(uv)
         }
 
         setVertices(vertices)
         setUVs(uvs)
     }
 
-    private fun initBySphericalCoordinates(radius: Float, pitch: Float, heading: Float): Vector3 {
-        val x = radius * cos(pitch.toRadians()) * sin(heading.toRadians())
-        val y = -radius * sin(pitch.toRadians())
-        val z = radius * cos(pitch.toRadians()) * cos(heading.toRadians())
+    private fun calculateUV(j: Int, i: Int, numRows: Int): Vector2 {
+        val u = (j.toFloat() / numCols)
+        val v = (i.toFloat() / numRows) * 0.5f + 0.5f
 
-        return Vector3(x, y, z)
+        return Vector2(u, v)
     }
 }

@@ -1,6 +1,5 @@
 package core.scene
 
-import core.management.ResourceManager
 import core.ecs.Activatable
 import core.ecs.Entity
 import core.math.Matrix4

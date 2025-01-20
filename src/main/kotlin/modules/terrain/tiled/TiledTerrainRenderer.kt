@@ -1,9 +1,9 @@
 package modules.terrain.tiled
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
-import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.OrthographicCamera
@@ -29,8 +29,8 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
 
     private val lightViewProjection: Matrix4
         get() {
-            val sunLightManager = Object.services.getService<SunLightManager>()!!
-            val orthographicCamera = Object.services.getService<OrthographicCamera>()!!
+            val sunLightManager = Resources.get<SunLightManager>()!!
+            val orthographicCamera = Resources.get<OrthographicCamera>()!!
 
             val view = sunLightManager.calculateLightViewMatrix()
             val projection = orthographicCamera.projection
@@ -59,7 +59,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
         transform.setScale(config.worldScale)
         transform.setTranslation(config.worldOffset)
 
-        val camera = Object.services.getService<Camera>()!!
+        val camera = Resources.get<Camera>()!!
 
         material.apply {
             world = transform.matrix()
@@ -77,7 +77,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
         material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
 
         // ground textures
-        val imageLoader = Object.services.getService<ImageLoader>()!!
+        val imageLoader = Resources.get<ImageLoader>()!!
         material.materialDetailMap[TiledTerrainTextureType.GRASS_TEXTURE] = TiledTerrainMaterialDetail(
             Texture2d(imageLoader.loadImage("textures/terrain/grass_01_diff.jpg")),
             Texture2d(imageLoader.loadImage("textures/terrain/grass_01_norm.jpg")),
@@ -108,7 +108,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
     }
 
     override fun update(deltaTime: Float) {
-        val camera = Object.services.getService<Camera>()!!
+        val camera = Resources.get<Camera>()!!
 
         material.apply {
             world = transform.matrix()
@@ -116,7 +116,7 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
             viewProjection = camera.viewProjection
         }
         material.lightViewProjection = lightViewProjection
-        material.shadowmap = Object.services.getService<ShadowFrameBuffer>()!!.getDepthMap()
+        material.shadowmap = Resources.get<ShadowFrameBuffer>()!!.getDepthMap()
     }
 
     override fun destroy() {

@@ -1,6 +1,7 @@
 package modules.flora.palm
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
 import core.math.Vector3
@@ -28,19 +29,19 @@ class PalmBehaviour : Behaviour() {
     private lateinit var renderer: ModelRenderer
 
     private val viewProjectionProvider: Matrix4
-        get() = Object.services.getService<Camera>()!!.viewProjection
+        get() = Resources.get<Camera>()!!.viewProjection
 
     private val lightViewProvider: Matrix4
-        get() = Object.services.getService<SunLightManager>()!!.calculateLightViewMatrix()
+        get() = Resources.get<SunLightManager>()!!.calculateLightViewMatrix()
 
     private val orthoProjectionProvider: Matrix4
-        get() = Object.services.getService<OrthographicCamera>()!!.projection
+        get() = Resources.get<OrthographicCamera>()!!.projection
 
     override fun create() {
-        val objLoader = Object.services.getService<ObjLoader>()!!
+        val objLoader = Resources.get<ObjLoader>()!!
 
         val sampler = PoissonDiscSampler()
-        val heightmap = Object.services.getService<Heightmap>()!!
+        val heightmap = Resources.get<Heightmap>()!!
         val sampleRegionSize = Vector2(heightmap.getWorldScale().x, heightmap.getWorldScale().z)
 
         models = mutableListOf()

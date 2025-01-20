@@ -1,7 +1,7 @@
 package platform
 
 import core.ecs.Behaviour
-import core.scene.Object
+import core.management.Resources
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
 import graphics.rendering.RenderPipeline
@@ -32,7 +32,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     private var window: Long = 0
     private var isRunning = false
 
-    inner class ApplicationServices {
+    inner class ApplicationResources {
         lateinit var keyboardInput: KeyboardInput
         lateinit var mouseInput: MouseInput
         lateinit var imageLoader: ImageLoader
@@ -41,7 +41,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var frameCounter: FrameCounter
     }
 
-    private var appServices = ApplicationServices()
+    private var appResources = ApplicationResources()
 
     inner class ApplicationPipelines {
         lateinit var updatePipeline: UpdatePipeline
@@ -113,7 +113,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     private fun run() {
         isRunning = true
 
-        val frameCounter = appServices.frameCounter
+        val frameCounter = appResources.frameCounter
         while (isRunning) {
             var canRender = false
 
@@ -166,32 +166,32 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun registerInputCallbacks() {
-        GLFW.glfwSetCursorPosCallback(window, appServices.mouseInput::mousePosCallback)
-        GLFW.glfwSetMouseButtonCallback(window, appServices.mouseInput::mouseButtonCallback)
-        GLFW.glfwSetKeyCallback(window, appServices.keyboardInput::keyCallback)
+        GLFW.glfwSetCursorPosCallback(window, appResources.mouseInput::mousePosCallback)
+        GLFW.glfwSetMouseButtonCallback(window, appResources.mouseInput::mouseButtonCallback)
+        GLFW.glfwSetKeyCallback(window, appResources.keyboardInput::keyCallback)
     }
 
     protected open fun registerSharedServices() {
         val viewPort = Viewport(settings.screenWidth, settings.screenHeight)
-        Object.services.putService<ViewportInterface>(viewPort)
+        Resources.put<ViewportInterface>(viewPort)
 
-        appServices.keyboardInput = KeyboardInput(window)
-        appServices.mouseInput = MouseInput(window)
-        appServices.imageLoader = ImageLoader()
-        appServices.textFileLoader = TextFileLoader()
-        appServices.objLoader = ObjLoader(appServices.textFileLoader, appServices.imageLoader)
-        appServices.frameCounter = FrameCounter(settings.frameRate)
+        appResources.keyboardInput = KeyboardInput(window)
+        appResources.mouseInput = MouseInput(window)
+        appResources.imageLoader = ImageLoader()
+        appResources.textFileLoader = TextFileLoader()
+        appResources.objLoader = ObjLoader(appResources.textFileLoader, appResources.imageLoader)
+        appResources.frameCounter = FrameCounter(settings.frameRate)
 
-        Object.services.putService<KeyboardInput>(appServices.keyboardInput)
-        Object.services.putService<MouseInput>(appServices.mouseInput)
-        Object.services.putService<ImageLoader>(appServices.imageLoader)
-        Object.services.putService<TextFileLoader>(appServices.textFileLoader)
-        Object.services.putService<ObjLoader>(appServices.objLoader)
-        Object.services.putService<FrameCounter>(appServices.frameCounter)
+        Resources.put<KeyboardInput>(appResources.keyboardInput)
+        Resources.put<MouseInput>(appResources.mouseInput)
+        Resources.put<ImageLoader>(appResources.imageLoader)
+        Resources.put<TextFileLoader>(appResources.textFileLoader)
+        Resources.put<ObjLoader>(appResources.objLoader)
+        Resources.put<FrameCounter>(appResources.frameCounter)
     }
 
     protected open fun registerPipelines() {
-        appPipes.updatePipeline = UpdatePipeline(appServices.frameCounter)
+        appPipes.updatePipeline = UpdatePipeline(appResources.frameCounter)
         appPipes.renderPipeline = RenderPipeline()
 
         appPipes.renderPipeline.addRenderPass(ReflectionPass)
@@ -210,7 +210,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun setIcon() {
-        val bufferedImage: ByteBuffer = appServices.imageLoader.loadImageToByteBuffer("logo/icon.png")
+        val bufferedImage: ByteBuffer = appResources.imageLoader.loadImageToByteBuffer("logo/icon.png")
 
         val image = GLFWImage.malloc()
 

@@ -1,6 +1,7 @@
 package modules.ocean
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
 import core.math.Vector3
@@ -41,7 +42,7 @@ class OceanRenderer(private val params: OceanParams): Behaviour(), Renderer {
         get() = camera.projection
 
     override fun create() {
-        camera = Object.services.getService<Camera>()!!
+        camera = Resources.get<Camera>()!!
         material = OceanMaterial()
 
         texInitializer = OceanTextureInitializer(params.fftResolution)

@@ -1,4 +1,5 @@
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Rect3d
 import core.math.Vector3
 import core.math.extensions.toRadians
@@ -76,7 +77,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         val cameraController = CameraController(0.5f, 1.5f, 0.1f)
         debugObj.addComponent(cameraController)
 
-        Object.services.putService<Camera>(camera)
+        Resources.put<Camera>(camera)
 
         val worldScale = Vector3(1600.0f, 360.0f, 1600.0f)
         val worldOffset = Vector3(0f)
@@ -90,10 +91,10 @@ class App(settings: ApplicationSettings): Application(settings) {
             -orthoScale,
             orthoScale
         )
-        Object.services.putService<OrthographicCamera>(orthographicCamera)
+        Resources.put<OrthographicCamera>(orthographicCamera)
 
         val heightTexture = Texture2d(
-            Object.services.getService<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
+            Resources.get<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
@@ -123,7 +124,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         scene.attachToRoot(tiledTerrain)
 
-        Object.services.putService<Heightmap>(randomHeightmap)
+        Resources.put<Heightmap>(randomHeightmap)
 
         val palm = Palm()
         palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))

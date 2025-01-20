@@ -1,6 +1,6 @@
 package modules.terrain
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import org.lwjgl.opengl.GL43
@@ -8,7 +8,7 @@ import platform.services.filesystem.TextFileLoader
 
 class TerrainBlendShader : BaseShader<TerrainBlendShader, TerrainBlendMaterial>() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         addShader(
             fileLoader.load("shaders/terrain/TerrainBlend_CS.glsl")!!,

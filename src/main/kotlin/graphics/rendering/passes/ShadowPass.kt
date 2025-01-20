@@ -1,6 +1,6 @@
 package graphics.rendering.passes
 
-import core.scene.Object
+import core.management.Resources
 import graphics.rendering.fbo.ShadowFrameBuffer
 import graphics.rendering.viewport.ViewportInterface
 
@@ -10,12 +10,12 @@ object ShadowPass : RenderPass {
     private var shadowFrameBuffer: ShadowFrameBuffer
 
     init {
-        val viewport = Object.services.getService<ViewportInterface>()!!
+        val viewport = Resources.get<ViewportInterface>()!!
         shadowFrameBuffer = ShadowFrameBuffer(viewport)
         shadowFrameBuffer.createDepthFrameBuffer()
         shadowFrameBuffer.createDepthMapTexture()
 
-        Object.services.putService<ShadowFrameBuffer>(shadowFrameBuffer)
+        Resources.put<ShadowFrameBuffer>(shadowFrameBuffer)
 
         println("SHADOW FRAME BUFFER INITIALIZED")
     }

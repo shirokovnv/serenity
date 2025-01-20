@@ -1,6 +1,6 @@
 package core.scene
 
-import core.di.ServiceLocator
+import core.management.ResourceManager
 import core.ecs.Activatable
 import core.ecs.Entity
 import core.math.Matrix4
@@ -16,7 +16,7 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     private var flags: ObjectFlag = None
 
     companion object {
-        val services = ServiceLocator()
+        val services = ResourceManager()
     }
 
     init {

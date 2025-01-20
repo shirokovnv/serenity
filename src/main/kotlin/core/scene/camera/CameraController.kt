@@ -1,8 +1,8 @@
 package core.scene.camera
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.extensions.toRadians
-import core.scene.Object
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import platform.services.input.KeyboardInput
@@ -41,12 +41,12 @@ class CameraController(
     private val rotation = mutableMapOf<CameraRotation, Boolean>()
 
     override fun create() {
-        Object.services.getService<KeyboardInput>()!!.addListener(this)
-        Object.services.getService<MouseInput>()!!.addListener(this)
+        Resources.get<KeyboardInput>()!!.addListener(this)
+        Resources.get<MouseInput>()!!.addListener(this)
     }
 
     override fun update(deltaTime: Float) {
-        val keyboardInput = Object.services.getService<KeyboardInput>()!!
+        val keyboardInput = Resources.get<KeyboardInput>()!!
 
         movement[CameraMovement.FORWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_W)
         movement[CameraMovement.BACKWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_S)

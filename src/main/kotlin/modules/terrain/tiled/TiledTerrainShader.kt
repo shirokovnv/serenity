@@ -1,6 +1,6 @@
 package modules.terrain.tiled
 
-import core.scene.Object
+import core.management.Resources
 import core.scene.camera.Camera
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
@@ -10,7 +10,7 @@ import platform.services.filesystem.TextFileLoader
 
 class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
         val frustumInc = fileLoader.load("shaders/include/Frustum.glsl")!!
         val shadowInc = fileLoader.load("shaders/include/Shadow.glsl")!!
 
@@ -89,7 +89,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniform("m_View", shaderMaterial!!.view)
         setUniform("m_ViewProjection", shaderMaterial!!.viewProjection)
         setUniform("m_LightViewProjection", shaderMaterial!!.lightViewProjection)
-        setUniform("cameraPosition", Object.services.getService<Camera>()!!.position())
+        setUniform("cameraPosition", Resources.get<Camera>()!!.position())
         setUniformf("gridScale", shaderMaterial!!.gridScale)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
@@ -139,8 +139,8 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniformf("scaleY", shaderMaterial!!.scaleY)
         setUniformf("tbnRange", shaderMaterial!!.tbnRange)
         setUniformf("tbnThreshold", shaderMaterial!!.tbnThreshold)
-        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
-        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
-        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
+        setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
+        setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
+        setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
     }
 }

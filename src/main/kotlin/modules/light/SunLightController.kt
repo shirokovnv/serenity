@@ -1,7 +1,7 @@
 package modules.light
 
 import core.ecs.Behaviour
-import core.scene.Object
+import core.management.Resources
 import org.lwjgl.glfw.GLFW
 import platform.services.input.KeyboardInput
 import platform.services.input.KeyboardInputListener
@@ -18,12 +18,12 @@ class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), Key
     override fun create() {
         sunLightManager = SunLightManager()
 
-        Object.services.putService<SunLightManager>(sunLightManager)
-        Object.services.getService<KeyboardInput>()!!.addListener(this)
+        Resources.put<SunLightManager>(sunLightManager)
+        Resources.get<KeyboardInput>()!!.addListener(this)
     }
 
     override fun update(deltaTime: Float) {
-        val keyboardInput = Object.services.getService<KeyboardInput>()!!
+        val keyboardInput = Resources.get<KeyboardInput>()!!
         movement[SunMovement.FORWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_EQUAL)
         movement[SunMovement.BACKWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_MINUS)
 

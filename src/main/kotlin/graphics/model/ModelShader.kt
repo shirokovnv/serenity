@@ -1,6 +1,6 @@
 package graphics.model
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
@@ -9,7 +9,7 @@ import platform.services.filesystem.TextFileLoader
 
 class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         addShader(
             fileLoader.load("shaders/model/Model_VS.glsl")!!,
@@ -44,9 +44,9 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         setUniform("m_WorldViewProjection", shaderMaterial!!.worldViewProjection)
         setUniformi("isInstanced", if (shaderMaterial!!.isInstanced) 1 else 0)
         setUniformf("alphaThreshold", shaderMaterial!!.alphaThreshold)
-        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
-        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
-        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
+        setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
+        setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
+        setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
         setUniformi("isShadowPass", if (shaderMaterial!!.isShadowPass) 1 else 0)
 
         val isAmbientMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.AMBIENT_TEXTURE) != null) 1 else 0

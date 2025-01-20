@@ -33,13 +33,13 @@ class PerspectiveCamera(
 
         m[2, 0] = 0.0f
         m[2, 1] = 0.0f
-        m[2, 2] = zFar / (zFar - zNear)
-        m[2, 3] = zFar * zNear / (zFar - zNear)
+        m[2, 2] = (zFar + zNear) / (zNear - zFar)
+        m[2, 3] = (2.0f * zFar * zNear) / (zNear - zFar)
 
         m[3, 0] = 0.0f
         m[3, 1] = 0.0f
-        m[3, 2] = 1.0f
-        m[3, 3] = 1.0f
+        m[3, 2] = -1.0f
+        m[3, 3] = 0.0f
 
         return m
     }

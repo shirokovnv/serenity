@@ -8,6 +8,10 @@ fun Float.toRadians(): Float {
     return Math.toRadians(this.toDouble()).toFloat()
 }
 
+fun Float.toDegrees(): Float {
+    return Math.toDegrees(this.toDouble()).toFloat()
+}
+
 fun Float.toIntFloor() = floor(this).toInt()
 
 fun Float.clamp(min: Float, max: Float): Float {

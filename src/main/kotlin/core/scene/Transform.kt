@@ -2,6 +2,7 @@ package core.scene
 
 import core.ecs.BaseComponent
 import core.math.Matrix4
+import core.math.Quaternion
 import core.math.Vector3
 import kotlin.math.cos
 import kotlin.math.sin
@@ -31,6 +32,20 @@ class Transform : BaseComponent() {
     fun setRotation(rotation: Vector3) {
         this.rotation = rotation
         this.isDirty = true
+    }
+
+    fun rotateAroundAxis(angle: Float, axis: Vector3) {
+        val currentQuaternion = Quaternion.fromEulerAngles(
+            rotation.x,
+            rotation.y,
+            rotation.z)
+        val rotationQuaternion = Quaternion.fromAxisAngle(axis.x, axis.y, axis.z, angle)
+        val newQuaternion = currentQuaternion * rotationQuaternion
+
+        val eulerAngles = newQuaternion.toEulerAngles()
+
+        rotation = Vector3(eulerAngles.x, eulerAngles.y, eulerAngles.z)
+        isDirty = true
     }
 
     fun scale(): Vector3 = Vector3(scale)

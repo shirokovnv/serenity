@@ -7,6 +7,7 @@ import core.scene.Transform
 
 abstract class Camera : BaseComponent() {
     protected lateinit var projectionType: ProjectionType
+    private val yAxis = Vector3(0f, 1f, 0f)
 
     val transform: Transform
         get() = owner()?.getComponent<Transform>()!!
@@ -42,6 +43,16 @@ abstract class Camera : BaseComponent() {
 
     fun rotate(offset: Vector3) {
         transform.setRotation(transform.rotation() + offset)
+    }
+
+    fun rotateAroundHorizontalAxis(angle: Float) {
+        val hAxis = yAxis.cross(forward()).normalize()
+
+        transform.rotateAroundAxis(angle, hAxis)
+    }
+
+    fun rotateAroundVerticalAxis(angle: Float) {
+        transform.rotateAroundAxis(angle, yAxis)
     }
 
     fun move(offset: Vector3) {

@@ -1,7 +1,6 @@
 package core.scene.camera
 
 import core.ecs.Behaviour
-import core.math.Vector3
 import core.math.extensions.toRadians
 import core.scene.Object
 import org.lwjgl.glfw.GLFW
@@ -29,6 +28,7 @@ enum class CameraRotation {
 
 class CameraController(
     private var moveSpeed: Float,
+    private var rotationSpeed: Float,
     private var mouseSensitivity: Float
 ): Behaviour(), KeyboardInputListener, MouseInputListener {
 
@@ -124,33 +124,32 @@ class CameraController(
         val right = camera.right()
 
         val offset = when (direction) {
-            CameraMovement.FORWARD -> -forward * velocity
-            CameraMovement.BACKWARD -> forward * velocity
+            CameraMovement.FORWARD -> forward * velocity
+            CameraMovement.BACKWARD -> -forward * velocity
             CameraMovement.LEFT -> -right * velocity
             CameraMovement.RIGHT -> right * velocity
-            CameraMovement.UP -> up * velocity
-            CameraMovement.DOWN -> -up * velocity
+            CameraMovement.UP -> -up * velocity
+            CameraMovement.DOWN -> up * velocity
         }
 
         camera.move(offset)
     }
 
     private fun processRotation(direction: CameraRotation) {
-        val rotationSpeed = 0.2f
-
         when(direction) {
-            CameraRotation.LEFT -> camera.rotate(Vector3(0f, rotationSpeed.toRadians(), 0f))
-            CameraRotation.RIGHT -> camera.rotate(Vector3(0f, -rotationSpeed.toRadians(), 0f))
-            CameraRotation.UP -> camera.rotate(Vector3(rotationSpeed.toRadians(), 0f, 0f))
-            CameraRotation.DOWN -> camera.rotate(Vector3(-rotationSpeed.toRadians(), 0f, 0f))
+            CameraRotation.LEFT -> camera.rotateAroundVerticalAxis(-rotationSpeed.toRadians())
+            CameraRotation.RIGHT -> camera.rotateAroundVerticalAxis(rotationSpeed.toRadians())
+            CameraRotation.UP -> camera.rotateAroundHorizontalAxis(rotationSpeed.toRadians())
+            CameraRotation.DOWN -> camera.rotateAroundHorizontalAxis(-rotationSpeed.toRadians())
         }
     }
 
     private fun processMouseMovement(xOffset: Float, yOffset: Float) {
-        val xOffsetModified = xOffset * mouseSensitivity
-        val yOffsetModified = yOffset * mouseSensitivity
+        val xOffsetModified = xOffset * mouseSensitivity * rotationSpeed
+        val yOffsetModified = yOffset * mouseSensitivity * rotationSpeed
 
-        camera.rotate(Vector3(yOffsetModified.toRadians(), -xOffsetModified.toRadians(), 0f))
+        camera.rotateAroundHorizontalAxis(yOffsetModified.toRadians())
+        camera.rotateAroundVerticalAxis(xOffsetModified.toRadians())
     }
 
     private fun toggleWireframeMode() {

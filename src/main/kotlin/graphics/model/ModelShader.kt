@@ -12,12 +12,12 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         val fileLoader = Object.services.getService<TextFileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/model/SimpleModel_VS.glsl")!!,
+            fileLoader.load("shaders/model/Model_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/model/SimpleModel_FS.glsl")!!,
+            fileLoader.load("shaders/model/Model_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 
@@ -37,6 +37,7 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         addUniform("sunVector")
         addUniform("sunColor")
         addUniform("sunIntensity")
+        addUniform("isShadowPass")
     }
 
     override fun updateUniforms() {
@@ -46,6 +47,7 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
         setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
         setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
         setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
+        setUniformi("isShadowPass", if (shaderMaterial!!.isShadowPass) 1 else 0)
 
         val isAmbientMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.AMBIENT_TEXTURE) != null) 1 else 0
         val isDiffuseMapUsed = if (shaderMaterial!!.mtlData?.getTexture(TextureType.DIFFUSE_TEXTURE) != null) 1 else 0

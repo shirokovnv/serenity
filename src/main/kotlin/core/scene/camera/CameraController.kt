@@ -38,6 +38,7 @@ class CameraController(
         get() = owner()?.getComponent<Camera>()!!
 
     private val movement = mutableMapOf<CameraMovement, Boolean>()
+    private val rotation = mutableMapOf<CameraRotation, Boolean>()
 
     override fun create() {
         Object.services.getService<KeyboardInput>()!!.addListener(this)
@@ -54,7 +55,16 @@ class CameraController(
 
         movement.forEach { (direction, isPressed) ->
             if(isPressed){
-                processMovement(direction, deltaTime)
+                processMovement(direction)
+            }
+        }
+
+        rotation[CameraRotation.LEFT] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_LEFT)
+        rotation[CameraRotation.RIGHT] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_RIGHT)
+
+        rotation.forEach{ (direction, isPressed) ->
+            if (isPressed) {
+                processRotation(direction)
             }
         }
     }
@@ -64,8 +74,12 @@ class CameraController(
     }
 
     override fun onKeyPressed(key: Int) {
-        getDirection(key)?.let { direction ->
+        getMovementDirection(key)?.let { direction ->
             movement[direction] = true
+        }
+
+        getRotationDirection(key)?.let { direction ->
+            rotation[direction] = true
         }
 
         when(key) {
@@ -74,12 +88,16 @@ class CameraController(
     }
 
     override fun onKeyReleased(key: Int) {
-        getDirection(key)?.let { direction ->
+        getMovementDirection(key)?.let { direction ->
             movement[direction] = false
+        }
+
+        getRotationDirection(key)?.let { direction ->
+            rotation[direction] = false
         }
     }
 
-    private fun getDirection(key: Int): CameraMovement? {
+    private fun getMovementDirection(key: Int): CameraMovement? {
         return when (key) {
             GLFW.GLFW_KEY_W -> CameraMovement.FORWARD
             GLFW.GLFW_KEY_S -> CameraMovement.BACKWARD
@@ -89,22 +107,43 @@ class CameraController(
         }
     }
 
-    private fun processMovement(direction: CameraMovement, deltaTime: Float = 1f) {
+    private fun getRotationDirection(key: Int): CameraRotation? {
+        return when(key) {
+            GLFW.GLFW_KEY_LEFT -> CameraRotation.LEFT
+            GLFW.GLFW_KEY_RIGHT -> CameraRotation.RIGHT
+            GLFW.GLFW_KEY_UP -> CameraRotation.UP
+            GLFW.GLFW_KEY_DOWN -> CameraRotation.DOWN
+            else -> null
+        }
+    }
+
+    private fun processMovement(direction: CameraMovement) {
         val velocity = moveSpeed //* deltaTime
         val forward = camera.forward().normalize()
         val up = camera.up().normalize()
         val right = camera.right()
 
         val offset = when (direction) {
-            CameraMovement.FORWARD -> -forward * velocity //Vector3(0f, 0f, -velocity)
-            CameraMovement.BACKWARD -> forward * velocity //Vector3(0f, 0f, velocity)
-            CameraMovement.LEFT -> -right * velocity //  Vector3(-velocity, 0f, 0f)
-            CameraMovement.RIGHT -> right * velocity // Vector3(velocity, 0f, 0f)
+            CameraMovement.FORWARD -> -forward * velocity
+            CameraMovement.BACKWARD -> forward * velocity
+            CameraMovement.LEFT -> -right * velocity
+            CameraMovement.RIGHT -> right * velocity
             CameraMovement.UP -> up * velocity
             CameraMovement.DOWN -> -up * velocity
         }
 
         camera.move(offset)
+    }
+
+    private fun processRotation(direction: CameraRotation) {
+        val rotationSpeed = 0.2f
+
+        when(direction) {
+            CameraRotation.LEFT -> camera.rotate(Vector3(0f, rotationSpeed.toRadians(), 0f))
+            CameraRotation.RIGHT -> camera.rotate(Vector3(0f, -rotationSpeed.toRadians(), 0f))
+            CameraRotation.UP -> camera.rotate(Vector3(rotationSpeed.toRadians(), 0f, 0f))
+            CameraRotation.DOWN -> camera.rotate(Vector3(-rotationSpeed.toRadians(), 0f, 0f))
+        }
     }
 
     private fun processMouseMovement(xOffset: Float, yOffset: Float) {

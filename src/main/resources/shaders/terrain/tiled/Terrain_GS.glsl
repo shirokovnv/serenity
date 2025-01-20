@@ -6,6 +6,7 @@ layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
 uniform mat4 m_ViewProjection;
+uniform mat4 m_LightViewProjection = mat4(1);
 uniform sampler2D heightmap;
 uniform sampler2D normalmap;
 uniform sampler2D blendmap;
@@ -15,6 +16,8 @@ uniform float tbnRange;
 in vec2 mapCoord_GS[];
 out vec2 mapCoord_FS;
 out vec3 position_FS;
+out vec4 positionLightSpace_FS;
+out vec3 normal_FS;
 out vec3 tangent_FS;
 
 struct Material {
@@ -112,6 +115,8 @@ void main() {
 
             mapCoord_FS = mapCoord_GS[i];
             position_FS = (position.xyz + displacement[i]);
+            positionLightSpace_FS = (m_LightViewProjection * position);
+            normal_FS = normalize(texture(normalmap, mapCoord_GS[i]).rbg);
             tangent_FS = tangent;
 
             gl_Position = m_ViewProjection * position;

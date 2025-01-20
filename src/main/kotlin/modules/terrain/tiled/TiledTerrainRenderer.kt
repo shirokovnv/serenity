@@ -1,15 +1,19 @@
 package modules.terrain.tiled
 
 import core.ecs.Behaviour
+import core.math.Matrix4
 import core.math.Vector2
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
+import core.scene.camera.OrthographicCamera
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
+import graphics.rendering.fbo.ShadowFrameBuffer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.light.SunLightManager
 import modules.terrain.TerrainBlendRenderer
 import modules.terrain.TerrainNormalRenderer
 import platform.services.filesystem.ImageLoader
@@ -22,6 +26,17 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
 
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
+
+    private val lightViewProjection: Matrix4
+        get() {
+            val sunLightManager = Object.services.getService<SunLightManager>()!!
+            val orthographicCamera = Object.services.getService<OrthographicCamera>()!!
+
+            val view = sunLightManager.calculateLightViewMatrix()
+            val projection = orthographicCamera.projection
+
+            return projection * view
+        }
 
     override fun create() {
         material = TiledTerrainMaterial()
@@ -100,6 +115,8 @@ class TiledTerrainRenderer(private val config: TiledTerrainConfig) : Behaviour()
             view = camera.view
             viewProjection = camera.viewProjection
         }
+        material.lightViewProjection = lightViewProjection
+        material.shadowmap = Object.services.getService<ShadowFrameBuffer>()!!.getDepthMap()
     }
 
     override fun destroy() {

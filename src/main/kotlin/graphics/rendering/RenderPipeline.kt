@@ -31,11 +31,13 @@ class RenderPipeline {
             .toList()
 
         renderPasses.forEach {pass ->
+            pass.start()
             renderers.forEach {renderer ->
                 if (renderer.supportsRenderPass(pass)) {
                     renderer.render(pass)
                 }
             }
+            pass.finish()
         }
     }
 

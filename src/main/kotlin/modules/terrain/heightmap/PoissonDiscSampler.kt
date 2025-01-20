@@ -86,7 +86,7 @@ class PoissonDiscSampler {
             val normal = heightmap.getInterpolatedNormal(worldX, worldY)
             val slope = normal.dot(upVector)
 
-            if(slope < params.minSlope){
+            if(1 - slope < params.minSlope){
                 return false
             }
 

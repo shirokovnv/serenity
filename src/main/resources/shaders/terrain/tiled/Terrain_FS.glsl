@@ -1,12 +1,17 @@
 #version 430
 
+#include <Shadow.glsl>
+
 in vec2 mapCoord_FS;
 in vec3 position_FS;
+in vec3 normal_FS;
+in vec4 positionLightSpace_FS;
 in vec3 tangent_FS;
 out vec4 outColor;
 
 uniform sampler2D normalmap;
 uniform sampler2D blendmap;
+uniform sampler2D shadowmap;
 uniform float tbnRange;
 uniform float tbnThreshold;
 uniform vec3 cameraPosition;
@@ -68,6 +73,10 @@ void main()
     float s = sunIntensity;
     float diffuse = diffuse(-sunVector, normal, sunIntensity);
     fragColor *= diffuse * sunColor;
+
+    // shadow calculation
+    float shadow = shadowCalculation(positionLightSpace_FS, normal_FS, -sunVector, shadowmap, 20.0f);
+    fragColor *= (1 - shadow);
 
     outColor = vec4(fragColor, 1.0);
 }

@@ -4,6 +4,6 @@ import core.scene.Object
 
 class Palm: Object() {
     init {
-        addComponent(PalmRenderer())
+        addComponent(PalmBehaviour())
     }
 }

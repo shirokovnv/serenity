@@ -1,5 +1,7 @@
 package graphics.assets.texture
 
+import core.math.Quaternion
+import core.math.toFloatArray
 import graphics.assets.Asset
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
@@ -72,6 +74,10 @@ class Texture2d(private val width: Int, private val height: Int) : Asset {
     fun wrapModeClampToBorder() {
         GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_S, GL43.GL_CLAMP_TO_BORDER)
         GL43.glTexParameteri(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_WRAP_T, GL43.GL_CLAMP_TO_BORDER)
+    }
+
+    fun setBorderColor(color: Quaternion) {
+        GL43.glTexParameterfv(GL43.GL_TEXTURE_2D, GL43.GL_TEXTURE_BORDER_COLOR, color.toFloatArray())
     }
 
     fun wrapModeClampToEdge() {

@@ -1,5 +1,6 @@
 package graphics.rendering.fbo
 
+import core.math.Quaternion
 import graphics.assets.texture.Texture2d
 import graphics.rendering.viewport.ViewportInterface
 import org.lwjgl.opengl.GL43.*
@@ -12,8 +13,8 @@ class ShadowFrameBuffer(
     private var height: Int = DEFAULT_HEIGHT
 ) {
     companion object {
-        const val DEFAULT_WIDTH = 2048
-        const val DEFAULT_HEIGHT = 2048
+        const val DEFAULT_WIDTH = 4096
+        const val DEFAULT_HEIGHT = 4096
     }
 
     private var depthMapFbo by Delegates.notNull<Int>()
@@ -38,7 +39,9 @@ class ShadowFrameBuffer(
             null as ByteBuffer?
         )
         depthMap.noFilter()
-        depthMap.wrapModeClampToEdge()
+//        depthMap.wrapModeClampToEdge()
+        depthMap.wrapModeClampToBorder()
+        depthMap.setBorderColor(Quaternion(1f))
         depthMap.unbind()
     }
 
@@ -50,7 +53,7 @@ class ShadowFrameBuffer(
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
     }
 
-    fun prepareForRender() {
+    fun beforeRender() {
         glViewport(0, 0, width, height)
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo)
         glClear(GL_DEPTH_BUFFER_BIT)

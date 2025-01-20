@@ -18,6 +18,7 @@ uniform bool isDiffuseMapUsed;
 uniform bool isNormalMapUsed;
 uniform bool isSpecularMapUsed;
 uniform float alphaThreshold;
+uniform bool isShadowPass = false;
 
 uniform vec3 sunVector;
 uniform vec3 sunColor;
@@ -30,6 +31,9 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 }
 
 void main() {
+    if (isShadowPass) {
+        discard;
+    }
 
     vec4 ambientColor = vec4(0.0f);
     if (isAmbientMapUsed) {

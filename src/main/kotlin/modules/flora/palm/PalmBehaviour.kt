@@ -7,28 +7,34 @@ import core.math.Vector3
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
+import core.scene.camera.OrthographicCamera
 import graphics.assets.surface.bind
 import graphics.model.Model
 import graphics.model.ModelMaterial
+import graphics.model.ModelRenderer
 import graphics.model.ModelShader
-import graphics.rendering.Renderer
-import graphics.rendering.passes.NormalPass
-import graphics.rendering.passes.RenderPass
-import modules.terrain.heightmap.*
+import modules.light.SunLightManager
+import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.PoissonDiscSampler
+import modules.terrain.heightmap.PoissonDiscSamplerParams
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
 
-class PalmRenderer : Behaviour(), Renderer {
+class PalmBehaviour : Behaviour() {
     lateinit var material: ModelMaterial
     private lateinit var shader: ModelShader
     private lateinit var models: MutableList<Model>
+    private lateinit var renderer: ModelRenderer
 
-    private val viewProjection: Matrix4
+    private val viewProjectionProvider: Matrix4
         get() = Object.services.getService<Camera>()!!.viewProjection
 
-    private val worldViewProjection: Matrix4
-        get() = viewProjection * (owner()!! as Object).worldMatrix()
+    private val lightViewProvider: Matrix4
+        get() = Object.services.getService<SunLightManager>()!!.calculateLightViewMatrix()
+
+    private val orthoProjectionProvider: Matrix4
+        get() = Object.services.getService<OrthographicCamera>()!!.projection
 
     override fun create() {
         val objLoader = Object.services.getService<ObjLoader>()!!
@@ -55,19 +61,21 @@ class PalmRenderer : Behaviour(), Renderer {
 //            "models/tree/PineTree_2.obj" to "models/tree/PineTree_2.mtl",
         )
 
-        modelFiles.forEach{ (obj, mtl) ->
+        modelFiles.forEach { (obj, mtl) ->
             val model = objLoader.load(obj, mtl)
             models.add(model)
         }
 
-        val points = sampler.generatePoints(heightmap, PoissonDiscSamplerParams(
-            50f,
-            sampleRegionSize,
-            30,
-            0.2f,
-            0.9f,
-            0.3f
-        ))
+        val points = sampler.generatePoints(
+            heightmap, PoissonDiscSamplerParams(
+                50f,
+                sampleRegionSize,
+                30,
+                0.2f,
+                0.9f,
+                0.3f
+            )
+        )
 
         println("NUM SAMPLING POINTS: ${points.size}")
 
@@ -87,7 +95,7 @@ class PalmRenderer : Behaviour(), Renderer {
             randomModel.addInstance(transform.matrix())
         }
 
-        models.forEach{
+        models.forEach {
             it.createBuffers()
             it.setupTextureFilters()
         }
@@ -97,32 +105,23 @@ class PalmRenderer : Behaviour(), Renderer {
         shader bind material
         shader.setup()
 
+        renderer = ModelRenderer(
+            models,
+            material,
+            shader,
+            { viewProjectionProvider },
+            { orthoProjectionProvider },
+            { lightViewProvider }
+        )
+
+        (owner() as Object).addComponent(renderer)
+
         println("PALM RENDER BEHAVIOUR INITIALIZED")
     }
 
     override fun update(deltaTime: Float) {
-        material.worldViewProjection = worldViewProjection
     }
 
     override fun destroy() {
-    }
-
-    override fun render(pass: RenderPass) {
-        shader.bind()
-        models.forEach {model ->
-            val mtlNames = model.getMaterialNames()
-            mtlNames.forEach{ mtlName ->
-                material.mtlData = model.getMtlDataByName(mtlName)
-                material.isInstanced = model.isInstanced()
-                shader.updateUniforms()
-                model.drawByMaterial(mtlName)
-            }
-        }
-
-        shader.unbind()
-    }
-
-    override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass
     }
 }

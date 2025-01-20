@@ -30,6 +30,10 @@ class ModelMtlData {
         return textures[textureType]?.texture
     }
 
+    fun setTexture(texture: Texture2d?, textureType: TextureType) {
+        textures[textureType]?.texture = texture
+    }
+
     override fun toString(): String {
         return "ModelMaterial(name=$name, " +
                 "ambientColor=$ambientColor, " +

@@ -23,6 +23,7 @@ import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
 import platform.ApplicationSettings
 import platform.services.filesystem.ImageLoader
+import kotlin.math.max
 
 val settings = ApplicationSettings(
     1280,
@@ -75,14 +76,19 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         Object.services.putService<Camera>(camera)
 
-        // ORTHO camera
-        val orthographicCamera = OrthographicCamera(-25f, 25f, -25f, 25f, 0.1f, 1000f)
-        debugObj.addComponent(orthographicCamera)
-
-        Object.services.putService<OrthographicCamera>(orthographicCamera)
-
         val worldScale = Vector3(1600.0f, 360.0f, 1600.0f)
         val worldOffset = Vector3(0f)
+
+        val orthoScale = max(worldScale.x, worldScale.z)
+        val orthographicCamera = OrthographicCamera(
+            -orthoScale,
+            orthoScale,
+            -orthoScale,
+            orthoScale,
+            -orthoScale,
+            orthoScale
+        )
+        Object.services.putService<OrthographicCamera>(orthographicCamera)
 
         val heightTexture = Texture2d(
             Object.services.getService<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
@@ -107,7 +113,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         val tiledTerrain = TiledTerrain(
             TiledTerrainConfig(
-                diamondSquareHeightmap,
+                randomHeightmap,
                 16,
                 worldScale,
                 worldOffset
@@ -115,7 +121,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         scene.attachToRoot(tiledTerrain)
 
-        Object.services.putService<Heightmap>(diamondSquareHeightmap)
+        Object.services.putService<Heightmap>(randomHeightmap)
 
         val palm = Palm()
         palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))

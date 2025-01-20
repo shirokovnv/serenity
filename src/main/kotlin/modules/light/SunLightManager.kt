@@ -1,7 +1,7 @@
 package modules.light
 
 import core.ecs.BaseComponent
-import core.math.Vector3
+import core.math.*
 import core.math.extensions.clamp
 import kotlin.math.*
 
@@ -11,7 +11,7 @@ typealias ComputeSunIntensityFn = (sunVector: Vector3) -> Float
 class SunLightManager(
     private val computeSunColorFn: ComputeSunColorFn = ::computeSunColorUsingPBM,
     private val computeSunIntensityFn: ComputeSunIntensityFn = ::computeSunIntensityUsingFadeOut
-): BaseComponent() {
+) : BaseComponent() {
 
     companion object {
         private const val TIME_CYCLE = 2 * PI.toFloat()
@@ -66,6 +66,45 @@ class SunLightManager(
         recalculateSunlightParameters()
     }
 
+    fun calculateLightViewMatrix(): Matrix4 {
+        // we need small offset to prevent collinear issues with cross product
+        val biasVector = Vector3(0f, 0.0001f, 0.0001f)
+        val forward = -Vector3(sunVector + biasVector)
+
+        // TODO: use double-cross ?
+        val worldUp = Vector3(0f, 1f, 0f) // Default up vector
+        val right = forward.cross(worldUp).normalize()
+
+        // Calculate light space view matrix
+        val f = forward.normalize()
+        val u = right.cross(f).normalize()
+        val r = f.cross(u).normalize()
+
+        val m = Matrix4()
+
+        m[0, 0] = r.x
+        m[0, 1] = r.y
+        m[0, 2] = r.z
+        m[0, 3] = 0f
+
+        m[1, 0] = u.x
+        m[1, 1] = u.y
+        m[1, 2] = u.z
+        m[1, 3] = 0f
+
+        m[2, 0] = f.x
+        m[2, 1] = f.y
+        m[2, 2] = f.z
+        m[2, 3] = 0f
+
+        m[3, 0] = 0f
+        m[3, 1] = 0f
+        m[3, 2] = 0f
+        m[3, 3] = 1f
+
+        return m
+    }
+
     private fun recalculateSunlightParameters() {
         sunVector.x = 0.0f
         sunVector.y = cos(timeOfDay)
@@ -94,8 +133,8 @@ fun computeSunIntensityUsingFadeOut(sunVector: Vector3): Float {
 fun computeSunColorUsingSinCos(timeOfDay: Float): Vector3 {
     // Final color depends on the angle of the sun
     val red = 1.0f  // The red color is more intense at sunrise and sunset
-    val green = min(1.0f, (0.5f + 0.5f*cos(timeOfDay)))
-    val blue = min(1.0f, (0.5f + 0.5f*sin(timeOfDay)))
+    val green = min(1.0f, (0.5f + 0.5f * cos(timeOfDay)))
+    val blue = min(1.0f, (0.5f + 0.5f * sin(timeOfDay)))
 
     return Vector3(red, green, blue)
 }

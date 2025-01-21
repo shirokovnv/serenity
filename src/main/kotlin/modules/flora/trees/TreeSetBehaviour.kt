@@ -1,4 +1,4 @@
-package modules.flora.palm
+package modules.flora.trees
 
 import core.ecs.Behaviour
 import core.management.Resources
@@ -22,7 +22,7 @@ import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
 
-class PalmBehaviour : Behaviour() {
+class TreeSetBehaviour : Behaviour() {
     lateinit var material: ModelMaterial
     private lateinit var shader: ModelShader
     private lateinit var models: MutableList<Model>

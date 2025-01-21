@@ -12,7 +12,7 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
-import modules.flora.palm.Palm
+import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare
@@ -127,7 +127,7 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         Resources.put<Heightmap>(randomHeightmap)
 
-        val palm = Palm()
+        val palm = TreeSet()
         palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         //palm.getComponent<Transform>()!!.setTranslation(Vector3(0f, 100f, 0f))
         scene.attachToRoot(palm)

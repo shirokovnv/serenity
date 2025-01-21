@@ -15,6 +15,7 @@ import graphics.assets.texture.TextureFactory
 import modules.flora.palm.Palm
 import modules.light.AtmosphereController
 import modules.light.SunLightController
+import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.sky.SkyDome
 import modules.terrain.heightmap.Heightmap
@@ -135,6 +136,9 @@ class App(settings: ApplicationSettings): Application(settings) {
         ocean.getComponent<Transform>()!!.setScale(worldScale)
         scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome())
+
+        val lensFlare = LensFlare()
+        scene.attachToRoot(lensFlare)
 
 
         val frustum = Frustum(camera)

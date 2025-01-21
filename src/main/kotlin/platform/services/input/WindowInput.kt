@@ -1,6 +1,6 @@
 package platform.services.input
 
-import core.event.Events
+import core.events.Events
 
 class WindowInput(private val window: Long) {
     fun windowResizeCallback(window: Long, newWidth: Int, newHeight: Int){

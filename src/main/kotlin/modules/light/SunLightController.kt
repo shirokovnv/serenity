@@ -1,7 +1,7 @@
 package modules.light
 
 import core.ecs.Behaviour
-import core.event.Events
+import core.events.Events
 import core.management.Resources
 import org.lwjgl.glfw.GLFW
 import platform.services.input.KeyPressedEvent
@@ -41,6 +41,8 @@ class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour() {
     }
 
     override fun destroy() {
+        Events.unsubscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.unsubscribe<KeyReleasedEvent, Any>(::onKeyReleased)
     }
 
     private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {

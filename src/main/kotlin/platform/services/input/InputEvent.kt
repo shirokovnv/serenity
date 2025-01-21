@@ -1,5 +1,5 @@
 package platform.services.input
 
-import core.event.Event
+import core.events.Event
 
 interface InputEvent: Event

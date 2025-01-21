@@ -1,7 +1,7 @@
 package core.scene.camera
 
 import core.ecs.Behaviour
-import core.event.Events
+import core.events.Events
 import core.management.Resources
 import core.math.extensions.toRadians
 import org.lwjgl.glfw.GLFW
@@ -70,6 +70,10 @@ class CameraController(
     }
 
     override fun destroy() {
+        Events.unsubscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.unsubscribe<KeyReleasedEvent, Any>(::onKeyReleased)
+        Events.unsubscribe<MouseMovedEvent, Any>(::onMouseMoved)
+        Events.unsubscribe<WindowResizedEvent, Any>(::onWindowResized)
     }
 
     private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {

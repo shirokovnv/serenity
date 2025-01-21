@@ -1,6 +1,6 @@
 package platform.services.input
 
-import core.event.Events
+import core.events.Events
 import org.lwjgl.glfw.GLFW
 
 class KeyboardInput(private val window: Long) {

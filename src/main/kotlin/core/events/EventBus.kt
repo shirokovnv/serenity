@@ -1,8 +1,6 @@
-package core.event
+package core.events
 
 import kotlin.reflect.KClass
-
-interface Event
 
 typealias EventHandler<T, S> = (T, S) -> Unit
 
@@ -26,6 +24,15 @@ open class EventBus {
                 listOfHandlers.forEach { (it as EventHandler<T, S>).invoke(event, sender) }
             }
         }
+    }
+
+    fun <T : Event, S> unsubscribe(eventType: KClass<T>, handler: EventHandler<T, S>) {
+        handlers[eventType]?.removeIf { it == handler }
+    }
+
+    inline fun <reified T : Event, reified S> unsubscribe(noinline handler: EventHandler<T, S>) {
+        val eventType = T::class
+        unsubscribe(eventType, handler)
     }
 }
 

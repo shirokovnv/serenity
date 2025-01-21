@@ -25,6 +25,7 @@ import platform.services.filesystem.ObjLoader
 import platform.services.filesystem.TextFileLoader
 import platform.services.input.KeyboardInput
 import platform.services.input.MouseInput
+import platform.services.input.WindowInput
 import java.nio.ByteBuffer
 
 abstract class Application(private val settings: ApplicationSettings) {
@@ -35,6 +36,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     inner class ApplicationResources {
         lateinit var keyboardInput: KeyboardInput
         lateinit var mouseInput: MouseInput
+        lateinit var windowInput: WindowInput
         lateinit var imageLoader: ImageLoader
         lateinit var textFileLoader: TextFileLoader
         lateinit var objLoader: ObjLoader
@@ -77,7 +79,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     fun launch() {
         create()
         printDeviceProperties()
-        registerSharedServices()
+        registerSharedResources()
         registerPipelines()
         registerInputCallbacks()
         registerSceneGraph()
@@ -169,14 +171,16 @@ abstract class Application(private val settings: ApplicationSettings) {
         GLFW.glfwSetCursorPosCallback(window, appResources.mouseInput::mousePosCallback)
         GLFW.glfwSetMouseButtonCallback(window, appResources.mouseInput::mouseButtonCallback)
         GLFW.glfwSetKeyCallback(window, appResources.keyboardInput::keyCallback)
+        GLFW.glfwSetFramebufferSizeCallback(window, appResources.windowInput::windowResizeCallback)
     }
 
-    protected open fun registerSharedServices() {
+    protected open fun registerSharedResources() {
         val viewPort = Viewport(settings.screenWidth, settings.screenHeight)
         Resources.put<ViewportInterface>(viewPort)
 
         appResources.keyboardInput = KeyboardInput(window)
         appResources.mouseInput = MouseInput(window)
+        appResources.windowInput = WindowInput(window)
         appResources.imageLoader = ImageLoader()
         appResources.textFileLoader = TextFileLoader()
         appResources.objLoader = ObjLoader(appResources.textFileLoader, appResources.imageLoader)
@@ -184,6 +188,7 @@ abstract class Application(private val settings: ApplicationSettings) {
 
         Resources.put<KeyboardInput>(appResources.keyboardInput)
         Resources.put<MouseInput>(appResources.mouseInput)
+        Resources.put<WindowInput>(appResources.windowInput)
         Resources.put<ImageLoader>(appResources.imageLoader)
         Resources.put<TextFileLoader>(appResources.textFileLoader)
         Resources.put<ObjLoader>(appResources.objLoader)

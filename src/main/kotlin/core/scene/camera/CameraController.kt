@@ -6,10 +6,7 @@ import core.management.Resources
 import core.math.extensions.toRadians
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
-import platform.services.input.KeyPressedEvent
-import platform.services.input.KeyReleasedEvent
-import platform.services.input.KeyboardInput
-import platform.services.input.MouseMovedEvent
+import platform.services.input.*
 
 enum class CameraMovement {
     FORWARD,
@@ -45,6 +42,7 @@ class CameraController(
         Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
         Events.subscribe<KeyReleasedEvent, Any>(::onKeyReleased)
         Events.subscribe<MouseMovedEvent, Any>(::onMouseMoved)
+        Events.subscribe<WindowResizedEvent, Any>(::onWindowResized)
     }
 
     override fun update(deltaTime: Float) {
@@ -169,5 +167,15 @@ class CameraController(
 
     private fun onMouseMoved(event: MouseMovedEvent, sender: Any) {
         processMouseMovement(event.xOffset, event.yOffset)
+    }
+
+    private fun onWindowResized(event: WindowResizedEvent, sender: Any) {
+        (camera as PerspectiveCamera).setProjParams(
+            event.newWidth.toFloat(),
+            event.newHeight.toFloat(),
+            (camera as PerspectiveCamera).fovY,
+            (camera as PerspectiveCamera).zNear,
+            (camera as PerspectiveCamera).zFar
+        )
     }
 }

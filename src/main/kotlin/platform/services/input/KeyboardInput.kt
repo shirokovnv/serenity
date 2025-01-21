@@ -1,30 +1,22 @@
 package platform.services.input
 
+import core.event.Events
 import org.lwjgl.glfw.GLFW
 
 class KeyboardInput(private val window: Long) {
 
-    private val listeners = mutableListOf<KeyboardInputListener>()
     private val keys = mutableMapOf<Int, Boolean>()
-
-    fun addListener(listener: KeyboardInputListener) {
-        listeners.add(listener)
-    }
-
-    fun removeListener(listener: KeyboardInputListener) {
-        listeners.remove(listener)
-    }
 
     fun keyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
         when (action) {
             GLFW.GLFW_PRESS -> {
+                Events.publish(KeyPressedEvent(key), this)
                 keys[key] = true
-                listeners.forEach{it.onKeyPressed(key)}
             }
 
             GLFW.GLFW_RELEASE ->{
+                Events.publish(KeyReleasedEvent(key), this)
                 keys[key] = false
-                listeners.forEach{it.onKeyReleased(key)}
             }
         }
     }

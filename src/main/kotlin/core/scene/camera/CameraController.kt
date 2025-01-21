@@ -1,14 +1,15 @@
 package core.scene.camera
 
 import core.ecs.Behaviour
+import core.event.Events
 import core.management.Resources
 import core.math.extensions.toRadians
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
+import platform.services.input.KeyPressedEvent
+import platform.services.input.KeyReleasedEvent
 import platform.services.input.KeyboardInput
-import platform.services.input.KeyboardInputListener
-import platform.services.input.MouseInput
-import platform.services.input.MouseInputListener
+import platform.services.input.MouseMovedEvent
 
 enum class CameraMovement {
     FORWARD,
@@ -30,7 +31,7 @@ class CameraController(
     private var moveSpeed: Float,
     private var rotationSpeed: Float,
     private var mouseSensitivity: Float
-): Behaviour(), KeyboardInputListener, MouseInputListener {
+) : Behaviour() {
 
     private var isWireframe: Boolean = false
 
@@ -41,8 +42,9 @@ class CameraController(
     private val rotation = mutableMapOf<CameraRotation, Boolean>()
 
     override fun create() {
-        Resources.get<KeyboardInput>()!!.addListener(this)
-        Resources.get<MouseInput>()!!.addListener(this)
+        Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.subscribe<KeyReleasedEvent, Any>(::onKeyReleased)
+        Events.subscribe<MouseMovedEvent, Any>(::onMouseMoved)
     }
 
     override fun update(deltaTime: Float) {
@@ -54,7 +56,7 @@ class CameraController(
         movement[CameraMovement.RIGHT] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_D)
 
         movement.forEach { (direction, isPressed) ->
-            if(isPressed){
+            if (isPressed) {
                 processMovement(direction)
             }
         }
@@ -62,7 +64,7 @@ class CameraController(
         rotation[CameraRotation.LEFT] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_LEFT)
         rotation[CameraRotation.RIGHT] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_RIGHT)
 
-        rotation.forEach{ (direction, isPressed) ->
+        rotation.forEach { (direction, isPressed) ->
             if (isPressed) {
                 processRotation(direction)
             }
@@ -70,10 +72,11 @@ class CameraController(
     }
 
     override fun destroy() {
-
     }
 
-    override fun onKeyPressed(key: Int) {
+    private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {
+        val key = event.key
+
         getMovementDirection(key)?.let { direction ->
             movement[direction] = true
         }
@@ -82,12 +85,14 @@ class CameraController(
             rotation[direction] = true
         }
 
-        when(key) {
+        when (key) {
             GLFW.GLFW_KEY_5 -> toggleWireframeMode()
         }
     }
 
-    override fun onKeyReleased(key: Int) {
+    private fun onKeyReleased(event: KeyReleasedEvent, sender: Any) {
+        val key = event.key
+
         getMovementDirection(key)?.let { direction ->
             movement[direction] = false
         }
@@ -108,7 +113,7 @@ class CameraController(
     }
 
     private fun getRotationDirection(key: Int): CameraRotation? {
-        return when(key) {
+        return when (key) {
             GLFW.GLFW_KEY_LEFT -> CameraRotation.LEFT
             GLFW.GLFW_KEY_RIGHT -> CameraRotation.RIGHT
             GLFW.GLFW_KEY_UP -> CameraRotation.UP
@@ -136,7 +141,7 @@ class CameraController(
     }
 
     private fun processRotation(direction: CameraRotation) {
-        when(direction) {
+        when (direction) {
             CameraRotation.LEFT -> camera.rotateAroundVerticalAxis(-rotationSpeed.toRadians())
             CameraRotation.RIGHT -> camera.rotateAroundVerticalAxis(rotationSpeed.toRadians())
             CameraRotation.UP -> camera.rotateAroundHorizontalAxis(rotationSpeed.toRadians())
@@ -162,19 +167,7 @@ class CameraController(
         isWireframe = !isWireframe
     }
 
-    override fun onMouseMoved(xOffset: Float, yOffset: Float) {
-        processMouseMovement(xOffset, yOffset)
-    }
-
-    override fun onMouseScrolled(yOffset: Float) {
-
-    }
-
-    override fun onMouseButtonPressed(button: Int) {
-
-    }
-
-    override fun onMouseButtonReleased(button: Int) {
-
+    private fun onMouseMoved(event: MouseMovedEvent, sender: Any) {
+        processMouseMovement(event.xOffset, event.yOffset)
     }
 }

@@ -1,17 +1,19 @@
 package modules.light
 
 import core.ecs.Behaviour
+import core.event.Events
 import core.management.Resources
 import org.lwjgl.glfw.GLFW
+import platform.services.input.KeyPressedEvent
+import platform.services.input.KeyReleasedEvent
 import platform.services.input.KeyboardInput
-import platform.services.input.KeyboardInputListener
 
 enum class SunMovement {
     FORWARD,
     BACKWARD
 }
 
-class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), KeyboardInputListener {
+class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour() {
     private lateinit var sunLightManager: SunLightManager
     private val movement = mutableMapOf<SunMovement, Boolean>()
 
@@ -19,7 +21,9 @@ class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), Key
         sunLightManager = SunLightManager()
 
         Resources.put<SunLightManager>(sunLightManager)
-        Resources.get<KeyboardInput>()!!.addListener(this)
+
+        Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.subscribe<KeyReleasedEvent, Any>(::onKeyReleased)
     }
 
     override fun update(deltaTime: Float) {
@@ -39,14 +43,14 @@ class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), Key
     override fun destroy() {
     }
 
-    override fun onKeyPressed(key: Int) {
-        getDirection(key)?.let { direction ->
+    private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {
+        getDirection(event.key)?.let { direction ->
             movement[direction] = true
         }
     }
 
-    override fun onKeyReleased(key: Int) {
-        getDirection(key)?.let { direction ->
+    private fun onKeyReleased(event: KeyReleasedEvent, sender: Any) {
+        getDirection(event.key)?.let { direction ->
             movement[direction] = false
         }
     }

@@ -11,7 +11,7 @@ layout (location = 2) in vec3 vertex_normal;
 uniform mat4 model; // Model affine transform matrix associated to the current shape
 uniform mat4 view;  // View matrix (rigid transform) of the camera
 uniform mat4 projection; // Projection (perspective or orthogonal) matrix of the camera
-
+uniform vec2 offset_position = vec2(0); // Chunk offset position
 uniform sampler2D u_displacement_map;
 uniform sampler2D u_normal_map;
 uniform int u_resolution;
@@ -43,6 +43,8 @@ vec3 deformer_normal()
 void main()
 {
     vec4 position = model * vec4(deformer(vertex_position), 1.0);
+    position.x += offset_position.x;
+    position.z += offset_position.y;
     mat4 modelNormal = transpose(inverse(model));
     vec4 normal = modelNormal * vec4(deformer_normal(), 0.0);
 

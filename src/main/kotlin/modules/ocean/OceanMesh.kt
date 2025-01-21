@@ -16,8 +16,8 @@ class OceanMesh(private val gridSize: Int, private val uvScale: Float = 1.0f): M
 
         for (y in 0..<gridSize) {
             for (x in 0..<gridSize) {
-                val xPos = -halfSize + x * step
-                val zPos = -halfSize + y * step
+                val xPos = (-halfSize + x * step) * 0.5f + 0.5f
+                val zPos = (-halfSize + y * step) * 0.5f + 0.5f
                 val u = x.toFloat() / (gridSize - 1) * uvScale
                 val v = y.toFloat() / (gridSize - 1) * uvScale
 

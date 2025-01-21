@@ -66,7 +66,7 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         scene.attachToRoot(debugObj)
 
-        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 10000f)
+        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 3000f)
         debugObj.addComponent(camera)
         debugObj.getComponent<Transform>()!!.setTranslation(Vector3(0f, 300f, 0f))
         debugObj.getComponent<Transform>()!!.setRotation(Vector3(0f, 90f.toRadians(), 0f))

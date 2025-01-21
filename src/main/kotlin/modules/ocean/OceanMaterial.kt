@@ -13,6 +13,7 @@ class OceanMaterial: BaseMaterial<OceanMaterial, OceanShader>() {
     lateinit var displacementMap: Texture2d
     lateinit var normalMap: Texture2d
     lateinit var wind: Vector2
+    lateinit var offsetPosition: Vector2
 
     var fftResolution by Delegates.notNull<Int>()
     var oceanSize by Delegates.notNull<Int>()

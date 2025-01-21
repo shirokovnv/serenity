@@ -26,6 +26,7 @@ class OceanMeshShader: OceanShader() {
         addUniform("model")
         addUniform("view")
         addUniform("projection")
+        addUniform("offset_position")
         addUniform("u_displacement_map")
         addUniform("u_normal_map")
         addUniform("u_resolution")
@@ -39,6 +40,7 @@ class OceanMeshShader: OceanShader() {
         setUniform("model", shaderMaterial!!.model)
         setUniform("view", shaderMaterial!!.view)
         setUniform("projection", shaderMaterial!!.projection)
+        setUniform("offset_position", shaderMaterial!!.offsetPosition)
 
         glActiveTexture(GL_TEXTURE0)
         shaderMaterial!!.displacementMap.bind()

@@ -47,6 +47,7 @@ class GrassGenerator {
         }
 
         val worldScale = heightmap.worldScale()
+        val worldOffset = heightmap.worldOffset()
 
         val scaleX = worldScale.x / width
         val scaleY = worldScale.y
@@ -98,9 +99,9 @@ class GrassGenerator {
                     )
                     transform.setTranslation(
                         Vector3(
-                            patchCorner0.x * scaleX,
-                            minHeight * scaleY,
-                            patchCorner0.y * scaleZ
+                            patchCorner0.x * scaleX + worldOffset.x,
+                            minHeight * scaleY + worldOffset.y,
+                            patchCorner0.y * scaleZ + worldOffset.z
                         )
                     )
 

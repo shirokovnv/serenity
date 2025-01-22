@@ -42,7 +42,7 @@ class TreeSetBehaviour : Behaviour() {
 
         val sampler = PoissonDiscSampler()
         val heightmap = Resources.get<Heightmap>()!!
-        val sampleRegionSize = Vector2(heightmap.getWorldScale().x, heightmap.getWorldScale().z)
+        val sampleRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
 
         models = mutableListOf()
         val modelFiles = mapOf(
@@ -82,7 +82,7 @@ class TreeSetBehaviour : Behaviour() {
 
         for (p in points) {
             val transform = Transform()
-            val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.getWorldScale().y
+            val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.worldScale().y
             val position = Vector3(p.x, height, p.y)
 
             val angle = Random.nextFloat() * 2 * PI.toFloat()

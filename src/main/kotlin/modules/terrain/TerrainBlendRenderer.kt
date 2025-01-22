@@ -1,11 +1,13 @@
 package modules.terrain
 
 import core.ecs.Behaviour
+import core.management.Resources
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.heightmap.Blendmap
 import modules.terrain.heightmap.Heightmap
 import org.lwjgl.opengl.*
 import kotlin.math.ln
@@ -20,10 +22,10 @@ class TerrainBlendRenderer(
     private lateinit var material: TerrainBlendMaterial
 
     private val width: Int
-        get() = heightmap.getTexture().getWidth()
+        get() = heightmap.texture().getWidth()
 
     private val height: Int
-        get() = heightmap.getTexture().getHeight()
+        get() = heightmap.texture().getHeight()
 
     fun getMaterial(): TerrainBlendMaterial = material
 
@@ -67,7 +69,7 @@ class TerrainBlendRenderer(
             GL43.glDispatchCompute(width / 16, height / 16, 1)
 
             val error = GL43.glGetError()
-            if (error != GL43.GL_NO_ERROR){
+            if (error != GL43.GL_NO_ERROR) {
                 println("Error while executing compute shader: $error")
             }
 
@@ -75,6 +77,14 @@ class TerrainBlendRenderer(
             material.blendmap.bind()
             material.blendmap.bilinearFilter()
             shader.unbind()
+
+            Resources.put<Blendmap>(
+                Blendmap(
+                    material.blendmap,
+                    heightmap.worldScale(),
+                    heightmap.worldOffset()
+                )
+            )
 
             isFirstFrame = false
 

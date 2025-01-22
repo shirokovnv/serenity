@@ -25,11 +25,11 @@ class TerrainNormalShader : BaseShader<TerrainNormalShader, TerrainNormalMateria
 
     override fun updateUniforms() {
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
-        shaderMaterial!!.heightmap.getTexture().bind()
+        shaderMaterial!!.heightmap.texture().bind()
         setUniformi("heightmap", 0)
 
-        setUniformi("width", shaderMaterial!!.heightmap.getTexture().getWidth())
-        setUniformi("height", shaderMaterial!!.heightmap.getTexture().getHeight())
+        setUniformi("width", shaderMaterial!!.heightmap.texture().getWidth())
+        setUniformi("height", shaderMaterial!!.heightmap.texture().getHeight())
         setUniformf("normalStrength", shaderMaterial!!.normalStrength)
     }
 }

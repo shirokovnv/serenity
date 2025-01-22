@@ -19,10 +19,10 @@ class TerrainNormalRenderer(
     private lateinit var material: TerrainNormalMaterial
 
     private val width: Int
-        get() = heightmap.getTexture().getWidth()
+        get() = heightmap.texture().getWidth()
 
     private val height: Int
-        get() = heightmap.getTexture().getHeight()
+        get() = heightmap.texture().getHeight()
 
     fun getMaterial(): TerrainNormalMaterial = material
 

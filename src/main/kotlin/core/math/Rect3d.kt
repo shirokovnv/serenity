@@ -1,5 +1,8 @@
 package core.math
 
+import kotlin.math.max
+import kotlin.math.min
+
 enum class Rect3dPlane {
     XY,
     XZ,
@@ -62,5 +65,15 @@ data class Rect3d(val min: Vector3, val max: Vector3): Shape {
         max.y *= scale.y
         min.z *= scale.z
         max.z *= scale.z
+    }
+
+    fun unionPoint(point: Vector3) {
+        min.x = min(min.x, point.x)
+        min.y = min(min.y, point.y)
+        min.z = min(min.z, point.z)
+
+        max.x = max(max.x, point.x)
+        max.y = max(max.y, point.y)
+        max.z = max(max.z, point.z)
     }
 }

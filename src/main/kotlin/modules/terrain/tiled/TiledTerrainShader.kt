@@ -93,7 +93,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniformf("gridScale", shaderMaterial!!.gridScale)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
-        shaderMaterial!!.heightmap.getTexture().bind()
+        shaderMaterial!!.heightmap.texture().bind()
         setUniformi("heightmap", 0)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE1)

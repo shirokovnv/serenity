@@ -34,8 +34,8 @@ class LinearQuadTree : SpatialPartitioningInterface {
 
         this.worldScale = Vector3(
             256.0f / worldExtents.x,
-            256.0f / worldExtents.y,
-            32.0f / worldExtents.z
+            32.0f / worldExtents.y,
+            256.0f / worldExtents.z,
         )
 
         for (i in 0..<depth) {
@@ -118,13 +118,13 @@ class LinearQuadTree : SpatialPartitioningInterface {
             val localRect = LinearQuadTreeRect(
                 byteRect.x0 shr shiftCount,
                 byteRect.x1 shr shiftCount,
-                byteRect.y0 shr shiftCount,
-                byteRect.y1 shr shiftCount,
                 0,
-                0
+                0,
+                byteRect.z0 shr shiftCount,
+                byteRect.z1 shr shiftCount,
             )
 
-            for (y in localRect.y0..localRect.y1) {
+            for (y in localRect.z0..localRect.z1) {
                 for (x in localRect.x0..localRect.x1) {
                     val node = getNodeFromLevelXY(level, x, y)
 
@@ -146,7 +146,7 @@ class LinearQuadTree : SpatialPartitioningInterface {
 
     private fun findTreeNodeInfo(worldByteRect: LinearQuadTreeRect): LinearQuadTreeNodeInfo {
         val xPattern = worldByteRect.x0 xor worldByteRect.x1
-        val yPattern = worldByteRect.y0 xor worldByteRect.y1
+        val yPattern = worldByteRect.z0 xor worldByteRect.z1
 
         val bitPattern = max(xPattern, yPattern)
         val highBit = if (bitPattern != 0) highestBitSet(bitPattern) + 1 else 0
@@ -157,7 +157,7 @@ class LinearQuadTree : SpatialPartitioningInterface {
         val shift = Constants.MAX_TREE_DEPTH.value - level - 1
 
         val levelX = worldByteRect.x1 shr shift
-        val levelY = worldByteRect.y1 shr shift
+        val levelY = worldByteRect.z1 shr shift
 
         return LinearQuadTreeNodeInfo(levelX, levelY, level)
     }

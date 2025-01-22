@@ -34,15 +34,15 @@ class TerrainBlendShader : BaseShader<TerrainBlendShader, TerrainBlendMaterial>(
 
     override fun updateUniforms() {
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
-        shaderMaterial!!.heightmap.getTexture().bind()
+        shaderMaterial!!.heightmap.texture().bind()
         setUniformi("heightmap", 0)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE1)
         shaderMaterial!!.normalmap.bind()
         setUniformi("normalmap", 1)
 
-        setUniformi("width", shaderMaterial!!.heightmap.getTexture().getWidth())
-        setUniformi("height", shaderMaterial!!.heightmap.getTexture().getHeight())
+        setUniformi("width", shaderMaterial!!.heightmap.texture().getWidth())
+        setUniformi("height", shaderMaterial!!.heightmap.texture().getHeight())
 
         val elevationDataCount = shaderMaterial!!.elevationData.size.coerceIn(1..MAX_ELEVATION_DATA_COUNT)
 

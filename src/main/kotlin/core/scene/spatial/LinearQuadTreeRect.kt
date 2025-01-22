@@ -28,8 +28,8 @@ class LinearQuadTreeRect(
 
 
         convertedRect.max.x = max(convertedRect.max.x, convertedRect.min.x)
-        convertedRect.max.y = max(convertedRect.max.y, convertedRect.min.x)
-        convertedRect.max.z = max(convertedRect.max.z, convertedRect.min.x)
+        convertedRect.max.y = max(convertedRect.max.y, convertedRect.min.y)
+        convertedRect.max.z = max(convertedRect.max.z, convertedRect.min.z)
 
         x0 = convertedRect.min.x.toIntFloor()
         x1 = convertedRect.max.x.toIntFloor()
@@ -39,12 +39,12 @@ class LinearQuadTreeRect(
         z1 = convertedRect.max.z.toIntFloor()
 
         x0 = x0.clamp(0, 254)
-        y0 = y0.clamp(0, 254)
-        z0 = z0.clamp(0, 30)
+        y0 = y0.clamp(0, 30)
+        z0 = z0.clamp(0, 254)
 
         x1 = x1.clamp(x0 + 1, 255)
-        y1 = y1.clamp(y0 + 1, 255)
-        z1 = z1.clamp(z0 + 1, 31)
+        y1 = y1.clamp(y0 + 1, 31)
+        z1 = z1.clamp(z0 + 1, 255)
 
         return this
     }

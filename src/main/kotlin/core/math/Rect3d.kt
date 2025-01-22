@@ -66,14 +66,4 @@ data class Rect3d(val min: Vector3, val max: Vector3): Shape {
         min.z *= scale.z
         max.z *= scale.z
     }
-
-    fun unionPoint(point: Vector3) {
-        min.x = min(min.x, point.x)
-        min.y = min(min.y, point.y)
-        min.z = min(min.z, point.z)
-
-        max.x = max(max.x, point.x)
-        max.y = max(max.y, point.y)
-        max.z = max(max.z, point.z)
-    }
 }

@@ -12,11 +12,11 @@ const float windDisplacement = 0.02;
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 worldMatrix;
-
+uniform vec3 cameraPosition;
 uniform float time;
 
 out float height;
-out vec4 eyeSpacePosition;
+out float alpha;
 
 mat4 rotationY(in float angle) {
     return mat4(cos(angle), 0, sin(angle), 0,
@@ -55,5 +55,13 @@ void main() {
     vec3 transformedNormal = normalize(normalRotation * normal);
     gl_Position = projMatrix * viewMatrix * worldMatrix * vec4(finalPosition, 1.0);
 
-    eyeSpacePosition = viewMatrix * vec4(finalPosition, 1.0);
+    // 1. Calculate distance to the patch
+    float dist = length((worldMatrix * vec4(finalPosition, 1)).xyz - cameraPosition);
+
+    // 2. Determine alpha blend range
+    float minDistance = 10.0;  // Min distance, when alpha = 1
+    float maxDistance = 100.0; // Max distance, when alpha = 0
+
+    // 3. Calculate alpha blend factor
+    alpha = 1 - clamp((dist - minDistance) / (maxDistance - minDistance), 0.0, 1.0);
 }

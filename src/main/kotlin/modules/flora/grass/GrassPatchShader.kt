@@ -1,6 +1,7 @@
 package modules.flora.grass
 
 import core.management.Resources
+import core.scene.camera.Camera
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import platform.services.filesystem.TextFileLoader
@@ -24,6 +25,7 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         addUniform("worldMatrix")
         addUniform("viewMatrix")
         addUniform("projMatrix")
+        addUniform("cameraPosition")
         addUniform("time")
     }
 
@@ -31,6 +33,7 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         setUniform("worldMatrix", shaderMaterial!!.worldMatrix)
         setUniform("viewMatrix", shaderMaterial!!.viewMatrix)
         setUniform("projMatrix", shaderMaterial!!.projMatrix)
+        setUniform("cameraPosition", Resources.get<Camera>()!!.position())
         setUniformf("time", shaderMaterial!!.time)
     }
 }

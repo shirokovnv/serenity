@@ -16,6 +16,8 @@ import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Blendmap
 import modules.terrain.heightmap.Heightmap
 import org.lwjgl.glfw.GLFW.glfwGetTime
+import org.lwjgl.opengl.GL43.*
+import platform.services.FrameCounter
 import platform.services.filesystem.ObjLoader
 
 class GrassBehaviour : Behaviour(), Renderer {
@@ -44,7 +46,7 @@ class GrassBehaviour : Behaviour(), Renderer {
         shader bind material
         shader.setup()
 
-        grassPatchParams = GrassPatchParams(0.08f, 3.0f, 5, 200.0f)
+        grassPatchParams = GrassPatchParams(0.08f, 3.0f, 2, 100.0f)
         grassGenerator = GrassGenerator()
         grassGenerator.generateInstances(grassModel, grassPatchParams.spacing)
         grassModel.createBuffers()
@@ -102,6 +104,9 @@ class GrassBehaviour : Behaviour(), Renderer {
             )
         )
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
         quadTree
             .buildSearchResults(searchVolume)
             .filterIsInstance<GrassPatch>()
@@ -110,6 +115,10 @@ class GrassBehaviour : Behaviour(), Renderer {
                 shader.updateUniforms()
                 grassModel.draw()
             }
+
+        glDisable(GL_BLEND)
+
+        println("fps: ${Resources.get<FrameCounter>()!!.fps()}")
 
         shader.unbind()
     }

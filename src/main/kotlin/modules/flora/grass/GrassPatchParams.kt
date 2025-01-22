@@ -9,7 +9,7 @@ data class GrassPatchParams(
     init {
         require(spacing in 0.0f..1.0f)
         require(verticalScale in 1.0f..20.0f)
-        require(cellSize in 2..100)
+        require(cellSize in 1..100)
         require(viewRange > 0.0f)
     }
 }

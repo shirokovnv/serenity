@@ -70,9 +70,9 @@ void main()
         * blendValueArray[i];
     }
 
-    float s = sunIntensity;
+    vec3 ambient = mix(vec3(0), vec3(0.1, 0.1, 0.2), 1 - dot(sunVector, normal));
     float diffuse = diffuse(-sunVector, normal, sunIntensity);
-    fragColor *= diffuse * sunColor;
+    fragColor *= diffuse * sunColor + ambient;
 
     // shadow calculation
     float shadow = shadowCalculation(positionLightSpace_FS, normal_FS, -sunVector, shadowmap, 20.0f);

@@ -40,8 +40,8 @@ class App(settings: ApplicationSettings): Application(settings) {
     override fun oneTimeSceneInit(): SceneGraph {
         val scene = SceneGraph(
             Rect3d(
-                Vector3(0f),
-                Vector3(1000f)
+                Vector3(-3000f),
+                Vector3(3000f)
             )
         )
 

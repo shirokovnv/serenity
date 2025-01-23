@@ -103,138 +103,20 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
     }
 
     fun recalculateSearchVolume() {
-        val cameraPosition = camera.position()
-        val cameraRight = camera.right()
-        val cameraForward = camera.forward()
-        val cameraUp = camera.up()
-
-        // Build a box around frustum
-        val fpSize = calculateFrustumSize(
-            camera.zNear,
-            camera.zFar,
-            camera.fovY,
-            camera.width,
-            camera.height
+        val frustumSphere = calculateBoundingSphere()
+        val worldSphereCenter = (camera.view.invert() * Quaternion(frustumSphere.center, 1f)).xyz()
+        val searchRectMin = Vector3(
+            worldSphereCenter.x - frustumSphere.radius,
+            worldSphereCenter.y - frustumSphere.radius,
+            worldSphereCenter.z - frustumSphere.radius,
+        )
+        val searchRectMax = Vector3(
+            worldSphereCenter.x + frustumSphere.radius,
+            worldSphereCenter.y + frustumSphere.radius,
+            worldSphereCenter.z + frustumSphere.radius,
         )
 
-        val corners = calculateFrustumCorners(
-            cameraPosition,
-            fpSize,
-            camera.zNear,
-            camera.zFar
-        )
-
-        val orientedCorners = applyCameraOrientation(corners, cameraPosition, cameraForward, cameraUp, cameraRight)
-
-        val searchRect = calculateBoundingBox(orientedCorners)
-        searchVolume.setShape(searchRect)
-    }
-
-    private fun calculateFrustumSize(
-        zNear: Float,
-        zFar: Float,
-        fovY: Float,
-        screenWidth: Float,
-        screenHeight: Float
-    ): FrustumPlaneSize {
-        val aspectRatio = screenWidth / screenHeight
-
-        // Calculate near plane size
-        val nearHeight = 2 * tan(fovY / 2 * (PI.toFloat() / 180f)) * zNear
-        val nearWidth = nearHeight * aspectRatio
-
-        // Calculate far plane size
-        val farHeight = 2 * tan(fovY / 2 * (PI.toFloat() / 180f)) * zFar
-        val farWidth = farHeight * aspectRatio
-
-        return FrustumPlaneSize(
-            nearWidth,
-            nearHeight,
-            farWidth,
-            farHeight
-        )
-    }
-
-    private fun calculateFrustumCorners(
-        cameraPosition: Vector3,
-        fpSize: FrustumPlaneSize,
-        zNear: Float, zFar: Float
-    ): List<Vector3> {
-        val nearCorners = listOf(
-            Vector3(
-                cameraPosition.x - fpSize.nearWidth / 2,
-                cameraPosition.y - fpSize.nearHeight / 2,
-                cameraPosition.z + zNear),
-            Vector3(
-                cameraPosition.x + fpSize.nearWidth / 2,
-                cameraPosition.y - fpSize.nearHeight / 2,
-                cameraPosition.z + zNear),
-            Vector3(
-                cameraPosition.x + fpSize.nearWidth / 2,
-                cameraPosition.y + fpSize.nearHeight / 2,
-                cameraPosition.z + zNear),
-            Vector3(
-                cameraPosition.x - fpSize.nearWidth / 2,
-                cameraPosition.y + fpSize.nearHeight / 2,
-                cameraPosition.z + zNear)
-        )
-
-        val farCorners = listOf(
-            Vector3(
-                cameraPosition.x - fpSize.farWidth / 2,
-                cameraPosition.y - fpSize.farHeight / 2,
-                cameraPosition.z + zFar),
-            Vector3(
-                cameraPosition.x + fpSize.farWidth / 2,
-                cameraPosition.y - fpSize.farHeight / 2,
-                cameraPosition.z + zFar),
-            Vector3(
-                cameraPosition.x + fpSize.farWidth / 2,
-                cameraPosition.y + fpSize.farHeight / 2,
-                cameraPosition.z + zFar),
-            Vector3(
-                cameraPosition.x - fpSize.farWidth / 2,
-                cameraPosition.y + fpSize.farHeight / 2,
-                cameraPosition.z + zFar)
-        )
-
-        return nearCorners + farCorners
-    }
-
-    private fun applyCameraOrientation(
-        corners: List<Vector3>,
-        cameraPosition: Vector3,
-        cameraForward: Vector3,
-        cameraUp: Vector3,
-        cameraRight: Vector3
-    ): List<Vector3> {
-        return corners.map { corner ->
-            Vector3(
-                cameraPosition.x + corner.x * cameraRight.x + corner.y * cameraUp.x + corner.z * cameraForward.x,
-                cameraPosition.y + corner.x * cameraRight.y + corner.y * cameraUp.y + corner.z * cameraForward.y,
-                cameraPosition.z + corner.x * cameraRight.z + corner.y * cameraUp.z + corner.z * cameraForward.z
-            )
-        }
-    }
-
-    private fun calculateBoundingBox(corners: List<Vector3>): Rect3d {
-        var minX = Float.MAX_VALUE
-        var minY = Float.MAX_VALUE
-        var minZ = Float.MAX_VALUE
-        var maxX = Float.MIN_VALUE
-        var maxY = Float.MIN_VALUE
-        var maxZ = Float.MIN_VALUE
-
-        for (corner in corners) {
-            minX = min(minX, corner.x)
-            minY = min(minY, corner.y)
-            minZ = min(minZ, corner.z)
-            maxX = max(maxX, corner.x)
-            maxY = max(maxY, corner.y)
-            maxZ = max(maxZ, corner.z)
-        }
-
-        return Rect3d(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ))
+        searchVolume.setShape(Rect3d(searchRectMin, searchRectMax))
     }
 
     fun checkSphereInFrustum(sphere: Sphere): Boolean {

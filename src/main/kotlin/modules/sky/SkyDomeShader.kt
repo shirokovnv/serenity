@@ -1,6 +1,6 @@
 package modules.sky
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
@@ -9,7 +9,7 @@ import platform.services.filesystem.TextFileLoader
 
 class SkyDomeShader: BaseShader<SkyDomeShader, SkyDomeMaterial>() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         val atmosphereInc = fileLoader.load("shaders/include/Atmosphere.glsl")!!
         val vertexSource = preprocessShader(
@@ -45,8 +45,8 @@ class SkyDomeShader: BaseShader<SkyDomeShader, SkyDomeMaterial>() {
         shaderMaterial!!.cloudTexture.bind()
         setUniformi("cloudTexture", 0)
 
-        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
-        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
-        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
+        setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
+        setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
+        setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
     }
 }

@@ -1,7 +1,7 @@
 package modules.light
 
 import core.ecs.Behaviour
-import core.scene.Object
+import core.management.Resources
 
 class AtmosphereController: Behaviour() {
     private lateinit var atmosphereManager: AtmosphereManager
@@ -11,7 +11,7 @@ class AtmosphereController: Behaviour() {
         atmosphereManager = AtmosphereManager()
         atmosphereSsbo = AtmosphereConstantsSsbo(atmosphereManager.getShaderParams())
 
-        Object.services.putService<AtmosphereConstantsSsbo>(atmosphereSsbo)
+        Resources.put<AtmosphereConstantsSsbo>(atmosphereSsbo)
     }
 
     override fun update(deltaTime: Float) {

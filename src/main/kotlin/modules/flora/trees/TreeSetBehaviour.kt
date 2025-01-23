@@ -1,6 +1,7 @@
-package modules.flora.palm
+package modules.flora.trees
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
 import core.math.Vector3
@@ -21,27 +22,27 @@ import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
 
-class PalmBehaviour : Behaviour() {
+class TreeSetBehaviour : Behaviour() {
     lateinit var material: ModelMaterial
     private lateinit var shader: ModelShader
     private lateinit var models: MutableList<Model>
     private lateinit var renderer: ModelRenderer
 
     private val viewProjectionProvider: Matrix4
-        get() = Object.services.getService<Camera>()!!.viewProjection
+        get() = Resources.get<Camera>()!!.viewProjection
 
     private val lightViewProvider: Matrix4
-        get() = Object.services.getService<SunLightManager>()!!.calculateLightViewMatrix()
+        get() = Resources.get<SunLightManager>()!!.calculateLightViewMatrix()
 
     private val orthoProjectionProvider: Matrix4
-        get() = Object.services.getService<OrthographicCamera>()!!.projection
+        get() = Resources.get<OrthographicCamera>()!!.projection
 
     override fun create() {
-        val objLoader = Object.services.getService<ObjLoader>()!!
+        val objLoader = Resources.get<ObjLoader>()!!
 
         val sampler = PoissonDiscSampler()
-        val heightmap = Object.services.getService<Heightmap>()!!
-        val sampleRegionSize = Vector2(heightmap.getWorldScale().x, heightmap.getWorldScale().z)
+        val heightmap = Resources.get<Heightmap>()!!
+        val sampleRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
 
         models = mutableListOf()
         val modelFiles = mapOf(
@@ -81,7 +82,7 @@ class PalmBehaviour : Behaviour() {
 
         for (p in points) {
             val transform = Transform()
-            val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.getWorldScale().y
+            val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.worldScale().y
             val position = Vector3(p.x, height, p.y)
 
             val angle = Random.nextFloat() * 2 * PI.toFloat()

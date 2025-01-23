@@ -1,12 +1,43 @@
 package core.math
 
-import kotlin.math.sqrt
+import kotlin.math.*
 
 class Quaternion {
     var x = 0f
     var y = 0f
     var z = 0f
     var w = 0f
+
+    companion object {
+        fun fromAxisAngle(axisX: Float, axisY: Float, axisZ: Float, angle: Float): Quaternion {
+            val halfAngle = angle * 0.5f
+            val s = sin(halfAngle)
+
+            val axis = Vector3(axisX, axisY, axisZ).normalize()
+            val x = axis.x * s
+            val y = axis.y * s
+            val z = axis.z * s
+            val w = cos(halfAngle)
+
+            return Quaternion(x, y, z, w)
+        }
+
+        fun fromEulerAngles(roll: Float, pitch: Float, yaw: Float): Quaternion {
+            val cr = cos(roll * 0.5f)
+            val sr = sin(roll * 0.5f)
+            val cp = cos(pitch * 0.5f)
+            val sp = sin(pitch * 0.5f)
+            val cy = cos(yaw * 0.5f)
+            val sy = sin(yaw * 0.5f)
+
+            val qw = cy * cr * cp + sy * sr * sp
+            val qx = cy * sr * cp - sy * cr * sp
+            val qy = cy * cr * sp + sy * sr * cp
+            val qz = sy * cr * cp - cy * sr * sp
+
+            return Quaternion(qx, qy, qz, qw)
+        }
+    }
 
     constructor(x: Float = 0.0f, y: Float = 0.0f, z: Float = 0.0f, w: Float = 1.0f) {
         this.x = x
@@ -48,6 +79,30 @@ class Quaternion {
 
     fun conjugate(): Quaternion {
         return Quaternion(-x, -y, -z, w)
+    }
+
+    fun toEulerAngles(): Vector3 {
+        val qx = this.x
+        val qy = this.y
+        val qz = this.z
+        val qw = this.w
+
+        val sinPitch = 2.0f * (qw * qy - qz * qx)
+
+        val pitch: Float = if (abs(sinPitch) >= 1f) {
+            if (sinPitch > 0) {
+                PI.toFloat() / 2f
+            } else {
+                -PI.toFloat() / 2f
+            }
+        } else {
+            asin(sinPitch)
+        }
+
+        val yaw = atan2(2.0f * (qw * qz + qx * qy), 1.0f - 2.0f * (qy * qy + qz * qz))
+        val roll = atan2(2.0f * (qw * qx + qy * qz), 1.0f - 2.0f * (qx * qx + qy * qy))
+
+        return Vector3(roll, pitch, yaw)
     }
 
     operator fun plus(quaternion: Quaternion): Quaternion {

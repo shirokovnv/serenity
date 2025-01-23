@@ -1,6 +1,7 @@
 package modules.sky
 
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
 import core.math.Vector3
@@ -23,20 +24,20 @@ class SkyDomeRenderer(private val params: SkyDomeParams = SkyDomeParams()) : Beh
     private var rotationAngle: Float = 0f
 
     private val camera: Camera
-        get() = Object.services.getService<Camera>()!!
+        get() = Resources.get<Camera>()!!
 
     private val worldViewProjection: Matrix4
         get() = camera.viewProjection * (owner()!! as Object).worldMatrix()
 
     private val atmosphereConstantsSsbo: AtmosphereConstantsSsbo
-        get() = Object.services.getService<AtmosphereConstantsSsbo>()!!
+        get() = Resources.get<AtmosphereConstantsSsbo>()!!
 
     override fun create() {
         material = SkyDomeMaterial()
         shader = SkyDomeShader()
         shader bind material
 
-        val cloudTexture = Texture2d(Object.services.getService<ImageLoader>()!!.loadImage("textures/sky/clouds.jpg"))
+        val cloudTexture = Texture2d(Resources.get<ImageLoader>()!!.loadImage("textures/sky/clouds.jpg"))
         cloudTexture.bind()
         cloudTexture.bilinearFilter()
 

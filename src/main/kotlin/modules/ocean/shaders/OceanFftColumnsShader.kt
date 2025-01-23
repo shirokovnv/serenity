@@ -1,13 +1,12 @@
 package modules.ocean.shaders
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.ShaderType
-import modules.ocean.OceanShader
 import platform.services.filesystem.TextFileLoader
 
 class OceanFftColumnsShader: OceanFftShader() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         addShader(
             fileLoader.load("shaders/ocean/FftColumns_CS.glsl")!!,

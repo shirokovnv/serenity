@@ -1,29 +1,33 @@
 package modules.light
 
 import core.ecs.Behaviour
-import core.scene.Object
+import core.events.Events
+import core.management.Resources
 import org.lwjgl.glfw.GLFW
+import platform.services.input.KeyPressedEvent
+import platform.services.input.KeyReleasedEvent
 import platform.services.input.KeyboardInput
-import platform.services.input.KeyboardInputListener
 
 enum class SunMovement {
     FORWARD,
     BACKWARD
 }
 
-class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), KeyboardInputListener {
+class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour() {
     private lateinit var sunLightManager: SunLightManager
     private val movement = mutableMapOf<SunMovement, Boolean>()
 
     override fun create() {
         sunLightManager = SunLightManager()
 
-        Object.services.putService<SunLightManager>(sunLightManager)
-        Object.services.getService<KeyboardInput>()!!.addListener(this)
+        Resources.put<SunLightManager>(sunLightManager)
+
+        Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.subscribe<KeyReleasedEvent, Any>(::onKeyReleased)
     }
 
     override fun update(deltaTime: Float) {
-        val keyboardInput = Object.services.getService<KeyboardInput>()!!
+        val keyboardInput = Resources.get<KeyboardInput>()!!
         movement[SunMovement.FORWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_EQUAL)
         movement[SunMovement.BACKWARD] = keyboardInput.isKeyHolding(GLFW.GLFW_KEY_MINUS)
 
@@ -37,16 +41,18 @@ class SunLightController(private val moveSpeed: Float = 0.01f): Behaviour(), Key
     }
 
     override fun destroy() {
+        Events.unsubscribe<KeyPressedEvent, Any>(::onKeyPressed)
+        Events.unsubscribe<KeyReleasedEvent, Any>(::onKeyReleased)
     }
 
-    override fun onKeyPressed(key: Int) {
-        getDirection(key)?.let { direction ->
+    private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {
+        getDirection(event.key)?.let { direction ->
             movement[direction] = true
         }
     }
 
-    override fun onKeyReleased(key: Int) {
-        getDirection(key)?.let { direction ->
+    private fun onKeyReleased(event: KeyReleasedEvent, sender: Any) {
+        getDirection(event.key)?.let { direction ->
             movement[direction] = false
         }
     }

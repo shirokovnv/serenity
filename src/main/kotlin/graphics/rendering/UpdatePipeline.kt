@@ -11,11 +11,18 @@ class UpdatePipeline(private val timer: Timer) {
         private val objects = mutableListOf<Object>()
     }
 
+    private val behaviourMap = mutableMapOf<Behaviour, Boolean>()
+
     fun update(objects: List<Object>) {
         objects
             .filter { it.isActive() }
             .flatMap { it -> it.getComponents<Behaviour>().filter { it.isActive() } }
             .forEach { behaviour ->
+                // before update we need to ensure behaviour is created
+                if (!behaviourMap.containsKey(behaviour) || behaviourMap[behaviour] == false) {
+                    behaviour.create()
+                    behaviourMap[behaviour] = true
+                }
                 behaviour.update(timer.deltaTime())
             }
     }

@@ -26,4 +26,7 @@ open class Mesh2d : BaseComponent() {
 
     fun hasVertices(): Boolean = vertices.isNotEmpty()
     fun hasUVs(): Boolean = uvs.isNotEmpty()
+
+    fun countVertices(): Int = vertices.size
+    fun countUVs(): Int = uvs.size
 }

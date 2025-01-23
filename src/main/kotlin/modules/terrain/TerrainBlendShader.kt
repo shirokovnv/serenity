@@ -1,6 +1,6 @@
 package modules.terrain
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import org.lwjgl.opengl.GL43
@@ -8,7 +8,7 @@ import platform.services.filesystem.TextFileLoader
 
 class TerrainBlendShader : BaseShader<TerrainBlendShader, TerrainBlendMaterial>() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         addShader(
             fileLoader.load("shaders/terrain/TerrainBlend_CS.glsl")!!,
@@ -34,15 +34,15 @@ class TerrainBlendShader : BaseShader<TerrainBlendShader, TerrainBlendMaterial>(
 
     override fun updateUniforms() {
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
-        shaderMaterial!!.heightmap.getTexture().bind()
+        shaderMaterial!!.heightmap.texture().bind()
         setUniformi("heightmap", 0)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE1)
         shaderMaterial!!.normalmap.bind()
         setUniformi("normalmap", 1)
 
-        setUniformi("width", shaderMaterial!!.heightmap.getTexture().getWidth())
-        setUniformi("height", shaderMaterial!!.heightmap.getTexture().getHeight())
+        setUniformi("width", shaderMaterial!!.heightmap.texture().getWidth())
+        setUniformi("height", shaderMaterial!!.heightmap.texture().getHeight())
 
         val elevationDataCount = shaderMaterial!!.elevationData.size.coerceIn(1..MAX_ELEVATION_DATA_COUNT)
 

@@ -1,6 +1,8 @@
 import core.ecs.Behaviour
+import core.management.Resources
 import core.math.Rect3d
 import core.math.Vector3
+import core.math.extensions.toRadians
 import core.scene.BoxAABB
 import core.scene.Object
 import core.scene.SceneGraph
@@ -10,9 +12,11 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
-import modules.flora.palm.Palm
+import modules.flora.grass.Grass
+import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
+import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.sky.SkyDome
 import modules.terrain.heightmap.Heightmap
@@ -64,17 +68,18 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         scene.attachToRoot(debugObj)
 
-        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 10000f)
+        val camera = PerspectiveCamera(1280f, 720f, 70f, 0.1f, 3000f)
         debugObj.addComponent(camera)
         debugObj.getComponent<Transform>()!!.setTranslation(Vector3(0f, 300f, 0f))
+        debugObj.getComponent<Transform>()!!.setRotation(Vector3(0f, 90f.toRadians(), 0f))
         debugObj.getComponent<BoxAABB>()!!.setShape(
             Rect3d(Vector3(1f), Vector3(3f))
         )
 
-        val cameraController = CameraController(0.5f, 0.1f)
+        val cameraController = CameraController(0.5f, 1.5f, 0.1f)
         debugObj.addComponent(cameraController)
 
-        Object.services.putService<Camera>(camera)
+        Resources.put<Camera>(camera)
 
         val worldScale = Vector3(1600.0f, 360.0f, 1600.0f)
         val worldOffset = Vector3(0f)
@@ -88,10 +93,10 @@ class App(settings: ApplicationSettings): Application(settings) {
             -orthoScale,
             orthoScale
         )
-        Object.services.putService<OrthographicCamera>(orthographicCamera)
+        Resources.put<OrthographicCamera>(orthographicCamera)
 
         val heightTexture = Texture2d(
-            Object.services.getService<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
+            Resources.get<ImageLoader>()!!.loadImage("textures/heightmap/hm0.bmp")
         )
 
         val heightmap = Heightmap(heightTexture, worldScale, worldOffset)
@@ -121,17 +126,23 @@ class App(settings: ApplicationSettings): Application(settings) {
         )
         scene.attachToRoot(tiledTerrain)
 
-        Object.services.putService<Heightmap>(randomHeightmap)
+        Resources.put<Heightmap>(randomHeightmap)
 
-        val palm = Palm()
+        val palm = TreeSet()
         palm.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         //palm.getComponent<Transform>()!!.setTranslation(Vector3(0f, 100f, 0f))
         scene.attachToRoot(palm)
+
+        val grass = Grass()
+        scene.attachToRoot(grass)
 
         val ocean = Ocean()
         ocean.getComponent<Transform>()!!.setScale(worldScale)
         scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome())
+
+        val lensFlare = LensFlare()
+        scene.attachToRoot(lensFlare)
 
 
         val frustum = Frustum(camera)

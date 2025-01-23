@@ -1,5 +1,6 @@
 package platform.services.input
 
+import core.events.Events
 import org.lwjgl.glfw.GLFW.GLFW_PRESS
 import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
@@ -12,16 +13,6 @@ class MouseInput(val window: Long) {
     private var lastY = 0.0
     private var isFirstMouse = true
 
-    private val listeners = mutableListOf<MouseInputListener>()
-
-    fun addListener(listener: MouseInputListener) {
-        listeners.add(listener)
-    }
-
-    fun removeListener(listener: MouseInputListener) {
-        listeners.remove(listener)
-    }
-
     fun mousePosCallback(window: Long, xpos: Double, ypos: Double) {
 
         if (isFirstMouse) {
@@ -31,7 +22,7 @@ class MouseInput(val window: Long) {
         } else { // Only update if not the first mouse movement
             mouseXDelta = (xpos - lastX).toFloat()
             mouseYDelta = (lastY - ypos).toFloat()
-            listeners.forEach{ it.onMouseMoved(mouseXDelta, mouseYDelta)}
+            Events.publish(MouseMovedEvent(mouseXDelta, mouseYDelta), this)
         }
 
         lastX = xpos
@@ -40,14 +31,14 @@ class MouseInput(val window: Long) {
 
     fun mouseScrollCallback(window: Long, xoffset: Double, yoffset: Double) {
         mouseScrollY = yoffset.toFloat()
-        listeners.forEach{ it.onMouseScrolled(mouseScrollY) }
+        Events.publish(MouseScrolledEvent(mouseScrollY), this)
     }
 
     fun mouseButtonCallback(window: Long, button: Int, action: Int, mods: Int) {
         if (action == GLFW_PRESS) {
-            listeners.forEach { it.onMouseButtonPressed(button) }
+            Events.publish(MouseButtonPressedEvent(button), this)
         } else if (action == GLFW_RELEASE) {
-            listeners.forEach { it.onMouseButtonReleased(button) }
+            Events.publish(MouseButtonReleasedEvent(button), this)
         }
     }
 

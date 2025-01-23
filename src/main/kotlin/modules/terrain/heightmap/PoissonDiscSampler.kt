@@ -74,8 +74,8 @@ class PoissonDiscSampler {
             && candidate.y >= 0
             && candidate.y < params.sampleRegionSize.y
         ) {
-            val worldX = candidate.x - heightmap.getWorldOffset().x
-            val worldY = candidate.y - heightmap.getWorldOffset().z
+            val worldX = candidate.x - heightmap.worldOffset().x
+            val worldY = candidate.y - heightmap.worldOffset().z
 
             val height = heightmap.getInterpolatedHeight(worldX, worldY)
 

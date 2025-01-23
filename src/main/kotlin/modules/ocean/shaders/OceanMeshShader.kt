@@ -1,6 +1,6 @@
 package modules.ocean.shaders
 
-import core.scene.Object
+import core.management.Resources
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
 import modules.ocean.OceanShader
@@ -9,7 +9,7 @@ import platform.services.filesystem.TextFileLoader
 
 class OceanMeshShader: OceanShader() {
     override fun setup() {
-        val fileLoader = Object.services.getService<TextFileLoader>()!!
+        val fileLoader = Resources.get<TextFileLoader>()!!
 
         addShader(
             fileLoader.load("shaders/ocean/Mesh_VS.glsl")!!,
@@ -26,6 +26,7 @@ class OceanMeshShader: OceanShader() {
         addUniform("model")
         addUniform("view")
         addUniform("projection")
+        addUniform("offset_position")
         addUniform("u_displacement_map")
         addUniform("u_normal_map")
         addUniform("u_resolution")
@@ -39,6 +40,7 @@ class OceanMeshShader: OceanShader() {
         setUniform("model", shaderMaterial!!.model)
         setUniform("view", shaderMaterial!!.view)
         setUniform("projection", shaderMaterial!!.projection)
+        setUniform("offset_position", shaderMaterial!!.offsetPosition)
 
         glActiveTexture(GL_TEXTURE0)
         shaderMaterial!!.displacementMap.bind()
@@ -48,8 +50,8 @@ class OceanMeshShader: OceanShader() {
         shaderMaterial!!.normalMap.bind()
         setUniformi("u_normal_map", 1)
 
-        setUniform("sunVector", Object.services.getService<SunLightManager>()!!.sunVector())
-        setUniformf("sunIntensity", Object.services.getService<SunLightManager>()!!.sunIntensity())
-        setUniform("sunColor", Object.services.getService<SunLightManager>()!!.sunColor())
+        setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
+        setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
+        setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
     }
 }

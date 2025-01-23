@@ -42,7 +42,6 @@ void main() {
     float rotation = rand(grassPosition + vec2(5)) * 360.0;
 
     mat4 modelRotation = rotationY(radians(rotation));
-    mat3 normalRotation = mat3(modelRotation);
 
     vec3 localPos = (modelRotation * vec4(position, 1.0)).xyz;
     vec3 finalPosition = vec3(localPos.x + grassPosition.x, localPos.y, localPos.z + grassPosition.y);
@@ -52,7 +51,6 @@ void main() {
     vec2 displacement = getDisplacementMap(grassPosition) * windDirection;
     finalPosition += vec3(displacement.x + localWindVariance, 0, displacement.y + localWindVariance) * (height * height) * windDisplacement;
 
-    vec3 transformedNormal = normalize(normalRotation * normal);
     gl_Position = projMatrix * viewMatrix * worldMatrix * vec4(finalPosition, 1.0);
 
     // 1. Calculate distance to the patch

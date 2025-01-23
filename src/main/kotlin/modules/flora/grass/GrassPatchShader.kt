@@ -4,6 +4,7 @@ import core.management.Resources
 import core.scene.camera.Camera
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
+import modules.light.SunLightManager
 import platform.services.filesystem.TextFileLoader
 
 class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
@@ -27,6 +28,9 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         addUniform("projMatrix")
         addUniform("cameraPosition")
         addUniform("time")
+        addUniform("sunVector")
+        addUniform("sunColor")
+        addUniform("sunIntensity")
     }
 
     override fun updateUniforms() {
@@ -35,5 +39,8 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         setUniform("projMatrix", shaderMaterial!!.projMatrix)
         setUniform("cameraPosition", Resources.get<Camera>()!!.position())
         setUniformf("time", shaderMaterial!!.time)
+        setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
+        setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
+        setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
     }
 }

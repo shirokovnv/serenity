@@ -207,11 +207,6 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     protected open fun registerSceneGraph() {
         sceneGraph = oneTimeSceneInit()
-
-        // TODO: separate
-        sceneGraph.traverse({obj ->
-            obj.getComponents<Behaviour>().forEach{ behaviour -> behaviour.create() }
-        }, TraversalOrder.BREADTH_FIRST)
     }
 
     private fun setIcon() {

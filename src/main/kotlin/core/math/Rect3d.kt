@@ -1,8 +1,5 @@
 package core.math
 
-import kotlin.math.max
-import kotlin.math.min
-
 enum class Rect3dPlane {
     XY,
     XZ,

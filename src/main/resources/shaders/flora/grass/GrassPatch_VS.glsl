@@ -14,6 +14,9 @@ uniform mat4 viewMatrix;
 uniform mat4 worldMatrix;
 uniform vec3 cameraPosition;
 uniform float time;
+uniform vec3 worldScale;
+uniform vec3 worldOffset;
+uniform sampler2D heightmap;
 
 out float height;
 out float alpha;
@@ -33,6 +36,13 @@ float getDisplacementMap(vec2 grassPosition) {
     return abs(sin((grassPosition.x * windDirection.x + grassPosition.y * windDirection.y) + windSpeed * time)) * 1.3 + (sin(time * 10 + rand(grassPosition) * 40) * 0.03);
 }
 
+vec2 worldToTexture(float worldX, float worldZ, vec3 worldScale, vec3 worldOffset) {
+    float scaledX = clamp((worldX - worldOffset.x) / worldScale.x, 0, 1);
+    float scaledY = clamp((worldZ - worldOffset.z) / worldScale.z, 0, 1);
+
+    return vec2(scaledX, scaledY);
+}
+
 void main() {
     vec2 grassPosition = vec2(instance[3][0], instance[3][2]);
 
@@ -49,9 +59,17 @@ void main() {
     height = position.y / 0.06;
 
     vec2 displacement = getDisplacementMap(grassPosition) * windDirection;
-    finalPosition += vec3(displacement.x + localWindVariance, 0, displacement.y + localWindVariance) * (height * height) * windDisplacement;
+    finalPosition += vec3(displacement.x + localWindVariance, localPos.y, displacement.y + localWindVariance) * (height * height) * windDisplacement;
 
-    gl_Position = projMatrix * viewMatrix * worldMatrix * vec4(finalPosition, 1.0);
+    mat4 wm = worldMatrix;
+    wm[3][1] = 0; // set heightoffset to zero, later retrieve it from heightmap
+
+    vec4 worldPosition = (wm * vec4(finalPosition, 1));
+    vec2 heightUV = worldToTexture(worldPosition.x, worldPosition.z, worldScale, worldOffset);
+    float terrainHeight = worldScale.y * texture(heightmap, heightUV).r;
+    worldPosition.y += terrainHeight;
+
+    gl_Position = projMatrix * viewMatrix * worldPosition;
 
     // 1. Calculate distance to the patch
     float dist = length((worldMatrix * vec4(finalPosition, 1)).xyz - cameraPosition);

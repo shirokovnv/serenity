@@ -2,16 +2,17 @@ package modules.sky
 
 import core.ecs.BaseComponent
 import graphics.rendering.Renderer
-import graphics.rendering.passes.NormalPass
+import graphics.rendering.passes.PostProcPass
 import graphics.rendering.passes.RenderPass
 import modules.light.AtmosphereConstantsSsbo
 
-class SkyDomeRenderer(
+class SkyDomePPRenderer(
     private val buffer: SkyDomeBuffer,
-    private val material: SkyDomeMaterial,
-    private val shader: SkyDomeShader,
+    private val material: SkyDomePPMaterial,
+    private val shader: SkyDomePPShader,
     private val atmosphereConstantsSsbo: AtmosphereConstantsSsbo
-): BaseComponent(), Renderer {
+)
+    : BaseComponent(), Renderer {
     override fun render(pass: RenderPass) {
         shader.bind()
         shader.updateUniforms()
@@ -23,6 +24,6 @@ class SkyDomeRenderer(
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass
+        return pass == PostProcPass
     }
 }

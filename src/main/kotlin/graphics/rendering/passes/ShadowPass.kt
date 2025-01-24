@@ -1,10 +1,11 @@
 package graphics.rendering.passes
 
+import core.management.Disposable
 import core.management.Resources
 import graphics.rendering.shadows.ShadowFrameBuffer
 import graphics.rendering.viewport.ViewportInterface
 
-object ShadowPass : RenderPass {
+object ShadowPass : RenderPass, Disposable {
     override val name = "SHADOW_PASS"
 
     private var shadowFrameBuffer: ShadowFrameBuffer
@@ -27,5 +28,9 @@ object ShadowPass : RenderPass {
 
     override fun finish() {
         shadowFrameBuffer.afterRender()
+    }
+
+    override fun dispose() {
+        shadowFrameBuffer.destroy()
     }
 }

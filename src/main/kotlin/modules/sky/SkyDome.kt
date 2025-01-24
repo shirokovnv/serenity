@@ -4,6 +4,6 @@ import core.scene.Object
 
 class SkyDome: Object() {
     init {
-        addComponent(SkyDomeRenderer())
+        addComponent(SkyDomeBehaviour())
     }
 }

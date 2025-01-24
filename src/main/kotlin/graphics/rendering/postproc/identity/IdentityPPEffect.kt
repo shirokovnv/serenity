@@ -15,9 +15,6 @@ class IdentityPPEffect: PostProcEffect() {
     private var material: IdentityPPMaterial = IdentityPPMaterial()
     private var shader: IdentityPPShader = IdentityPPShader()
 
-    private val screenQuad: ScreenQuad
-        get() = defaultScreenQuadProvider()
-
     init {
         shader bind material
         shader.setup()
@@ -34,9 +31,5 @@ class IdentityPPEffect: PostProcEffect() {
         screenQuad.draw()
         shader.unbind()
         fbo?.unbind()
-    }
-
-    override fun getOutputImage(): Texture2d {
-        return fbo?.getColorTexture() ?: Texture2d(viewport.getWidth(), viewport.getHeight())
     }
 }

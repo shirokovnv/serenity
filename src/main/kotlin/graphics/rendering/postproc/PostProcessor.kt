@@ -18,6 +18,8 @@ object PostProcessor {
         postProcEffects.clear()
     }
 
+    fun countEffects(): Int = postProcEffects.size
+
     fun process(colorImage: Texture2d) {
         glDisable(GL_DEPTH_TEST)
 

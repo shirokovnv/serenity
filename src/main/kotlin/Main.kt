@@ -13,11 +13,13 @@ import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
 import graphics.rendering.postproc.PostProcessor
+import graphics.rendering.postproc.godrays.GodraysPPEffect
 import graphics.rendering.postproc.identity.IdentityPPEffect
 import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
+import modules.light.defaultSunScreenPositionProvider
 import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.sky.SkyDome
@@ -144,8 +146,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         scene.attachToRoot(SkyDome())
 
         val lensFlare = LensFlare()
-        scene.attachToRoot(lensFlare)
-
+        //scene.attachToRoot(lensFlare)
 
         val frustum = Frustum(camera)
 
@@ -168,7 +169,8 @@ class App(settings: ApplicationSettings): Application(settings) {
         println(spGrid.buildSearchResults(searchVolume))
 
         // PP
-        PostProcessor.add(IdentityPPEffect())
+        //PostProcessor.add(IdentityPPEffect())
+        PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))
 
         return scene
     }

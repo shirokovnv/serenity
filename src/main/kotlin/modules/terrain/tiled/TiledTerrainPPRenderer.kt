@@ -2,16 +2,16 @@ package modules.terrain.tiled
 
 import core.ecs.BaseComponent
 import graphics.rendering.Renderer
-import graphics.rendering.passes.NormalPass
+import graphics.rendering.passes.PostProcPass
 import graphics.rendering.passes.RenderPass
 
-class TiledTerrainRenderer(
+class TiledTerrainPPRenderer(
     private val buffer: TiledTerrainBuffer,
     private val material: TiledTerrainMaterial,
     private val shader: TiledTerrainShader
 ) : BaseComponent(), Renderer {
     override fun render(pass: RenderPass) {
-        material.renderInBlack = false
+        material.renderInBlack = true
 
         shader.bind()
         shader.updateUniforms()
@@ -20,6 +20,6 @@ class TiledTerrainRenderer(
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass
+        return pass == PostProcPass
     }
 }

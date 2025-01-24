@@ -29,6 +29,7 @@ class TiledTerrainMaterial : BaseMaterial<TiledTerrainMaterial, TiledTerrainShad
     var scaleY by Delegates.notNull<Float>()
     var tbnRange: Float = 200.0f
     var tbnThreshold: Float = 50.0f
+    var renderInBlack: Boolean = false
 
     var materialDetailMap = HashMap<TiledTerrainTextureType, TiledTerrainMaterialDetail>()
 }

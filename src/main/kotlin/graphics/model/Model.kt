@@ -35,6 +35,14 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
         isReadyForRendering = false
     }
 
+    fun destroyTextures() {
+        modelData.values.forEach{mtlData ->
+            mtlData.material?.textures?.forEach { texture ->
+                texture.value.texture?.destroy()
+            }
+        }
+    }
+
     fun getBuffers(): MutableMap<String, ModelDataBuffer> = buffers
 
     fun getModelDataByMaterial(materialName: String): ModelData? {

@@ -3,9 +3,7 @@ package graphics.rendering
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
-import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
-import graphics.rendering.postproc.PostProcessor
 
 class RenderPipeline {
     private val renderPasses = mutableListOf<RenderPass>()
@@ -32,17 +30,15 @@ class RenderPipeline {
             .flatMap { it -> it.getComponents<Renderer>().filter { it.isActive() } }
             .toList()
 
-        renderPasses.forEach {pass ->
+        renderPasses.forEach { pass ->
             pass.start()
-            renderers.forEach {renderer ->
+            renderers.forEach { renderer ->
                 if (renderer.supportsRenderPass(pass)) {
                     renderer.render(pass)
                 }
             }
             pass.finish()
         }
-
-        PostProcessor.process(NormalPass.getColorTexture())
     }
 
     fun render(sceneGraph: SceneGraph, traversalOrder: TraversalOrder) {

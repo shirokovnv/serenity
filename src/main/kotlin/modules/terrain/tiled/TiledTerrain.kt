@@ -23,6 +23,6 @@ class TiledTerrain(config: TiledTerrainConfig) : Object() {
 
         addComponent(TerrainNormalRenderer(config.heightmap))
         addComponent(TerrainBlendRenderer(config.heightmap, elevationData))
-        addComponent(TiledTerrainRenderer(config))
+        addComponent(TiledTerrainBehaviour(config))
     }
 }

@@ -8,11 +8,11 @@ import graphics.assets.buffer.Fbo
 import graphics.assets.texture.Texture2d
 import graphics.rendering.postproc.PostProcessor
 import graphics.rendering.viewport.ViewportInterface
-import org.lwjgl.opengl.GL43.*
+import org.lwjgl.opengl.GL43
 import platform.services.input.WindowResizedEvent
 
-object NormalPass : RenderPass, Disposable {
-    override val name = "NORMAL_PASS"
+object PostProcPass : RenderPass, Disposable {
+    override val name = "POST_PROCESSING_PASS"
 
     private var viewport: ViewportInterface = Resources.get<ViewportInterface>()!!
     private var fbo: Fbo = Fbo(viewport.getWidth(), viewport.getHeight(), DepthBufferType.DEPTH_RENDER_BUFFER)
@@ -25,17 +25,22 @@ object NormalPass : RenderPass, Disposable {
     }
 
     override fun start() {
-        if (PostProcessor.countEffects() > 0) {
-            fbo.bind()
+        if (PostProcessor.countEffects() == 0) {
+            return
         }
-        glViewport(0, 0, width, height)
-        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+
+        fbo.bind()
+        GL43.glViewport(0, 0, width, height)
+        GL43.glClear(GL43.GL_COLOR_BUFFER_BIT or GL43.GL_DEPTH_BUFFER_BIT)
     }
 
     override fun finish() {
-        if (PostProcessor.countEffects() > 0) {
-            fbo.unbind()
+        if (PostProcessor.countEffects() == 0) {
+            return
         }
+        fbo.unbind()
+
+        PostProcessor.process(NormalPass.getColorTexture())
     }
 
     fun getColorTexture(): Texture2d = fbo.getColorTexture()

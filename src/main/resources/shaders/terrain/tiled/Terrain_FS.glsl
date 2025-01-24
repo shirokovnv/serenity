@@ -18,6 +18,7 @@ uniform vec3 cameraPosition;
 uniform vec3 sunVector;
 uniform float sunIntensity;
 uniform vec3 sunColor;
+uniform bool renderInBlack;
 
 struct Material {
     sampler2D diffusemap;
@@ -39,6 +40,12 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 
 void main()
 {
+    if (renderInBlack) {
+        outColor = vec4(0, 0, 0, 1);
+
+        return;
+    }
+
     float dist = length(cameraPosition - position_FS);
     vec3 normal = normalize(texture(normalmap, mapCoord_FS).rbg);
 

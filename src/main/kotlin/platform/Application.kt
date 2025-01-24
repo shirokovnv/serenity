@@ -199,6 +199,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         appPipes.renderPipeline.addRenderPass(RefractionPass)
         appPipes.renderPipeline.addRenderPass(ShadowPass)
         appPipes.renderPipeline.addRenderPass(NormalPass)
+        appPipes.renderPipeline.addRenderPass(PostProcPass)
     }
 
     protected open fun registerSceneGraph() {

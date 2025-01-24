@@ -1,7 +1,7 @@
 package graphics.rendering.viewport
 
 import core.events.Events
-import core.events.Disposable
+import core.management.Disposable
 import platform.services.input.WindowResizedEvent
 
 class Viewport(private var width: Int, private var height: Int): ViewportInterface, Disposable {

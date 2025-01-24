@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class LensFlareRenderer(
+class LensFlareRenderBehaviour(
     private val flareTexturePack: MutableList<LensFlareTexture>,
     private val flareBuffer: LensFlareBuffer,
     private val spacing: Float

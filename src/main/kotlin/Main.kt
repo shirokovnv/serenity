@@ -147,7 +147,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()
-        //scene.attachToRoot(lensFlare)
+        scene.attachToRoot(lensFlare)
 
         val frustum = Frustum(camera)
 

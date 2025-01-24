@@ -10,7 +10,7 @@ import core.scene.camera.OrthographicCamera
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
-import graphics.rendering.fbo.ShadowFrameBuffer
+import graphics.rendering.shadows.ShadowFrameBuffer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.light.SunLightManager

@@ -3,7 +3,9 @@ package graphics.rendering
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
+import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import graphics.rendering.postproc.PostProcessor
 
 class RenderPipeline {
     private val renderPasses = mutableListOf<RenderPass>()
@@ -39,6 +41,8 @@ class RenderPipeline {
             }
             pass.finish()
         }
+
+        PostProcessor.process(NormalPass.getColorTexture())
     }
 
     fun render(sceneGraph: SceneGraph, traversalOrder: TraversalOrder) {

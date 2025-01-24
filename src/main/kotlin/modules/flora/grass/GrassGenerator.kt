@@ -93,7 +93,7 @@ class GrassGenerator {
                     transform.setScale(
                         Vector3(
                             scaleX * params.cellSize,
-                            params.cellSize.toFloat() * params.verticalScale,
+                            params.verticalScale * params.cellSize,
                             scaleZ * params.cellSize
                         )
                     )

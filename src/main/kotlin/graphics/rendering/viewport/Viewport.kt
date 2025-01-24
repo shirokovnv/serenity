@@ -1,15 +1,13 @@
 package graphics.rendering.viewport
 
 import core.events.Events
-import core.events.SubscriberInterface
+import core.events.Disposable
 import platform.services.input.WindowResizedEvent
 
-class Viewport(private var width: Int, private var height: Int): ViewportInterface, SubscriberInterface {
-
-    private var hasSubscription: Boolean = false
+class Viewport(private var width: Int, private var height: Int): ViewportInterface, Disposable {
 
     init {
-        subscribe()
+        Events.subscribe<WindowResizedEvent, Any>(::onWindowResized)
     }
 
     override fun getWidth(): Int {
@@ -25,17 +23,7 @@ class Viewport(private var width: Int, private var height: Int): ViewportInterfa
         height = event.newHeight
     }
 
-    override fun subscribe() {
-        if (!hasSubscription) {
-            Events.subscribe<WindowResizedEvent, Any>(::onWindowResized)
-            hasSubscription = true
-        }
-    }
-
-    override fun unsubscribe() {
-        if (hasSubscription) {
-            Events.unsubscribe<WindowResizedEvent, Any>(::onWindowResized)
-            hasSubscription = false
-        }
+    override fun dispose() {
+        Events.unsubscribe<WindowResizedEvent, Any>(::onWindowResized)
     }
 }

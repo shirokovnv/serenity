@@ -1,12 +1,12 @@
 package modules.light
 
 import core.math.toFloatArray
-import graphics.assets.buffer.BufferSsbo
+import graphics.assets.buffer.Ssbo
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL43.*
 import java.nio.FloatBuffer
 
-class AtmosphereConstantsSsbo(private var atm: AtmosphereConstants) : BufferSsbo() {
+class AtmosphereConstantsSsbo(private var atm: AtmosphereConstants) : Ssbo() {
     private var ssboId: Int = 0
 
     init {

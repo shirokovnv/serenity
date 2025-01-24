@@ -1,7 +1,7 @@
 package graphics.rendering.passes
 
 import core.management.Resources
-import graphics.rendering.fbo.ShadowFrameBuffer
+import graphics.rendering.shadows.ShadowFrameBuffer
 import graphics.rendering.viewport.ViewportInterface
 
 object ShadowPass : RenderPass {

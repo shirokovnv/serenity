@@ -1,15 +1,11 @@
 package platform
 
-import core.ecs.Behaviour
 import core.management.Resources
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
-import graphics.rendering.passes.NormalPass
-import graphics.rendering.passes.ReflectionPass
-import graphics.rendering.passes.RefractionPass
-import graphics.rendering.passes.ShadowPass
+import graphics.rendering.passes.*
 import graphics.rendering.viewport.Viewport
 import graphics.rendering.viewport.ViewportInterface
 import org.lwjgl.glfw.Callbacks

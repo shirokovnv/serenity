@@ -79,7 +79,9 @@ class SkyDomeBehaviour(
         material.cloudAnimationOffset.plusAssign(Vector2(deltaTime * params.rotationSpeed, 0f))
         material.worldViewProjection = worldViewProjection
 
-        ppMaterial.worldViewProjection = worldViewProjection
+        if (enablePostProcessing) {
+            ppMaterial.worldViewProjection = worldViewProjection
+        }
     }
 
     override fun destroy() {

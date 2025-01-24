@@ -23,6 +23,7 @@ import modules.light.defaultSunScreenPositionProvider
 import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.sky.SkyDome
+import modules.sky.SkyDomeParams
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.heightmap.DiamondSquareGenerator
 import modules.terrain.heightmap.DiamondSquareParams
@@ -126,7 +127,7 @@ class App(settings: ApplicationSettings): Application(settings) {
                 16,
                 worldScale,
                 worldOffset
-            )
+            ), false
         )
         scene.attachToRoot(tiledTerrain)
 
@@ -143,7 +144,7 @@ class App(settings: ApplicationSettings): Application(settings) {
         val ocean = Ocean()
         ocean.getComponent<Transform>()!!.setScale(worldScale)
         scene.attachToRoot(ocean)
-        scene.attachToRoot(SkyDome())
+        scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()
         //scene.attachToRoot(lensFlare)
@@ -170,7 +171,7 @@ class App(settings: ApplicationSettings): Application(settings) {
 
         // PP
         //PostProcessor.add(IdentityPPEffect())
-        PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))
+        //PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))
 
         return scene
     }

@@ -1,9 +1,10 @@
 package graphics.rendering.postproc
 
+import core.management.Disposable
 import graphics.assets.texture.Texture2d
 import org.lwjgl.opengl.GL43.*
 
-object PostProcessor {
+object PostProcessor: Disposable {
     private val postProcEffects = mutableListOf<PostProcEffect>()
 
     fun add(effect: PostProcEffect) {
@@ -34,5 +35,11 @@ object PostProcessor {
         }
 
         glEnable(GL_DEPTH_TEST)
+    }
+
+    override fun dispose() {
+        postProcEffects.forEach {
+            postProcEffect -> postProcEffect.dispose()
+        }
     }
 }

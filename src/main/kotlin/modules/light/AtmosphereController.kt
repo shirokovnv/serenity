@@ -21,5 +21,6 @@ class AtmosphereController: Behaviour() {
     }
 
     override fun destroy() {
+        atmosphereSsbo.destroy()
     }
 }

@@ -1,5 +1,6 @@
 package modules.ocean
 
+import core.management.Disposable
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
 import org.lwjgl.opengl.GL43.*
@@ -17,7 +18,7 @@ enum class OceanTextureType {
     TEMP
 }
 
-class OceanTextureInitializer(private val resolution: Int) {
+class OceanTextureInitializer(private val resolution: Int): Disposable {
     private val textureMap = HashMap<OceanTextureType, Texture2d>()
     
     val spectrum0: Texture2d
@@ -128,5 +129,9 @@ class OceanTextureInitializer(private val resolution: Int) {
         texture2d.noFilter()
         texture2d.wrapModeRepeat()
         texture2d.unbind()
+    }
+
+    override fun dispose() {
+        textureMap.values.forEach { texture2d -> texture2d.destroy() }
     }
 }

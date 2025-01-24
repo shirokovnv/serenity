@@ -1,10 +1,11 @@
 package core.management
 
+import graphics.assets.Asset
 import kotlin.reflect.KClass
 
 open class ResourceManager {
-    private val resources = mutableMapOf<KClass<*>, Any>()
-    private val resourceGroups = mutableMapOf<KClass<*>, MutableMap<String, Any>>()
+    protected val resources = mutableMapOf<KClass<*>, Any>()
+    protected val resourceGroups = mutableMapOf<KClass<*>, MutableMap<String, Any>>()
 
     fun <Resource: Any> put(resource: Resource, resourceType: KClass<Resource>, key: String) {
         val serviceMap = resourceGroups.computeIfAbsent(resourceType) { mutableMapOf() }
@@ -56,4 +57,21 @@ open class ResourceManager {
     }
 }
 
-object Resources: ResourceManager()
+object Resources: ResourceManager(), Disposable {
+    override fun dispose() {
+        resources.values.forEach(::disposeResource)
+        resourceGroups.values.forEach { group ->
+            group.values.forEach(::disposeResource)
+        }
+    }
+
+    private fun disposeResource(resource: Any) {
+        if (resource is Asset) {
+            resource.destroy()
+        }
+
+        if (resource is Disposable) {
+            resource.dispose()
+        }
+    }
+}

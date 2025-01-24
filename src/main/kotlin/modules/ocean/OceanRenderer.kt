@@ -86,15 +86,12 @@ class OceanRenderer(
 
         (owner()!! as Object).getComponent<Transform>()!!.setTranslation(Vector3(0f, 60f, 0f))
         material.model = model
-
-//        (owner()!! as Object).getComponent<Transform>()!!.setTranslation(
-//            Vector3(camera.position().x, 0f, camera.position().z)
-//        )
-//
-//        material.model = model
     }
 
     override fun destroy() {
+        texInitializer.dispose()
+        shaderInitializer.dispose()
+        oceanBuffer.destroy()
     }
 
     override fun render(pass: RenderPass) {

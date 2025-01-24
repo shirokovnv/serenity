@@ -71,7 +71,12 @@ class LensFlareRenderer(
     }
 
     override fun destroy() {
+        flareTexturePack.forEach { texture ->
+            texture.getTexture().destroy()
+        }
         query.destroy()
+        shader.destroy()
+        flareBuffer.destroy()
     }
 
     override fun render(pass: RenderPass) {

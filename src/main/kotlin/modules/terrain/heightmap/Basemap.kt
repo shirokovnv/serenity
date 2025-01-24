@@ -1,5 +1,6 @@
 package modules.terrain.heightmap
 
+import core.management.Disposable
 import core.math.Vector2
 import core.math.Vector3
 import graphics.assets.texture.Texture2d
@@ -9,7 +10,7 @@ abstract class Basemap(
     protected var mapTexture: Texture2d,
     protected val worldScale: Vector3,
     protected val worldOffset: Vector3
-) {
+): Disposable {
     protected var mapData: FloatBuffer
 
     init {
@@ -37,6 +38,10 @@ abstract class Basemap(
     fun worldScale(): Vector3 = worldScale
 
     fun worldOffset(): Vector3 = worldOffset
+
+    override fun dispose() {
+        mapTexture.destroy()
+    }
 
     abstract fun createMapDataBuffer(): FloatBuffer
 }

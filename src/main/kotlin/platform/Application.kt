@@ -1,5 +1,6 @@
 package platform
 
+import core.ecs.Behaviour
 import core.management.Resources
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
@@ -147,6 +148,17 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun destroy() {
+        // TODO: separate
+        val behaviours = mutableListOf<Behaviour>()
+        sceneGraph.traverse( { obj ->
+            behaviours.addAll(obj.getComponents<Behaviour>())
+        }, TraversalOrder.DEPTH_FIRST)
+        behaviours.forEach { it.destroy() }
+        behaviours.clear()
+
+        appPipes.renderPipeline.dispose()
+        Resources.dispose()
+
         Callbacks.glfwFreeCallbacks(window)
         GLFW.glfwDestroyWindow(window)
         GLFW.glfwTerminate()

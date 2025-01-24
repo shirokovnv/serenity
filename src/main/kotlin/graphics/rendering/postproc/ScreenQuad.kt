@@ -1,5 +1,6 @@
 package graphics.rendering.postproc
 
+import core.management.Disposable
 import core.management.Resources
 import graphics.rendering.Drawable
 import org.lwjgl.BufferUtils
@@ -7,7 +8,7 @@ import org.lwjgl.opengl.GL43.*
 
 typealias ScreenQuadProvider = () -> ScreenQuad
 
-class ScreenQuad : Drawable {
+class ScreenQuad : Drawable, Disposable {
     companion object {
         private val VERTICES = floatArrayOf(
             -1.0f, 1.0f,
@@ -80,6 +81,10 @@ class ScreenQuad : Drawable {
         vaoId = 0
         vboId = 0
         eboId = 0
+    }
+
+    override fun dispose() {
+        destroy()
     }
 }
 

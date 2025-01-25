@@ -17,6 +17,7 @@ Experiment results:
 - Kotlin 1.9
 - JDK 17
 - Maven
+- OpenGL 4.6 compatible video card
 
 ## Project setup
 

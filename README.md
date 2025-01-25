@@ -37,6 +37,14 @@ To build and compile for other platforms add lwjgl natives in maven build sectio
 &nbsp;
 ![screen4](/src/main/resources/screenshots/screen4.png)
 
+## Demo
+
+These input keys are used in the demo program:
+
+- **W-A-S-D** - camera movement
+- **Arrow Keys** - camera rotation
+- **+-** - sun movement
+
 ## License
 
 MIT. Please see the [license file](LICENSE.md) for more information.

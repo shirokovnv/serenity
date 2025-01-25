@@ -62,14 +62,18 @@ class Fbo(
     }
 
     override fun destroy() {
-        glDeleteFramebuffers(frameBuffer)
+        if (frameBuffer != 0 && depthBuffer != 0) {
+            glDeleteFramebuffers(frameBuffer)
+            glDeleteRenderbuffers(depthBuffer)
+        }
+
         if (::colorTexture.isInitialized) {
             colorTexture.destroy()
         }
         if (::depthTexture.isInitialized) {
             depthTexture.destroy()
         }
-        glDeleteRenderbuffers(depthBuffer)
+
         frameBuffer = 0
         depthBuffer = 0
     }

@@ -17,6 +17,7 @@ import modules.terrain.heightmap.Blendmap
 import modules.terrain.heightmap.Heightmap
 import org.lwjgl.glfw.GLFW.glfwGetTime
 import org.lwjgl.opengl.GL43.*
+import platform.services.FrameCounter
 import platform.services.filesystem.ObjLoader
 
 class GrassBehaviour : Behaviour(), Renderer {
@@ -120,6 +121,8 @@ class GrassBehaviour : Behaviour(), Renderer {
         glDisable(GL_BLEND)
 
         shader.unbind()
+
+        println("fps: ${Resources.get<FrameCounter>()!!.fps()}")
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {

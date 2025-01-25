@@ -12,6 +12,8 @@ import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialHashGrid
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
+import graphics.rendering.Color
+import graphics.rendering.Colors
 import graphics.rendering.postproc.PostProcessor
 import graphics.rendering.postproc.godrays.GodraysPPEffect
 import graphics.rendering.postproc.identity.IdentityPPEffect

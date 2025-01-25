@@ -58,13 +58,15 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun render() {
-        GL20.glFrontFace(GL20.GL_CW)
-//        GL20.glEnable(GL20.GL_CULL_FACE)
-//        GL20.glCullFace(GL20.GL_BACK)
+        GL20.glFrontFace(GL20.GL_CCW)
         GL20.glEnable(GL20.GL_DEPTH_TEST)
-
         GL20.glClearDepth(1.0)
-        GL20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GL20.glClearColor(
+            settings.backgroundColor.red,
+            settings.backgroundColor.green,
+            settings.backgroundColor.blue,
+            settings.backgroundColor.alpha
+        )
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
         appPipes.renderPipeline.render(sceneGraph, TraversalOrder.BREADTH_FIRST)

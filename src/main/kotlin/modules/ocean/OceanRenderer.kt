@@ -227,6 +227,9 @@ class OceanRenderer(
     }
 
     private fun renderMesh() {
+        GL20.glEnable(GL20.GL_CULL_FACE)
+        GL20.glCullFace(GL20.GL_BACK)
+
         var x0 = 0
         var x1 = 1
         var z0 = 0
@@ -251,5 +254,7 @@ class OceanRenderer(
             }
         }
         shaderInitializer.meshShader.unbind()
+
+        GL20.glDisable(GL20.GL_CULL_FACE)
     }
 }

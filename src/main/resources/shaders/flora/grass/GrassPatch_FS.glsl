@@ -21,6 +21,7 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 
 void main() {
   FragColor = vec4(mix(grassColor0, grassColor1, vec3(height)), alpha);
+  vec3 ambient = vec3(0.2, 0.2, 0.2);
   float diffuse = diffuse(-sunVector, vec3(0, 1, 0), sunIntensity);
-  FragColor.rgb *= diffuse * sunColor;
+  FragColor.rgb *= diffuse * sunColor + ambient;
 }

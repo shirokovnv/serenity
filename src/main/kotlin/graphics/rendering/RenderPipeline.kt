@@ -1,11 +1,12 @@
 package graphics.rendering
 
+import core.management.Disposable
 import core.scene.Object
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
 import graphics.rendering.passes.RenderPass
 
-class RenderPipeline {
+class RenderPipeline: Disposable {
     private val renderPasses = mutableListOf<RenderPass>()
 
     companion object {
@@ -30,9 +31,9 @@ class RenderPipeline {
             .flatMap { it -> it.getComponents<Renderer>().filter { it.isActive() } }
             .toList()
 
-        renderPasses.forEach {pass ->
+        renderPasses.forEach { pass ->
             pass.start()
-            renderers.forEach {renderer ->
+            renderers.forEach { renderer ->
                 if (renderer.supportsRenderPass(pass)) {
                     renderer.render(pass)
                 }
@@ -49,5 +50,13 @@ class RenderPipeline {
         }, traversalOrder)
 
         render(objects)
+    }
+
+    override fun dispose() {
+        renderPasses.forEach{ pass ->
+            if (pass is Disposable) {
+                pass.dispose()
+            }
+        }
     }
 }

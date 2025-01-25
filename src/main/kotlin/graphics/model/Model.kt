@@ -1,10 +1,11 @@
 package graphics.model
 
+import core.management.Disposable
 import core.math.Matrix4
 import graphics.rendering.Drawable
 import org.lwjgl.opengl.GL43.*
 
-class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
+class Model(private val modelData: MutableMap<String, ModelData>) : Drawable, Disposable {
     private val instanceMatrices = mutableListOf<Matrix4>()
     private var buffers = mutableMapOf<String, ModelDataBuffer>()
     private var instanceBuffer: ModelInstanceBuffer? = null
@@ -33,6 +34,14 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
         instanceBuffer = null
 
         isReadyForRendering = false
+    }
+
+    fun destroyTextures() {
+        modelData.values.forEach{mtlData ->
+            mtlData.material?.textures?.forEach { texture ->
+                texture.value.texture?.destroy()
+            }
+        }
     }
 
     fun getBuffers(): MutableMap<String, ModelDataBuffer> = buffers
@@ -111,5 +120,10 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable {
                 it.texture!!.bind()
                 it.texture!!.bilinearFilter()
             }
+    }
+
+    override fun dispose() {
+        destroyBuffers()
+        destroyTextures()
     }
 }

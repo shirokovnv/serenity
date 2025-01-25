@@ -1,4 +1,4 @@
-package graphics.rendering.fbo
+package graphics.rendering.shadows
 
 import core.math.Quaternion
 import graphics.assets.texture.Texture2d

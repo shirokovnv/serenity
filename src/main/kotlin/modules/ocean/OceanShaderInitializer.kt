@@ -1,8 +1,9 @@
 package modules.ocean
 
+import core.management.Disposable
 import modules.ocean.shaders.*
 
-class OceanShaderInitializer(private val material: OceanMaterial) {
+class OceanShaderInitializer(private val material: OceanMaterial): Disposable {
     lateinit var meshShader: OceanMeshShader private set
     lateinit var spectrum0Shader: OceanSpectrum0Shader private set
     lateinit var spectrumTShader: OceanSpectrumTShader private set
@@ -35,5 +36,15 @@ class OceanShaderInitializer(private val material: OceanMaterial) {
         fftRowsShader.setup()
         normalShader.setup()
         orientationShader.setup()
+    }
+
+    override fun dispose() {
+        meshShader.destroy()
+        spectrum0Shader.destroy()
+        spectrumTShader.destroy()
+        fftColumnsShader.destroy()
+        fftRowsShader.destroy()
+        normalShader.destroy()
+        orientationShader.destroy()
     }
 }

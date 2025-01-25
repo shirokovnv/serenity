@@ -74,6 +74,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         addUniform("sunVector")
         addUniform("sunIntensity")
         addUniform("sunColor")
+        addUniform("renderInBlack")
 
         for (i in TiledTerrainTextureType.entries) {
             addUniform("materials[${i.ordinal}].diffusemap")
@@ -91,6 +92,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniform("m_LightViewProjection", shaderMaterial!!.lightViewProjection)
         setUniform("cameraPosition", Resources.get<Camera>()!!.position())
         setUniformf("gridScale", shaderMaterial!!.gridScale)
+        setUniformi("renderInBlack", if (shaderMaterial!!.renderInBlack) 1 else 0)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
         shaderMaterial!!.heightmap.texture().bind()

@@ -78,6 +78,8 @@ class GrassBehaviour : Behaviour(), Renderer {
     }
 
     override fun destroy() {
+        grassModel.dispose()
+        shader.destroy()
     }
 
     override fun render(pass: RenderPass) {

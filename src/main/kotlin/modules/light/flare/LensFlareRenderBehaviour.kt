@@ -12,21 +12,19 @@ import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import graphics.rendering.viewport.ViewportInterface
+import modules.light.SUN_DISTANCE
 import modules.light.SunLightManager
+import modules.light.defaultSunScreenPositionProvider
 import org.lwjgl.opengl.GL43.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class LensFlareRenderer(
+class LensFlareRenderBehaviour(
     private val flareTexturePack: MutableList<LensFlareTexture>,
     private val flareBuffer: LensFlareBuffer,
     private val spacing: Float
 ): Behaviour(), Renderer {
-
-    companion object {
-        private const val SUN_DISTANCE = 100000f
-    }
 
     private lateinit var material: LensFlareMaterial
     private lateinit var shader: LensFlareShader
@@ -58,24 +56,7 @@ class LensFlareRenderer(
         get() = sunLightManager.sunVector() * SUN_DISTANCE
 
     private val sunScreenPosition: Vector2?
-        get() {
-            val sunVector = Quaternion(sunWorldPosition, 1f)
-
-            if (sunVector.y < 0) {
-                return null
-            }
-
-            val sunVectorScreenPosition = camera.viewProjection * sunVector
-
-            if (sunVectorScreenPosition.w <= 0) {
-                return null
-            }
-
-            return Vector2(
-                (sunVectorScreenPosition.x / sunVectorScreenPosition.w + 1) / 2,
-                1 - (sunVectorScreenPosition.y / sunVectorScreenPosition.w + 1) / 2
-            )
-        }
+        get() = defaultSunScreenPositionProvider()
 
     override fun create() {
         material = LensFlareMaterial()
@@ -90,7 +71,12 @@ class LensFlareRenderer(
     }
 
     override fun destroy() {
+        flareTexturePack.forEach { texture ->
+            texture.getTexture().destroy()
+        }
         query.destroy()
+        shader.destroy()
+        flareBuffer.destroy()
     }
 
     override fun render(pass: RenderPass) {

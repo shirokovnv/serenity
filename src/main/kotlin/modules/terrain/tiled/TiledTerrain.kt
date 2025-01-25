@@ -5,7 +5,7 @@ import modules.terrain.ElevationData
 import modules.terrain.TerrainBlendRenderer
 import modules.terrain.TerrainNormalRenderer
 
-class TiledTerrain(config: TiledTerrainConfig) : Object() {
+class TiledTerrain(config: TiledTerrainConfig, enablePostProcessing: Boolean) : Object() {
 
     init {
         val grassElevationData = ElevationData(0f, 1f, -1f, 1f, 1f)
@@ -23,6 +23,6 @@ class TiledTerrain(config: TiledTerrainConfig) : Object() {
 
         addComponent(TerrainNormalRenderer(config.heightmap))
         addComponent(TerrainBlendRenderer(config.heightmap, elevationData))
-        addComponent(TiledTerrainRenderer(config))
+        addComponent(TiledTerrainBehaviour(config, enablePostProcessing))
     }
 }

@@ -22,11 +22,14 @@ import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
 
-class TreeSetBehaviour : Behaviour() {
-    lateinit var material: ModelMaterial
+class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behaviour() {
+    private lateinit var material: ModelMaterial
+    private lateinit var ppMaterial: TreeSetPPMaterial
     private lateinit var shader: ModelShader
+    private lateinit var ppShader: TreeSetPPShader
     private lateinit var models: MutableList<Model>
     private lateinit var renderer: ModelRenderer
+    private lateinit var ppRenderer: TreeSetPPRenderer
 
     private val viewProjectionProvider: Matrix4
         get() = Resources.get<Camera>()!!.viewProjection
@@ -117,6 +120,17 @@ class TreeSetBehaviour : Behaviour() {
 
         (owner() as Object).addComponent(renderer)
 
+        if (enablePostProcessing) {
+            ppMaterial = TreeSetPPMaterial(material)
+            ppShader = TreeSetPPShader()
+            ppShader bind ppMaterial
+            ppShader.setup()
+
+            ppRenderer = TreeSetPPRenderer(models, ppMaterial, ppShader) { viewProjectionProvider }
+
+            (owner() as Object).addComponent(ppRenderer)
+        }
+
         println("PALM RENDER BEHAVIOUR INITIALIZED")
     }
 
@@ -124,5 +138,13 @@ class TreeSetBehaviour : Behaviour() {
     }
 
     override fun destroy() {
+        shader.destroy()
+        if (enablePostProcessing) {
+            ppShader.destroy()
+        }
+        models.forEach{ model ->
+            model.destroyBuffers()
+            model.destroyTextures()
+        }
     }
 }

@@ -6,10 +6,7 @@ import core.scene.SceneGraph
 import core.scene.TraversalOrder
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
-import graphics.rendering.passes.NormalPass
-import graphics.rendering.passes.ReflectionPass
-import graphics.rendering.passes.RefractionPass
-import graphics.rendering.passes.ShadowPass
+import graphics.rendering.passes.*
 import graphics.rendering.viewport.Viewport
 import graphics.rendering.viewport.ViewportInterface
 import org.lwjgl.glfw.Callbacks
@@ -61,13 +58,15 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun render() {
-        GL20.glFrontFace(GL20.GL_CW)
-//        GL20.glEnable(GL20.GL_CULL_FACE)
-//        GL20.glCullFace(GL20.GL_BACK)
+        GL20.glFrontFace(GL20.GL_CCW)
         GL20.glEnable(GL20.GL_DEPTH_TEST)
-
         GL20.glClearDepth(1.0)
-        GL20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GL20.glClearColor(
+            settings.backgroundColor.red,
+            settings.backgroundColor.green,
+            settings.backgroundColor.blue,
+            settings.backgroundColor.alpha
+        )
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
         appPipes.renderPipeline.render(sceneGraph, TraversalOrder.BREADTH_FIRST)
@@ -151,6 +150,17 @@ abstract class Application(private val settings: ApplicationSettings) {
     }
 
     private fun destroy() {
+        // TODO: separate
+        val behaviours = mutableListOf<Behaviour>()
+        sceneGraph.traverse( { obj ->
+            behaviours.addAll(obj.getComponents<Behaviour>())
+        }, TraversalOrder.DEPTH_FIRST)
+        behaviours.forEach { it.destroy() }
+        behaviours.clear()
+
+        appPipes.renderPipeline.dispose()
+        Resources.dispose()
+
         Callbacks.glfwFreeCallbacks(window)
         GLFW.glfwDestroyWindow(window)
         GLFW.glfwTerminate()
@@ -203,6 +213,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         appPipes.renderPipeline.addRenderPass(RefractionPass)
         appPipes.renderPipeline.addRenderPass(ShadowPass)
         appPipes.renderPipeline.addRenderPass(NormalPass)
+        appPipes.renderPipeline.addRenderPass(PostProcPass)
     }
 
     protected open fun registerSceneGraph() {

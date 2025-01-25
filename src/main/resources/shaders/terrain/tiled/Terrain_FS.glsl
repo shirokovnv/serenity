@@ -18,6 +18,7 @@ uniform vec3 cameraPosition;
 uniform vec3 sunVector;
 uniform float sunIntensity;
 uniform vec3 sunColor;
+uniform bool renderInBlack;
 
 struct Material {
     sampler2D diffusemap;
@@ -39,6 +40,12 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 
 void main()
 {
+    if (renderInBlack) {
+        outColor = vec4(0, 0, 0, 1);
+
+        return;
+    }
+
     float dist = length(cameraPosition - position_FS);
     vec3 normal = normalize(texture(normalmap, mapCoord_FS).rbg);
 
@@ -70,9 +77,9 @@ void main()
         * blendValueArray[i];
     }
 
-    float s = sunIntensity;
+    vec3 ambient = mix(vec3(0), vec3(0.1, 0.1, 0.2), 1 - dot(sunVector, normal));
     float diffuse = diffuse(-sunVector, normal, sunIntensity);
-    fragColor *= diffuse * sunColor;
+    fragColor *= diffuse * sunColor + ambient;
 
     // shadow calculation
     float shadow = shadowCalculation(positionLightSpace_FS, normal_FS, -sunVector, shadowmap, 20.0f);

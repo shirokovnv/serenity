@@ -5,6 +5,8 @@ import core.scene.camera.Camera
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
+import modules.terrain.heightmap.Heightmap
+import org.lwjgl.opengl.GL43
 import platform.services.filesystem.TextFileLoader
 
 class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
@@ -31,9 +33,14 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         addUniform("sunVector")
         addUniform("sunColor")
         addUniform("sunIntensity")
+        addUniform("heightmap")
+        addUniform("worldScale")
+        addUniform("worldOffset")
     }
 
     override fun updateUniforms() {
+        val heightmap = Resources.get<Heightmap>()!!
+
         setUniform("worldMatrix", shaderMaterial!!.worldMatrix)
         setUniform("viewMatrix", shaderMaterial!!.viewMatrix)
         setUniform("projMatrix", shaderMaterial!!.projMatrix)
@@ -42,5 +49,11 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         setUniform("sunVector", Resources.get<SunLightManager>()!!.sunVector())
         setUniform("sunColor", Resources.get<SunLightManager>()!!.sunColor())
         setUniformf("sunIntensity", Resources.get<SunLightManager>()!!.sunIntensity())
+        setUniform("worldScale", heightmap.worldScale())
+        setUniform("worldOffset", heightmap.worldOffset())
+
+        GL43.glActiveTexture(GL43.GL_TEXTURE0)
+        heightmap.texture().bind()
+        setUniformi("heightmap", 0)
     }
 }

@@ -28,6 +28,8 @@ For now supports only windows-x64 natives
 
 To build and compile for other platforms add lwjgl natives in maven build section
 
+[Check out windows binaries (128MB)][link-binaries]
+
 ## Screenshots
 
 ![screen1](/src/main/resources/screenshots/screen1.png)
@@ -63,3 +65,4 @@ MIT. Please see the [license file](LICENSE.md) for more information.
 [link-kotlin]: https://kotlinlang.org/
 [link-lwjgl]: https://www.lwjgl.org/
 [link-ci]: https://github.com/shirokovnv/serenity/actions/workflows/maven.yml/badge.svg
+[link-binaries]: https://drive.google.com/file/d/1ndBigRdF7PpoxJ3A5oRA-M8wIrzsg1A8/view?usp=drive_link

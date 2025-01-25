@@ -28,8 +28,6 @@ For now supports only windows-x64 natives
 
 To build and compile for other platforms add lwjgl natives in maven build section
 
-[Check out windows binaries (128MB)][link-binaries]
-
 ## Screenshots
 
 ![screen1](/src/main/resources/screenshots/screen1.png)
@@ -47,6 +45,8 @@ These input keys are used in the demo program:
 - **W-A-S-D** - camera movement
 - **Arrow Keys** - camera rotation
 - **+-** - sun movement
+
+[Check out windows binaries (128MB)][link-binaries]
 
 ## License
 

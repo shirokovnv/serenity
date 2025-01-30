@@ -5,5 +5,5 @@ data class SkyDomeParams(
     val numCols: Int = 64,
     val radius: Float = 10.0f,
     val yOffset: Float = 1f,
-    val rotationSpeed: Float = 0.01f
+    val rotationSpeed: Float = 0.002f
 )

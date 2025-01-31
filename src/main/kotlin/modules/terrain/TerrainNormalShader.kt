@@ -4,14 +4,14 @@ import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import org.lwjgl.opengl.GL43
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class TerrainNormalShader : BaseShader<TerrainNormalShader, TerrainNormalMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/terrain/TerrainNormal_CS.glsl")!!,
+            fileLoader.loadAsString("shaders/terrain/TerrainNormal_CS.glsl")!!,
             ShaderType.COMPUTE_SHADER
         )
 

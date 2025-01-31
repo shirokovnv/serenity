@@ -5,19 +5,19 @@ import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
 import modules.ocean.OceanShader
 import org.lwjgl.opengl.GL43.*
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class OceanMeshShader: OceanShader() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/ocean/Mesh_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/ocean/Mesh_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/ocean/Mesh_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/ocean/Mesh_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

@@ -9,6 +9,7 @@ import core.scene.camera.Camera
 import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import modules.fauna.Butterfly
 import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
@@ -106,6 +107,11 @@ class App(settings: ApplicationSettings) : Application(settings) {
         val grass = Grass()
         scene.attachToRoot(grass)
 
+        val butterfly = Butterfly()
+        butterfly.getComponent<Transform>()!!.setScale(Vector3(3.03f))
+        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 50f, -30f))
+        scene.attachToRoot(butterfly)
+
         val oceanParams = OceanParams(
             512,
             256,
@@ -115,9 +121,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-        val ocean = Ocean(oceanParams, true)
+        val ocean = Ocean(oceanParams, false)
         ocean.getComponent<Transform>()!!.setScale(worldScale)
-        scene.attachToRoot(ocean)
+        //scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()
@@ -125,6 +131,8 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         // Post Processing
         //PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))
+
+
 
         return scene
     }

@@ -5,15 +5,15 @@ import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
 import org.lwjgl.opengl.GL43.*
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class SkyDomeShader: BaseShader<SkyDomeShader, SkyDomeMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
-        val atmosphereInc = fileLoader.load("shaders/include/Atmosphere.glsl")!!
+        val atmosphereInc = fileLoader.loadAsString("shaders/include/Atmosphere.glsl")!!
         val vertexSource = preprocessShader(
-            fileLoader.load("shaders/sky/SkyDome_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/SkyDome_VS.glsl")!!,
             mapOf("Atmosphere.glsl" to atmosphereInc)
         )
 
@@ -23,7 +23,7 @@ class SkyDomeShader: BaseShader<SkyDomeShader, SkyDomeMaterial>() {
         )
 
         addShader(
-            fileLoader.load("shaders/sky/SkyDome_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/SkyDome_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

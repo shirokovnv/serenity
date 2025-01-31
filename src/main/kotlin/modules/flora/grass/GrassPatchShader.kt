@@ -7,19 +7,19 @@ import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
 import modules.terrain.heightmap.Heightmap
 import org.lwjgl.opengl.GL43
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/flora/grass/GrassPatch_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/flora/grass/GrassPatch_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/flora/grass/GrassPatch_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/flora/grass/GrassPatch_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

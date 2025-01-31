@@ -4,15 +4,15 @@ import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class SkyDomePPShader: BaseShader<SkyDomePPShader, SkyDomePPMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
-        val atmosphereInc = fileLoader.load("shaders/include/Atmosphere.glsl")!!
+        val atmosphereInc = fileLoader.loadAsString("shaders/include/Atmosphere.glsl")!!
         val vertexSource = preprocessShader(
-            fileLoader.load("shaders/sky/SkyDomePP_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/SkyDomePP_VS.glsl")!!,
             mapOf("Atmosphere.glsl" to atmosphereInc)
         )
 
@@ -22,7 +22,7 @@ class SkyDomePPShader: BaseShader<SkyDomePPShader, SkyDomePPMaterial>() {
         )
 
         addShader(
-            fileLoader.load("shaders/sky/SkyDomePP_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/SkyDomePP_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

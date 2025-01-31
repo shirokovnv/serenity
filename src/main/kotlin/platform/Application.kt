@@ -4,6 +4,7 @@ import core.ecs.Behaviour
 import core.management.Resources
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
+import graphics.animation.AnimationParser
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
 import graphics.rendering.passes.*
@@ -17,9 +18,10 @@ import org.lwjgl.opengl.*
 import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
 import platform.services.FrameCounter
+import platform.services.filesystem.AssimpLoader
 import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.ObjLoader
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 import platform.services.input.KeyboardInput
 import platform.services.input.MouseInput
 import platform.services.input.WindowInput
@@ -35,8 +37,9 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var mouseInput: MouseInput
         lateinit var windowInput: WindowInput
         lateinit var imageLoader: ImageLoader
-        lateinit var textFileLoader: TextFileLoader
+        lateinit var fileLoader: FileLoader
         lateinit var objLoader: ObjLoader
+        lateinit var fbxLoader: AssimpLoader
         lateinit var frameCounter: FrameCounter
     }
 
@@ -192,16 +195,18 @@ abstract class Application(private val settings: ApplicationSettings) {
         appResources.mouseInput = MouseInput(window)
         appResources.windowInput = WindowInput(window)
         appResources.imageLoader = ImageLoader()
-        appResources.textFileLoader = TextFileLoader()
-        appResources.objLoader = ObjLoader(appResources.textFileLoader, appResources.imageLoader)
+        appResources.fileLoader = FileLoader()
+        appResources.objLoader = ObjLoader(appResources.fileLoader, appResources.imageLoader)
+        appResources.fbxLoader = AssimpLoader(appResources.fileLoader, AnimationParser())
         appResources.frameCounter = FrameCounter(settings.frameRate)
 
         Resources.put<KeyboardInput>(appResources.keyboardInput)
         Resources.put<MouseInput>(appResources.mouseInput)
         Resources.put<WindowInput>(appResources.windowInput)
         Resources.put<ImageLoader>(appResources.imageLoader)
-        Resources.put<TextFileLoader>(appResources.textFileLoader)
+        Resources.put<FileLoader>(appResources.fileLoader)
         Resources.put<ObjLoader>(appResources.objLoader)
+        Resources.put<AssimpLoader>(appResources.fbxLoader)
         Resources.put<FrameCounter>(appResources.frameCounter)
     }
 

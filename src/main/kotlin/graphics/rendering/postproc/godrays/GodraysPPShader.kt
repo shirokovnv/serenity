@@ -5,19 +5,19 @@ import core.math.Vector2
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import org.lwjgl.opengl.GL43
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class GodraysPPShader : BaseShader<GodraysPPShader, GodraysPPMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/postproc/GodraysPP_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/postproc/GodraysPP_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/postproc/GodraysPP_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/postproc/GodraysPP_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

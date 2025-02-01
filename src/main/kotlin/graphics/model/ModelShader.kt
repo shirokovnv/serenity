@@ -5,19 +5,19 @@ import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
 import org.lwjgl.opengl.GL43.*
-import platform.services.filesystem.TextFileLoader
+import platform.services.filesystem.FileLoader
 
 class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
     override fun setup() {
-        val fileLoader = Resources.get<TextFileLoader>()!!
+        val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.load("shaders/model/Model_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/model/Model_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.load("shaders/model/Model_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/model/Model_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

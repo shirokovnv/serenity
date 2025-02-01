@@ -270,6 +270,10 @@ class Quaternion {
     operator fun component3() = z
     operator fun component4() = w
 
+    fun dot(other: Quaternion) : Float {
+        return (this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w)
+    }
+
     fun rotate(vector: Vector3): Vector3 {
         val qVec = Vector3(x, y, z)
         val uv = qVec.cross(vector)

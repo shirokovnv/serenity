@@ -9,6 +9,7 @@ import core.scene.camera.Camera
 import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import modules.fauna.Butterfly
 import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
@@ -105,6 +106,11 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         val grass = Grass()
         scene.attachToRoot(grass)
+
+        val butterfly = Butterfly()
+        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))
+        butterfly.getComponent<Transform>()!!.setRotation(Vector3(0f, 0f, 90f.toRadians()))
+        scene.attachToRoot(butterfly)
 
         val oceanParams = OceanParams(
             512,

@@ -262,6 +262,14 @@ class QuaternionTest {
     }
 
     @Test
+    fun `test dot`() {
+        val quaternion1 = Quaternion(1f, 2f, 3f, 4f)
+        val quaternion2 = Quaternion(4f, 3f, 2f, 1f)
+        val dot = quaternion1.dot(quaternion2)
+        assertEquals(20f, dot)
+    }
+
+    @Test
     fun `test equals`() {
         val quaternion1 = Quaternion(1f, 2f, 3f, 4f)
         val quaternion2 = Quaternion(1f, 2f, 3f, 4f)

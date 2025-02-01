@@ -7,11 +7,11 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
 
-class ObjLoader(private val fileLoader: TextFileLoader, private val imageLoader: ImageLoader) {
+class ObjLoader(private val fileLoader: FileLoader, private val imageLoader: ImageLoader) {
     fun load(objFilePath: String, mtlFilePath: String? = null): Model {
 
-        val objSource = fileLoader.load(objFilePath)
-        val mtlSource = if (mtlFilePath != null) fileLoader.load(mtlFilePath) else null
+        val objSource = fileLoader.loadAsString(objFilePath)
+        val mtlSource = if (mtlFilePath != null) fileLoader.loadAsString(mtlFilePath) else null
 
         if (objSource == null) {
             throw RuntimeException("Unable to load object with path: $objFilePath")

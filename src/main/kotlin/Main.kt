@@ -9,11 +9,14 @@ import core.scene.camera.Camera
 import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import graphics.rendering.postproc.PostProcessor
+import graphics.rendering.postproc.godrays.GodraysPPEffect
 import modules.fauna.Butterfly
 import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
+import modules.light.defaultSunScreenPositionProvider
 import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.ocean.OceanParams

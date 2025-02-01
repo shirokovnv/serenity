@@ -30,7 +30,7 @@ class ButterflyBehaviour : Behaviour(), Renderer {
 
     override fun create() {
         val assimpLoader = Resources.get<AssimpLoader>()!!
-        animationModel = assimpLoader.load("animations/Butterfly_Fly.fbx")
+        animationModel = assimpLoader.load("animations/butterfly.fbx")
         animationModel.setCurrentMeshByName("Cylinder.000/0")
         animationModel.setCurrentAnimationByName("Armature.002|ArmatureAction.002/2")
 

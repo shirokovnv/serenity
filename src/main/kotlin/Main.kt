@@ -108,7 +108,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
         scene.attachToRoot(grass)
 
         val butterfly = Butterfly()
-        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 75f, 50f))
+        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))
         butterfly.getComponent<Transform>()!!.setRotation(Vector3(0f, 0f, 90f.toRadians()))
         scene.attachToRoot(butterfly)
 
@@ -121,7 +121,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-        val ocean = Ocean(oceanParams, false)
+        val ocean = Ocean(oceanParams, true)
         ocean.getComponent<Transform>()!!.setScale(worldScale)
         scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))

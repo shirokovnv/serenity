@@ -61,6 +61,7 @@ MIT. Please see the [license file](LICENSE.md) for more information.
 - [OGLdev] (https://ogldev.org/)
 - [TM] (https://github.com/TheThinMatrix)
 - [Ocean fft] (https://github.com/czartur/ocean_fft)
+- [3d assets] (https://quaternius.com/)
 
 [link-kotlin]: https://kotlinlang.org/
 [link-lwjgl]: https://www.lwjgl.org/

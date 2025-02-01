@@ -6,22 +6,23 @@ in vec2 TexCoords;
 
 out vec4 FragColor;
 
-uniform vec3 lightPos;
-uniform vec3 lightColor;
-uniform vec3 objectColor;
+uniform vec3 sunVector;
+uniform vec3 sunColor;
+uniform float sunIntensity;
 uniform sampler2D diffuseTexture;
+
+// TODO: separate
+float diffuse(vec3 direction, vec3 normal, float intensity)
+{
+    return max(0.04, dot(normal, -direction) * intensity);
+}
 
 void main()
 {
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
+    float diffuseFactor = 10.0f;
+    vec4 diffuseColor = texture(diffuseTexture, TexCoords);
+    diffuseColor *= diffuse(-sunVector, Normal, sunIntensity * diffuseFactor);
+    diffuseColor *= vec4(sunColor, 1);
 
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
-    vec3 result = (ambient + diffuse) * objectColor;
-    FragColor = vec4(result, 1.0);
-    FragColor = texture(diffuseTexture, TexCoords);
+    FragColor = diffuseColor;
 }

@@ -1,7 +1,6 @@
 package modules.fauna
 
 import core.management.Resources
-import core.math.Vector3
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
@@ -27,9 +26,9 @@ class ButterflyShader: BaseShader<ButterflyShader, ButterflyMaterial>() {
         addUniform("model")
         addUniform("view")
         addUniform("projection")
-        addUniform("lightPos")
-        addUniform("lightColor")
-        addUniform("objectColor")
+        addUniform("sunVector")
+        addUniform("sunColor")
+        addUniform("sunIntensity")
         addUniform("diffuseTexture")
 
         for (i in 0..<200) {
@@ -43,9 +42,9 @@ class ButterflyShader: BaseShader<ButterflyShader, ButterflyMaterial>() {
         setUniform("model", shaderMaterial!!.model)
         setUniform("view", shaderMaterial!!.view)
         setUniform("projection", shaderMaterial!!.projection)
-        setUniform("lightPos", sunLightManager.sunVector())
-        setUniform("lightColor", sunLightManager.sunColor())
-        setUniform("objectColor", Vector3(1.0f))
+        setUniform("sunVector", sunLightManager.sunVector())
+        setUniform("sunColor", sunLightManager.sunColor())
+        setUniformf("sunIntensity", sunLightManager.sunIntensity())
 
         shaderMaterial!!.boneTransforms.take(200).withIndex().forEach { (i, v) ->
             setUniform("bones[$i]", v)

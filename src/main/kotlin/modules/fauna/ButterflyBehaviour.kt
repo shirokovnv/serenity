@@ -24,7 +24,7 @@ class ButterflyBehaviour : Behaviour(), Renderer {
         get() = Resources.get<Camera>()!!
 
     private val model: Matrix4
-        get() = (owner() as Object).worldMatrix()
+        get() = (owner() as Object).localMatrix()
 
     private val animationSpeed = 0.003f
 
@@ -32,7 +32,7 @@ class ButterflyBehaviour : Behaviour(), Renderer {
         val assimpLoader = Resources.get<AssimpLoader>()!!
         animationModel = assimpLoader.load("animations/Butterfly_Fly.fbx")
         animationModel.setCurrentMeshByName("Cylinder.000/0")
-        animationModel.setCurrentAnimationByName("Armature.002|Alien2 FBX.001Action.003/0")
+        animationModel.setCurrentAnimationByName("Armature.002|ArmatureAction.002/2")
 
         material = ButterflyMaterial()
         shader = ButterflyShader()
@@ -54,7 +54,7 @@ class ButterflyBehaviour : Behaviour(), Renderer {
         material.view = camera.view
         material.projection = camera.projection
 
-        animationModel.update(deltaTime + animationSpeed)
+        animationModel.update(animationSpeed)
 
         material.boneTransforms.clear()
         material.boneTransforms = animationModel.currentMesh()!!.boneTransforms.toMutableList()

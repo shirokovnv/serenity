@@ -108,8 +108,8 @@ class App(settings: ApplicationSettings) : Application(settings) {
         scene.attachToRoot(grass)
 
         val butterfly = Butterfly()
-        butterfly.getComponent<Transform>()!!.setScale(Vector3(3.03f))
-        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 50f, -30f))
+        butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 75f, 50f))
+        butterfly.getComponent<Transform>()!!.setRotation(Vector3(0f, 0f, 90f.toRadians()))
         scene.attachToRoot(butterfly)
 
         val oceanParams = OceanParams(
@@ -123,7 +123,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         val ocean = Ocean(oceanParams, false)
         ocean.getComponent<Transform>()!!.setScale(worldScale)
-        //scene.attachToRoot(ocean)
+        scene.attachToRoot(ocean)
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()
@@ -131,8 +131,6 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         // Post Processing
         //PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))
-
-
 
         return scene
     }

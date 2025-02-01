@@ -21,15 +21,18 @@ uniform mat4 bones[MAX_BONES];
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;
-    TexCoords = aTexCoords;
-
     // Apply bone transformations
     mat4 skinningMatrix = bones[uint(aBoneIds.x)] * aBoneIds.z +
         bones[uint(aBoneIds.y)] * aBoneIds.w +
         bones[uint(aBoneWeights.x)] * aBoneWeights.z +
         bones[uint(aBoneWeights.y)] * aBoneWeights.w ;
 
-    gl_Position = projection * view * model * skinningMatrix * vec4(aPos, 1.0);
+    vec4 skinPosition = skinningMatrix * vec4(aPos, 1.0);
+    vec4 skinNormal = skinningMatrix * vec4(aNormal, 1.0);
+
+    FragPos = vec3(model * skinPosition);
+    Normal = normalize(vec3(model * skinNormal));
+    TexCoords = aTexCoords;
+
+    gl_Position = projection * view * model * skinPosition;
 }

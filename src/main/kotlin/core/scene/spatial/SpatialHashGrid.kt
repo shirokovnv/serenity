@@ -38,6 +38,8 @@ class SpatialHashGrid(private val bounds: Rect3d, private val dimensions: Vector
         val objectIndices = objectIndexCache[obj] ?: return false
         val (i1, i2) = objectIndices
 
+        objectIndexCache.remove(obj)
+
         var isRemoved = true
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {

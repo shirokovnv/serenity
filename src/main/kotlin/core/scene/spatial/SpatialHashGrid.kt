@@ -35,10 +35,8 @@ class SpatialHashGrid(private val bounds: Rect3d, private val dimensions: Vector
     }
 
     override fun remove(obj: Object): Boolean {
-        val objectIndices = objectIndexCache[obj] ?: return false
+        val objectIndices = objectIndexCache.remove(obj) ?: return false
         val (i1, i2) = objectIndices
-
-        objectIndexCache.remove(obj)
 
         var isRemoved = true
         for (xi in i1.x.toInt()..i2.x.toInt()) {

@@ -1,6 +1,6 @@
 package core.math
 
-import org.lwjgl.system.MemoryUtil
+import org.lwjgl.BufferUtils
 import java.nio.FloatBuffer
 
 class Matrix4(other: Matrix4? = null) {
@@ -108,7 +108,8 @@ class Matrix4(other: Matrix4? = null) {
         val res = Matrix4()
         for (i in 0..3) {
             for (j in 0..3) {
-                res[i, j] = this.m[i][0] * m[0, j] + this.m[i][1] * m[1, j] + this.m[i][2] * m[2, j] + this.m[i][3] * m[3, j]
+                res[i, j] =
+                    this.m[i][0] * m[0, j] + this.m[i][1] * m[1, j] + this.m[i][2] * m[2, j] + this.m[i][3] * m[3, j]
             }
         }
         return res
@@ -161,7 +162,7 @@ class Matrix4(other: Matrix4? = null) {
 }
 
 fun Matrix4.toFloatBuffer(): FloatBuffer {
-    val buffer = MemoryUtil.memAllocFloat(16)
+    val buffer = BufferUtils.createFloatBuffer(16)
     for (i in 0..3) {
         for (j in 0..3) {
             buffer.put(this[i, j])

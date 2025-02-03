@@ -2,7 +2,8 @@ package modules.flora.grass
 
 import core.ecs.Behaviour
 import core.management.Resources
-import core.math.*
+import core.math.Rect3d
+import core.math.Vector3
 import core.scene.BoxAABB
 import core.scene.camera.Camera
 import core.scene.spatial.LinearQuadTree
@@ -10,7 +11,10 @@ import core.scene.spatial.SpatialPartitioningInterface
 import graphics.assets.surface.bind
 import graphics.assets.texture.TextureChannel
 import graphics.model.Model
+import graphics.rendering.Colors
 import graphics.rendering.Renderer
+import graphics.rendering.context.RenderContext
+import graphics.rendering.gizmos.BoxAABBRenderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Blendmap
@@ -25,6 +29,7 @@ class GrassBehaviour : Behaviour(), Renderer {
     private lateinit var shader: GrassPatchShader
     private lateinit var grassPatchParams: GrassPatchParams
     private lateinit var grassGenerator: GrassGenerator
+    private lateinit var patches: List<GrassPatch>
 
     private lateinit var quadTree: SpatialPartitioningInterface
 
@@ -65,8 +70,9 @@ class GrassBehaviour : Behaviour(), Renderer {
             val blendmap = Resources.get<Blendmap>()
 
             if (blendmap != null) {
-                val patches = grassGenerator.generatePatches(heightmap, blendmap, grassPatchParams, TextureChannel.R)
+                patches = grassGenerator.generatePatches(heightmap, blendmap, grassPatchParams, TextureChannel.R)
                 patches.forEach { grassPatch ->
+                    grassPatch.addComponent(BoxAABBRenderer(Colors.Red))
                     quadTree.insert(grassPatch)
                 }
 
@@ -78,6 +84,10 @@ class GrassBehaviour : Behaviour(), Renderer {
     }
 
     override fun destroy() {
+        patches.forEach { grassPatch ->
+            grassPatch.getComponent<BoxAABBRenderer>()!!.dispose()
+        }
+
         grassModel.dispose()
         shader.destroy()
     }
@@ -108,9 +118,11 @@ class GrassBehaviour : Behaviour(), Renderer {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        quadTree
+        val searchResults = quadTree
             .buildSearchResults(searchVolume)
             .filterIsInstance<GrassPatch>()
+
+        searchResults
             .forEach { grassPatch ->
                 material.worldMatrix = grassPatch.worldMatrix()
                 shader.updateUniforms()
@@ -120,6 +132,12 @@ class GrassBehaviour : Behaviour(), Renderer {
         glDisable(GL_BLEND)
 
         shader.unbind()
+
+        if (RenderContext.onDrawGizmos) {
+            searchResults.forEach { grassPatch ->
+                grassPatch.getComponent<BoxAABBRenderer>()!!.render(pass)
+            }
+        }
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {

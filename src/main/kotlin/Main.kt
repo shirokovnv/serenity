@@ -9,6 +9,7 @@ import core.scene.camera.Camera
 import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import graphics.rendering.context.RenderContextController
 import graphics.rendering.postproc.PostProcessor
 import graphics.rendering.postproc.godrays.GodraysPPEffect
 import modules.fauna.Butterfly
@@ -52,6 +53,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
         val mainObj = Object()
         mainObj.addComponent(SunLightController())
         mainObj.addComponent(AtmosphereController())
+        mainObj.addComponent(RenderContextController())
         scene.attachToRoot(mainObj)
 
         val camera = PerspectiveCamera(

@@ -84,8 +84,8 @@ class GrassGenerator {
                 if (patchAccepted) {
                     val patchCorner0 = Vector2(xIndex.toFloat(), yIndex.toFloat())
                     val patchCorner1 = Vector2(
-                        xIndex.toFloat() + params.cellSize - 1,
-                            yIndex.toFloat() + params.cellSize - 1
+                        xIndex.toFloat() + params.cellSize,
+                            yIndex.toFloat() + params.cellSize
                         )
 
                     val grassPatch = GrassPatch()

@@ -5,7 +5,6 @@ import core.events.Events
 import core.management.Resources
 import core.math.extensions.toRadians
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
 import platform.services.input.*
 
 enum class CameraMovement {
@@ -29,8 +28,6 @@ class CameraController(
     private var rotationSpeed: Float,
     private var mouseSensitivity: Float
 ) : Behaviour() {
-
-    private var isWireframe: Boolean = false
 
     private val camera: Camera
         get() = owner()?.getComponent<Camera>()!!
@@ -85,10 +82,6 @@ class CameraController(
 
         getRotationDirection(key)?.let { direction ->
             rotation[direction] = true
-        }
-
-        when (key) {
-            GLFW.GLFW_KEY_5 -> toggleWireframeMode()
         }
     }
 
@@ -157,16 +150,6 @@ class CameraController(
 
         camera.rotateAroundHorizontalAxis(yOffsetModified.toRadians())
         camera.rotateAroundVerticalAxis(xOffsetModified.toRadians())
-    }
-
-    private fun toggleWireframeMode() {
-        if (isWireframe) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
-        } else {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
-        }
-
-        isWireframe = !isWireframe
     }
 
     private fun onMouseMoved(event: MouseMovedEvent, sender: Any) {

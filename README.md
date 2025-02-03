@@ -62,6 +62,7 @@ MIT. Please see the [license file](LICENSE.md) for more information.
 - [TM] (https://github.com/TheThinMatrix)
 - [Ocean fft] (https://github.com/czartur/ocean_fft)
 - [3d assets] (https://quaternius.com/)
+- [Dear ImGui] (https://github.com/ocornut/imgui)
 
 [link-kotlin]: https://kotlinlang.org/
 [link-lwjgl]: https://www.lwjgl.org/

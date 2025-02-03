@@ -114,6 +114,8 @@ class TiledTerrainBehaviour(
             (owner() as Object).addComponent(ppRenderer)
         }
 
+        (owner() as Object).addComponent(TiledTerrainGui(material))
+
         println("TILED BEHAVIOUR INITIALIZED")
     }
 

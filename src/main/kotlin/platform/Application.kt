@@ -5,6 +5,7 @@ import core.management.Resources
 import core.scene.SceneGraph
 import core.scene.TraversalOrder
 import graphics.animation.AnimationParser
+import graphics.gui.GuiWrapper
 import graphics.rendering.RenderPipeline
 import graphics.rendering.UpdatePipeline
 import graphics.rendering.passes.*
@@ -19,9 +20,9 @@ import org.lwjgl.opengl.GL11.GL_TRUE
 import org.lwjgl.system.MemoryUtil
 import platform.services.FrameCounter
 import platform.services.filesystem.AssimpLoader
+import platform.services.filesystem.FileLoader
 import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.ObjLoader
-import platform.services.filesystem.FileLoader
 import platform.services.input.KeyboardInput
 import platform.services.input.MouseInput
 import platform.services.input.WindowInput
@@ -41,6 +42,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var objLoader: ObjLoader
         lateinit var fbxLoader: AssimpLoader
         lateinit var frameCounter: FrameCounter
+        lateinit var guiWrapper: GuiWrapper
     }
 
     private var appResources = ApplicationResources()
@@ -73,6 +75,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         GL20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
 
         appPipes.renderPipeline.render(sceneGraph, TraversalOrder.BREADTH_FIRST)
+        appResources.guiWrapper.render()
 
         GLFW.glfwSwapBuffers(window)
         GLFW.glfwPollEvents()
@@ -84,6 +87,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         registerSharedResources()
         registerPipelines()
         registerInputCallbacks()
+        registerGui()
         registerSceneGraph()
         setIcon()
         run()
@@ -155,7 +159,7 @@ abstract class Application(private val settings: ApplicationSettings) {
     private fun destroy() {
         // TODO: separate
         val behaviours = mutableListOf<Behaviour>()
-        sceneGraph.traverse( { obj ->
+        sceneGraph.traverse({ obj ->
             behaviours.addAll(obj.getComponents<Behaviour>())
         }, TraversalOrder.DEPTH_FIRST)
         behaviours.forEach { it.destroy() }
@@ -185,6 +189,14 @@ abstract class Application(private val settings: ApplicationSettings) {
         GLFW.glfwSetMouseButtonCallback(window, appResources.mouseInput::mouseButtonCallback)
         GLFW.glfwSetKeyCallback(window, appResources.keyboardInput::keyCallback)
         GLFW.glfwSetFramebufferSizeCallback(window, appResources.windowInput::windowResizeCallback)
+    }
+
+    private fun registerGui() {
+        appResources.guiWrapper = GuiWrapper(window)
+        Resources.put<GuiWrapper>(appResources.guiWrapper)
+
+        appResources.keyboardInput.setGuiWrapper(appResources.guiWrapper)
+        appResources.mouseInput.setGuiWrapper(appResources.guiWrapper)
     }
 
     protected open fun registerSharedResources() {

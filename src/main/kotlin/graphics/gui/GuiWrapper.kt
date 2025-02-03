@@ -88,8 +88,8 @@ class GuiWrapper(
         val windowHeight = ImGui.getIO().displaySize.y / rows
 
         var windowIndex = 0
-        for(window in windows.values) {
-            when(window) {
+        for (window in windows.values) {
+            when (window) {
                 is GuiWindow.GridWindow -> {
                     val row = windowIndex / cols
                     val col = windowIndex % cols
@@ -98,9 +98,11 @@ class GuiWrapper(
                     ImGui.setNextWindowPos(ImVec2(windowPosX, windowPosY), ImGuiCond.FirstUseEver)
                     ImGui.setNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond.FirstUseEver)
                     ImGui.begin(window.name)
-                    for (component in window.components) {
-                        component.onRenderGUI()
-                    }
+                    window.components
+                        .filter { it.isActive() }
+                        .forEach { guiComponent ->
+                            guiComponent.onRenderGUI()
+                        }
                     ImGui.end()
                     windowIndex++
                 }
@@ -109,9 +111,11 @@ class GuiWrapper(
                     ImGui.setNextWindowPos(window.position, ImGuiCond.FirstUseEver)
                     ImGui.setNextWindowSize(window.size, ImGuiCond.FirstUseEver)
                     ImGui.begin(window.name)
-                    for (component in window.components) {
-                        component.onRenderGUI()
-                    }
+                    window.components
+                        .filter { it.isActive() }
+                        .forEach { guiComponent ->
+                            guiComponent.onRenderGUI()
+                        }
                     ImGui.end()
                 }
             }

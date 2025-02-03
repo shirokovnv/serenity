@@ -1,5 +1,7 @@
 package graphics.gui
 
-interface GuiComponent {
+import core.ecs.Component
+
+interface GuiComponent : Component {
     fun onRenderGUI()
 }

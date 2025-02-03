@@ -1,6 +1,7 @@
 package platform.services.input
 
 import core.events.Events
+import graphics.gui.GuiWrapper
 import org.lwjgl.glfw.GLFW.GLFW_PRESS
 import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
@@ -13,7 +14,19 @@ class MouseInput(val window: Long) {
     private var lastY = 0.0
     private var isFirstMouse = true
 
+    private var guiWrapper: GuiWrapper? = null
+
+    fun setGuiWrapper(guiWrapper: GuiWrapper?) {
+        this.guiWrapper = guiWrapper
+    }
+
+    fun getGuiWrapper(): GuiWrapper? = guiWrapper
+
     fun mousePosCallback(window: Long, xpos: Double, ypos: Double) {
+
+        if (guiWrapper?.wantCaptureMouse() == true) {
+            return
+        }
 
         if (isFirstMouse) {
             lastX = xpos

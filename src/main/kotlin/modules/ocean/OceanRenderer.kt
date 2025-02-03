@@ -77,6 +77,8 @@ class OceanRenderer(
         val oceanMesh = OceanMesh(params.meshResolution, (params.meshResolution / params.fftResolution).toFloat())
         oceanBuffer = OceanBuffer(oceanMesh)
 
+        (owner() as Object).addComponent(OceanGui(material))
+
         println("OCEAN RENDER BEHAVIOUR INITIALIZED")
     }
 

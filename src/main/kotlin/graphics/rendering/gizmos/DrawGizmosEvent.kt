@@ -1,5 +1,5 @@
 package graphics.rendering.gizmos
 
-import core.events.Event
+import graphics.rendering.RenderEvent
 
-class DrawGizmosEvent : Event
+class DrawGizmosEvent : RenderEvent

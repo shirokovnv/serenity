@@ -44,7 +44,7 @@ class CameraController(
     private val rotation = mutableMapOf<CameraRotation, Boolean>()
 
     private lateinit var rayTracer: RayTracer
-    private val rayDistance = 600f
+    private val rayDistance = 2500f
     private val rayLifeTimeMillis = 5000L
     private val rays = mutableListOf<RayData>()
 

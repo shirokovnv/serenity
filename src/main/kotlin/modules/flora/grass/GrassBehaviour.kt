@@ -14,7 +14,7 @@ import graphics.assets.texture.TextureChannel
 import graphics.model.Model
 import graphics.rendering.Colors
 import graphics.rendering.Renderer
-import graphics.rendering.gizmos.BoxAABBRenderer
+import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
@@ -76,7 +76,7 @@ class GrassBehaviour : Behaviour(), Renderer {
             if (blendmap != null) {
                 patches = grassGenerator.generatePatches(heightmap, blendmap, grassPatchParams, TextureChannel.R)
                 patches.forEach { grassPatch ->
-                    grassPatch.addComponent(BoxAABBRenderer(Colors.Red))
+                    grassPatch.addComponent(BoxAABBDrawer(Colors.Red))
                     quadTree.insert(grassPatch)
                 }
 
@@ -91,7 +91,7 @@ class GrassBehaviour : Behaviour(), Renderer {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         patches.forEach { grassPatch ->
-            grassPatch.getComponent<BoxAABBRenderer>()!!.dispose()
+            grassPatch.getComponent<BoxAABBDrawer>()!!.dispose()
         }
 
         grassModel.dispose()
@@ -145,7 +145,7 @@ class GrassBehaviour : Behaviour(), Renderer {
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         searchResults.forEach { grassPatch ->
-            grassPatch.getComponent<BoxAABBRenderer>()!!.render(event.pass)
+            grassPatch.getComponent<BoxAABBDrawer>()!!.draw()
         }
     }
 }

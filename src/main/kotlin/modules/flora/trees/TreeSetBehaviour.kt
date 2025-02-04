@@ -16,7 +16,7 @@ import graphics.model.ModelMaterial
 import graphics.model.ModelRenderer
 import graphics.model.ModelShader
 import graphics.rendering.Colors
-import graphics.rendering.gizmos.BoxAABBRenderer
+import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
 import modules.light.SunLightManager
 import modules.terrain.heightmap.Heightmap
@@ -110,7 +110,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
                 treeBoxObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
                 treeBoxObject.getComponent<BoxAABB>()!!.transform(transform)
 
-                treeBoxObject.addComponent(BoxAABBRenderer(Colors.Green))
+                treeBoxObject.addComponent(BoxAABBDrawer(Colors.Green))
                 treeBoxes.add(treeBoxObject)
             }
         }
@@ -159,7 +159,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         treeBoxes.forEach { treeBox ->
-            treeBox.getComponent<BoxAABBRenderer>()?.dispose()
+            treeBox.getComponent<BoxAABBDrawer>()?.dispose()
         }
         treeBoxes.clear()
 
@@ -175,7 +175,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         treeBoxes.forEach { treeBox ->
-            treeBox.getComponent<BoxAABBRenderer>()?.render(event.pass)
+            treeBox.getComponent<BoxAABBDrawer>()?.draw()
         }
     }
 }

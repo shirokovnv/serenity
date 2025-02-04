@@ -13,7 +13,7 @@ import core.scene.volumes.BoxAABB
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
 import graphics.rendering.Colors
-import graphics.rendering.gizmos.BoxAABBRenderer
+import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.shadows.ShadowFrameBuffer
 import modules.light.SunLightManager
@@ -143,7 +143,7 @@ class TiledTerrainBehaviour(
 
                 val patchObject = Object()
                 patchObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
-                patchObject.addComponent(BoxAABBRenderer(Colors.Blue))
+                patchObject.addComponent(BoxAABBDrawer(Colors.Blue))
 
                 patches.add(patchObject)
             }
@@ -168,7 +168,7 @@ class TiledTerrainBehaviour(
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         patches.forEach { patch ->
-            patch.getComponent<BoxAABBRenderer>()?.dispose()
+            patch.getComponent<BoxAABBDrawer>()?.dispose()
         }
         patches.clear()
 
@@ -192,7 +192,7 @@ class TiledTerrainBehaviour(
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         patches.forEach { patch ->
-            patch.getComponent<BoxAABBRenderer>()?.render(event.pass)
+            patch.getComponent<BoxAABBDrawer>()?.draw()
         }
     }
 }

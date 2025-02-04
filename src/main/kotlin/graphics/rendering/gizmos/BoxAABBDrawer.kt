@@ -9,11 +9,10 @@ import core.scene.camera.Camera
 import graphics.assets.surface.bind
 import graphics.rendering.Color
 import graphics.rendering.ColorGenerator
-import graphics.rendering.Renderer
-import graphics.rendering.passes.NormalPass
+import graphics.rendering.Drawable
 import graphics.rendering.passes.RenderPass
 
-class BoxAABBRenderer(private var color: Color? = null) : BaseComponent(), Renderer, Disposable {
+class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawable, Disposable {
     companion object {
         private var referenceCounter = 0
         private var buffer: BoxAABBBuffer? = null
@@ -50,7 +49,7 @@ class BoxAABBRenderer(private var color: Color? = null) : BaseComponent(), Rende
         }
     }
 
-    override fun render(pass: RenderPass) {
+    override fun draw() {
         material?.boxCenter = rect3d.center
         material?.boxSize = rect3d.size()
         material?.color = color?.toVector3() ?: ColorGenerator.fromUUID(owner()!!.id).toVector3()
@@ -60,9 +59,5 @@ class BoxAABBRenderer(private var color: Color? = null) : BaseComponent(), Rende
         shader?.updateUniforms()
         buffer?.draw()
         shader?.unbind()
-    }
-
-    override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass
     }
 }

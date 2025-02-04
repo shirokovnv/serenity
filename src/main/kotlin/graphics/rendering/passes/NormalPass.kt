@@ -24,7 +24,7 @@ object NormalPass : BaseRenderPass(), Disposable {
     }
 
     override fun onFinish() {
-        RenderContext.dispatchOnDrawGizmos(this)
+        RenderContext.dispatchOnDrawGizmos()
 
         if (PostProcessor.countEffects() > 0) {
             fbo.unbind()

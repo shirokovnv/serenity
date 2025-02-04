@@ -8,9 +8,9 @@ object RenderContext {
     var onDrawGizmos: Boolean = false
     var onDrawWireframe: Boolean = false
 
-    fun dispatchOnDrawGizmos(pass: RenderPass) {
+    fun dispatchOnDrawGizmos() {
         if (onDrawGizmos) {
-            Events.publish(DrawGizmosEvent(pass), this)
+            Events.publish(DrawGizmosEvent(), this)
         }
     }
 }

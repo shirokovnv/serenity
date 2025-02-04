@@ -34,7 +34,6 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     private lateinit var models: MutableList<Model>
     private lateinit var renderer: ModelRenderer
     private lateinit var ppRenderer: TreeSetPPRenderer
-    private lateinit var treeBoxes: MutableList<Object>
 
     private val viewProjectionProvider: Matrix4
         get() = Resources.get<Camera>()!!.viewProjection
@@ -88,7 +87,6 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
         println("NUM SAMPLING POINTS: ${points.size}")
 
-        treeBoxes = mutableListOf()
         for (p in points) {
             val transform = Transform()
             val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.worldScale().y
@@ -105,13 +103,13 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             randomModel.addInstance(transform.matrix())
 
             randomModel.getModelData().values.forEach { modelData ->
-                val treeBoxObject = Object()
+                val treeInstance = TreeInstance()
                 val bounds = BoxAABBFactory.fromVertices(modelData.vertices, 3, modelData.indices)
-                treeBoxObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
-                treeBoxObject.getComponent<BoxAABB>()!!.transform(transform)
+                treeInstance.getComponent<BoxAABB>()!!.setShape(bounds.shape())
+                treeInstance.getComponent<BoxAABB>()!!.transform(transform)
 
-                treeBoxObject.addComponent(BoxAABBDrawer(Colors.Green))
-                treeBoxes.add(treeBoxObject)
+                treeInstance.addComponent(BoxAABBDrawer(Colors.Green))
+                (owner() as Object).addChild(treeInstance)
             }
         }
 
@@ -158,10 +156,12 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     override fun destroy() {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
-        treeBoxes.forEach { treeBox ->
-            treeBox.getComponent<BoxAABBDrawer>()?.dispose()
-        }
-        treeBoxes.clear()
+        (owner() as Object)
+            .getChildren()
+            .filterIsInstance<TreeInstance>()
+            .forEach { treeInstance ->
+                treeInstance.getComponent<BoxAABBDrawer>()?.dispose()
+            }
 
         shader.destroy()
         if (enablePostProcessing) {
@@ -174,8 +174,11 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
-        treeBoxes.forEach { treeBox ->
-            treeBox.getComponent<BoxAABBDrawer>()?.draw()
-        }
+        (owner() as Object)
+            .getChildren()
+            .filterIsInstance<TreeInstance>()
+            .forEach { treeInstance ->
+                treeInstance.getComponent<BoxAABBDrawer>()?.draw()
+            }
     }
 }

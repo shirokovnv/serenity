@@ -30,7 +30,6 @@ class TiledTerrainBehaviour(
     private lateinit var buffer: TiledTerrainBuffer
     private lateinit var renderer: TiledTerrainRenderer
     private lateinit var ppRenderer: TiledTerrainPPRenderer
-    private lateinit var patches: MutableList<Object>
 
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
@@ -124,7 +123,6 @@ class TiledTerrainBehaviour(
 
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
-        patches = mutableListOf()
         val patchSize = Vector2(1f / config.gridSize, 1f / config.gridSize)
         val xzScale = Vector2(config.worldScale.x, config.worldScale.z)
         val xzOffset = Vector2(config.worldOffset.x, config.worldOffset.z)
@@ -141,11 +139,11 @@ class TiledTerrainBehaviour(
                     minPoint, maxPoint
                 )
 
-                val patchObject = Object()
+                val patchObject = TiledTerrainPatch()
                 patchObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
                 patchObject.addComponent(BoxAABBDrawer(Colors.Blue))
 
-                patches.add(patchObject)
+                (owner() as Object).addChild(patchObject)
             }
         }
 
@@ -167,10 +165,12 @@ class TiledTerrainBehaviour(
     override fun destroy() {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
-        patches.forEach { patch ->
-            patch.getComponent<BoxAABBDrawer>()?.dispose()
-        }
-        patches.clear()
+        (owner() as Object)
+            .getChildren()
+            .filterIsInstance<TiledTerrainPatch>()
+            .forEach { patch ->
+                patch.getComponent<BoxAABBDrawer>()?.dispose()
+            }
 
         material.materialDetailMap.values.forEach {
             it.diffuseMap.destroy()
@@ -191,8 +191,11 @@ class TiledTerrainBehaviour(
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
-        patches.forEach { patch ->
-            patch.getComponent<BoxAABBDrawer>()?.draw()
-        }
+        (owner() as Object)
+            .getChildren()
+            .filterIsInstance<TiledTerrainPatch>()
+            .forEach { patch ->
+                patch.getComponent<BoxAABBDrawer>()?.draw()
+            }
     }
 }

@@ -8,6 +8,7 @@ import core.math.Vector3
 import core.scene.ObjectFlag.Companion.Active
 import core.scene.ObjectFlag.Companion.None
 import core.scene.ObjectFlag.Companion.or
+import core.scene.volumes.BoxAABB
 
 open class Object(private var parent: Object? = null) : Entity(), Activatable {
 

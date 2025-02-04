@@ -4,7 +4,7 @@ import core.ecs.BaseComponent
 import core.management.Disposable
 import core.management.Resources
 import core.math.Rect3d
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.camera.Camera
 import graphics.assets.surface.bind
 import graphics.rendering.Color

@@ -2,6 +2,7 @@ package graphics.rendering.passes
 
 import core.events.Events
 import core.management.Disposable
+import graphics.rendering.context.RenderContext
 import graphics.rendering.postproc.PostProcessor
 import org.lwjgl.opengl.GL43.*
 import platform.services.input.WindowResizedEvent
@@ -23,6 +24,8 @@ object NormalPass : BaseRenderPass(), Disposable {
     }
 
     override fun onFinish() {
+        RenderContext.dispatchOnDrawGizmos(this)
+
         if (PostProcessor.countEffects() > 0) {
             fbo.unbind()
         }

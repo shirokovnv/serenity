@@ -1,6 +1,7 @@
 package modules.terrain.tiled
 
 import core.ecs.Behaviour
+import core.events.Events
 import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector2
@@ -8,8 +9,12 @@ import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.OrthographicCamera
+import core.scene.volumes.BoxAABB
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
+import graphics.rendering.Colors
+import graphics.rendering.gizmos.BoxAABBRenderer
+import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.shadows.ShadowFrameBuffer
 import modules.light.SunLightManager
 import modules.terrain.TerrainBlendRenderer
@@ -25,6 +30,7 @@ class TiledTerrainBehaviour(
     private lateinit var buffer: TiledTerrainBuffer
     private lateinit var renderer: TiledTerrainRenderer
     private lateinit var ppRenderer: TiledTerrainPPRenderer
+    private lateinit var patches: MutableList<Object>
 
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
@@ -116,6 +122,33 @@ class TiledTerrainBehaviour(
 
         (owner() as Object).addComponent(TiledTerrainGui(material))
 
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        patches = mutableListOf()
+        val patchSize = Vector2(1f / config.gridSize, 1f / config.gridSize)
+        val xzScale = Vector2(config.worldScale.x, config.worldScale.z)
+        val xzOffset = Vector2(config.worldOffset.x, config.worldOffset.z)
+        for (i in 0..<config.gridSize) {
+            for (j in 0..<config.gridSize) {
+                val patchLocation = Vector2(
+                    i.toFloat() / config.gridSize,
+                    j.toFloat() / config.gridSize
+                )
+
+                val minPoint = xzOffset + patchLocation * xzScale
+                val maxPoint = minPoint + patchSize * xzScale
+                val bounds = config.heightmap.calculatePatchBounds(
+                    minPoint, maxPoint
+                )
+
+                val patchObject = Object()
+                patchObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
+                patchObject.addComponent(BoxAABBRenderer(Colors.Blue))
+
+                patches.add(patchObject)
+            }
+        }
+
         println("TILED BEHAVIOUR INITIALIZED")
     }
 
@@ -132,6 +165,13 @@ class TiledTerrainBehaviour(
     }
 
     override fun destroy() {
+        Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        patches.forEach { patch ->
+            patch.getComponent<BoxAABBRenderer>()?.dispose()
+        }
+        patches.clear()
+
         material.materialDetailMap.values.forEach {
             it.diffuseMap.destroy()
             it.displacementMap.destroy()
@@ -148,5 +188,11 @@ class TiledTerrainBehaviour(
             Vector2(1f, 0f),
             Vector2(1f, 1f)
         )
+    }
+
+    private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        patches.forEach { patch ->
+            patch.getComponent<BoxAABBRenderer>()?.render(event.pass)
+        }
     }
 }

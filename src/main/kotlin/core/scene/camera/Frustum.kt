@@ -2,7 +2,7 @@ package core.scene.camera
 
 import core.math.*
 import core.math.extensions.toRadians
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import kotlin.math.*
 
 class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes: Boolean = true) {

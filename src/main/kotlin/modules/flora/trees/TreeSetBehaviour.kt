@@ -1,19 +1,23 @@
 package modules.flora.trees
 
 import core.ecs.Behaviour
+import core.events.Events
 import core.management.Resources
-import core.math.Matrix4
-import core.math.Vector2
-import core.math.Vector3
+import core.math.*
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.OrthographicCamera
+import core.scene.volumes.BoxAABBFactory
 import graphics.assets.surface.bind
 import graphics.model.Model
 import graphics.model.ModelMaterial
 import graphics.model.ModelRenderer
 import graphics.model.ModelShader
+import graphics.rendering.Colors
+import graphics.rendering.gizmos.BoxAABBRenderer
+import graphics.rendering.gizmos.DrawGizmosEvent
 import modules.light.SunLightManager
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.heightmap.PoissonDiscSampler
@@ -30,6 +34,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     private lateinit var models: MutableList<Model>
     private lateinit var renderer: ModelRenderer
     private lateinit var ppRenderer: TreeSetPPRenderer
+    private lateinit var treeBoxes: MutableList<Object>
 
     private val viewProjectionProvider: Matrix4
         get() = Resources.get<Camera>()!!.viewProjection
@@ -83,6 +88,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
         println("NUM SAMPLING POINTS: ${points.size}")
 
+        treeBoxes = mutableListOf()
         for (p in points) {
             val transform = Transform()
             val height = heightmap.getInterpolatedHeight(p.x, p.y) * heightmap.worldScale().y
@@ -97,6 +103,16 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
             val randomModel = models.random()
             randomModel.addInstance(transform.matrix())
+
+            randomModel.getModelData().values.forEach { modelData ->
+                val treeBoxObject = Object()
+                val bounds = BoxAABBFactory.fromVertices(modelData.vertices, 3, modelData.indices)
+                treeBoxObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
+                treeBoxObject.getComponent<BoxAABB>()!!.transform(transform)
+
+                treeBoxObject.addComponent(BoxAABBRenderer(Colors.Green))
+                treeBoxes.add(treeBoxObject)
+            }
         }
 
         models.forEach {
@@ -131,6 +147,8 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             (owner() as Object).addComponent(ppRenderer)
         }
 
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
         println("PALM RENDER BEHAVIOUR INITIALIZED")
     }
 
@@ -138,6 +156,13 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     }
 
     override fun destroy() {
+        Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        treeBoxes.forEach { treeBox ->
+            treeBox.getComponent<BoxAABBRenderer>()?.dispose()
+        }
+        treeBoxes.clear()
+
         shader.destroy()
         if (enablePostProcessing) {
             ppShader.destroy()
@@ -145,6 +170,12 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
         models.forEach{ model ->
             model.destroyBuffers()
             model.destroyTextures()
+        }
+    }
+
+    private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        treeBoxes.forEach { treeBox ->
+            treeBox.getComponent<BoxAABBRenderer>()?.render(event.pass)
         }
     }
 }

@@ -1,6 +1,6 @@
 package core.scene.spatial
 
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 
 interface SpatialPartitioningInterface {

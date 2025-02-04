@@ -3,7 +3,7 @@ package modules.flora.grass
 import core.math.Rect3d
 import core.math.Vector2
 import core.math.Vector3
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Transform
 import graphics.assets.texture.TextureChannel
 import graphics.model.Model

@@ -12,6 +12,7 @@ import core.scene.camera.PerspectiveCamera
 import graphics.rendering.context.RenderContextController
 import graphics.rendering.postproc.PostProcessor
 import graphics.rendering.postproc.godrays.GodraysPPEffect
+import graphics.tools.MonitoringBehaviour
 import modules.fauna.Butterfly
 import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
@@ -54,6 +55,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
         mainObj.addComponent(SunLightController())
         mainObj.addComponent(AtmosphereController())
         mainObj.addComponent(RenderContextController())
+        mainObj.addComponent(MonitoringBehaviour())
         scene.attachToRoot(mainObj)
 
         val camera = PerspectiveCamera(

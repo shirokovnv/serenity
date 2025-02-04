@@ -3,12 +3,15 @@ package modules.terrain.tiled
 import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
+import core.math.IntersectionDetector
 import core.math.Matrix4
 import core.math.Vector2
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
+import core.scene.camera.Frustum
 import core.scene.camera.OrthographicCamera
+import core.scene.camera.PerspectiveCamera
 import core.scene.volumes.BoxAABB
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
@@ -30,6 +33,7 @@ class TiledTerrainBehaviour(
     private lateinit var buffer: TiledTerrainBuffer
     private lateinit var renderer: TiledTerrainRenderer
     private lateinit var ppRenderer: TiledTerrainPPRenderer
+    private lateinit var frustum: Frustum
 
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
@@ -147,6 +151,8 @@ class TiledTerrainBehaviour(
             }
         }
 
+        frustum = Frustum(camera as PerspectiveCamera)
+
         println("TILED BEHAVIOUR INITIALIZED")
     }
 
@@ -191,9 +197,14 @@ class TiledTerrainBehaviour(
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        frustum.recalculateSearchVolume()
+
         (owner() as Object)
             .getChildren()
             .filterIsInstance<TiledTerrainPatch>()
+            .filter { patch ->
+                IntersectionDetector.intersects(frustum.searchVolume().shape(), patch.getComponent<BoxAABB>()!!.shape())
+            }
             .forEach { patch ->
                 patch.getComponent<BoxAABBDrawer>()?.draw()
             }

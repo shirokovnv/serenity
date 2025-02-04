@@ -8,7 +8,9 @@ import core.scene.volumes.BoxAABB
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
+import core.scene.camera.Frustum
 import core.scene.camera.OrthographicCamera
+import core.scene.camera.PerspectiveCamera
 import core.scene.volumes.BoxAABBFactory
 import graphics.assets.surface.bind
 import graphics.model.Model
@@ -34,6 +36,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     private lateinit var models: MutableList<Model>
     private lateinit var renderer: ModelRenderer
     private lateinit var ppRenderer: TreeSetPPRenderer
+    private lateinit var frustum: Frustum
 
     private val viewProjectionProvider: Matrix4
         get() = Resources.get<Camera>()!!.viewProjection
@@ -147,6 +150,8 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
+        frustum = Frustum(Resources.get<Camera>()!! as PerspectiveCamera)
+
         println("PALM RENDER BEHAVIOUR INITIALIZED")
     }
 
@@ -174,9 +179,14 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        frustum.recalculateSearchVolume()
+
         (owner() as Object)
             .getChildren()
             .filterIsInstance<TreeInstance>()
+            .filter { treeInstance ->
+                IntersectionDetector.intersects(frustum.searchVolume().shape(), treeInstance.getComponent<BoxAABB>()!!.shape())
+            }
             .forEach { treeInstance ->
                 treeInstance.getComponent<BoxAABBDrawer>()?.draw()
             }

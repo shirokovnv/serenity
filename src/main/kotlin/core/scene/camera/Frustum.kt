@@ -17,13 +17,6 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
         Rect3d(Vector3(0f), Vector3(0f))
     )
 
-    data class FrustumPlaneSize(
-        val nearWidth: Float,
-        val nearHeight: Float,
-        val farWidth: Float,
-        val farHeight: Float
-    )
-
     init {
         recalculatePlanes()
         recalculateSearchVolume()

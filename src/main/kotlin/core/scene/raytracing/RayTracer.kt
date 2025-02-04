@@ -29,7 +29,8 @@ class RayTracer(
     }
 
     private fun getEyeCoordinates(clipCoordinates: Quaternion): Quaternion {
-        return camera.projection.invert() * clipCoordinates
+        val eyeCoordinates = camera.projection.invert() * clipCoordinates
+        return Quaternion(eyeCoordinates.x, eyeCoordinates.y, -1f, 0f)
     }
 
     private fun getWorldCoordinates(eyeCoordinates: Quaternion): Vector3 {

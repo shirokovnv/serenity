@@ -58,4 +58,7 @@ class MouseInput(val window: Long) {
     fun resetMouse(){
         isFirstMouse = true
     }
+
+    fun lastX(): Double = lastX
+    fun lastY(): Double = lastY
 }

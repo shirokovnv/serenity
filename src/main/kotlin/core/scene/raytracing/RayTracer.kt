@@ -18,9 +18,7 @@ class RayTracer(
     }
 
     fun traceToDistance(ray: Vector3, distance: Float): Vector3 {
-        val cameraPosition = camera.position()
-        val scaledRay = ray * distance
-        return cameraPosition + scaledRay
+        return getPointOnRay(camera.position(), ray, distance)
     }
 
     private fun getNdc(screenX: Float, screenY: Float): Vector2 {

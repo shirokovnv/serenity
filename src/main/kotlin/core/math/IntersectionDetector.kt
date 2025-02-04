@@ -46,4 +46,14 @@ object IntersectionDetector {
 
         return distanceSquared <= sphere.radius * sphere.radius
     }
+
+    fun intersects(rect3d: Rect3d, point: Vector3): Boolean {
+        return point.x >= rect3d.min.x && point.x <= rect3d.max.x &&
+                point.y >= rect3d.min.y && point.y <= rect3d.max.y &&
+                point.z >= rect3d.min.z && point.z <= rect3d.max.z
+    }
+
+    fun intersects(sphere: Sphere, point: Vector3): Boolean {
+        return (sphere.center - point).lengthSquared() <= sphere.radius * sphere.radius
+    }
 }

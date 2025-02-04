@@ -5,7 +5,7 @@ import graphics.assets.buffer.BufferUtil
 import graphics.rendering.Drawable
 import org.lwjgl.opengl.GL43.*
 
-class BoxAABBBuffer : Asset, Drawable {
+class PointBuffer : Asset, Drawable {
     private var vaoId: Int = 0
     private var vboId: Int = 0
 
@@ -31,7 +31,7 @@ class BoxAABBBuffer : Asset, Drawable {
         glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW)
 
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0,3, GL_FLOAT,false,3 * Float.SIZE_BYTES,0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * Float.SIZE_BYTES, 0)
         glBindVertexArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }

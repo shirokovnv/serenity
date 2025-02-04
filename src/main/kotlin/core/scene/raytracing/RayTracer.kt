@@ -11,7 +11,7 @@ class RayTracer(
 
     fun calculateRay(screenX: Float, screenY: Float): Vector3 {
         val ndc = getNdc(screenX, screenY)
-        val clipCoordinates = Quaternion(ndc.x, ndc.y, -1.0f, 1.0f)
+        val clipCoordinates = Quaternion(ndc.x, ndc.y, 1.0f, 1.0f)
         val eyeCoordinates = getEyeCoordinates(clipCoordinates)
 
         return getWorldCoordinates(eyeCoordinates)
@@ -23,14 +23,13 @@ class RayTracer(
 
     private fun getNdc(screenX: Float, screenY: Float): Vector2 {
         val x = (2.0f * screenX) / camera.width - 1f
-        val y = (2.0f * screenY) / camera.height - 1f
+        val y = 1.0f - (2.0f * screenY) / camera.height // Flip the Y axis
 
         return Vector2(x, y)
     }
 
     private fun getEyeCoordinates(clipCoordinates: Quaternion): Quaternion {
-        val eyeCoordinates = camera.projection.invert() * clipCoordinates
-        return Quaternion(eyeCoordinates.x, eyeCoordinates.y, -1f, 0f)
+        return camera.projection.invert() * clipCoordinates
     }
 
     private fun getWorldCoordinates(eyeCoordinates: Quaternion): Vector3 {

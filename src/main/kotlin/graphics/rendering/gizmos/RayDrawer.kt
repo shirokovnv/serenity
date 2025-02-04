@@ -2,28 +2,24 @@ package graphics.rendering.gizmos
 
 import core.ecs.BaseComponent
 import core.management.Disposable
-import core.management.Resources
-import core.math.Rect3d
 import core.scene.camera.Camera
-import core.scene.volumes.BoxAABB
+import core.scene.raytracing.RayData
 import graphics.assets.surface.bind
 import graphics.rendering.Color
 import graphics.rendering.ColorGenerator
 import graphics.rendering.Drawable
 
-class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawable, Disposable {
+class RayDrawer(
+    private val camera: Camera,
+    private val raysProvider: () -> MutableList<RayData>,
+    private var color: Color? = null
+) : BaseComponent(), Drawable, Disposable {
     companion object {
         private var referenceCounter = 0
         private var buffer: PointBuffer? = null
-        private var material: BoxAABBMaterial? = null
-        private var shader: BoxAABBShader? = null
+        private var material: RayMaterial? = null
+        private var shader: RayShader? = null
     }
-
-    private val rect3d: Rect3d
-        get() = owner()!!.getComponent<BoxAABB>()!!.shape()
-
-    private val camera: Camera
-        get() = Resources.get<Camera>()!!
 
     init {
         referenceCounter++
@@ -32,10 +28,10 @@ class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawabl
             buffer = PointBuffer()
         }
         if (material == null) {
-            material = BoxAABBMaterial()
+            material = RayMaterial()
         }
         if (shader == null) {
-            shader = BoxAABBShader()
+            shader = RayShader()
             shader!! bind material!!
             shader!!.setup()
         }
@@ -50,14 +46,18 @@ class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawabl
     }
 
     override fun draw() {
-        material?.boxCenter = rect3d.center
-        material?.boxSize = rect3d.size()
-        material?.boxColor = color?.toVector3() ?: ColorGenerator.fromUUID(owner()!!.id).toVector3()
+        material?.rayColor = color?.toVector3() ?: ColorGenerator.fromUUID(owner()!!.id).toVector3()
         material?.viewProjection = camera.viewProjection
 
         shader?.bind()
-        shader?.updateUniforms()
-        buffer?.draw()
+        raysProvider().forEach { (origin, direction, length) ->
+            material?.rayOrigin = origin
+            material?.rayDirection = direction
+            material?.rayLength = length
+
+            shader?.updateUniforms()
+            buffer?.draw()
+        }
         shader?.unbind()
     }
 }

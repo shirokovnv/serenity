@@ -163,4 +163,12 @@ class Vector3 {
     override fun toString(): String {
         return "[$x,$y,$z]"
     }
+
+    operator fun get(index: Int): Float =
+        when (index) {
+            0 -> x
+            1 -> y
+            2 -> z
+            else -> throw IndexOutOfBoundsException()
+        }
 }

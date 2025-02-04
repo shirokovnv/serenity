@@ -2,6 +2,7 @@ package core.math
 
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.math.sqrt
 
@@ -234,5 +235,21 @@ class Vector3Test {
     fun `test to string`() {
         val vector = Vector3(1f, 2f, 3f)
         assertEquals("[1.0,2.0,3.0]", vector.toString())
+    }
+
+    @Test
+    fun `get should return correct component for valid index`() {
+        val vector = Vector3(1.0f, 2.0f, 3.0f)
+        assertEquals(1.0f, vector[0])
+        assertEquals(2.0f, vector[1])
+        assertEquals(3.0f, vector[2])
+    }
+
+    @Test
+    fun `get should throw IndexOutOfBoundsException for invalid index`() {
+        val vector = Vector3(1.0f, 2.0f, 3.0f)
+        assertThrows<IndexOutOfBoundsException> { vector[-1] }
+        assertThrows<IndexOutOfBoundsException> { vector[3] }
+        assertThrows<IndexOutOfBoundsException> { vector[4] }
     }
 }

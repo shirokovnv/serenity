@@ -1,9 +1,7 @@
 package modules.flora.grass
 
-import core.math.Rect3d
 import core.math.Vector2
 import core.math.Vector3
-import core.scene.volumes.BoxAABB
 import core.scene.Transform
 import graphics.assets.texture.TextureChannel
 import graphics.model.Model
@@ -85,10 +83,13 @@ class GrassGenerator {
                     val patchCorner0 = Vector2(xIndex.toFloat(), yIndex.toFloat())
                     val patchCorner1 = Vector2(
                         xIndex.toFloat() + params.cellSize,
-                            yIndex.toFloat() + params.cellSize
-                        )
+                        yIndex.toFloat() + params.cellSize
+                    )
 
-                    val grassPatch = GrassPatch()
+                    val p0 = Vector3(0f, 0f, 0f)
+                    val p1 = Vector3(1f, 1f / params.verticalScale, 1f)
+
+                    val grassPatch = GrassPatch(p0, p1)
                     val transform = grassPatch.getComponent<Transform>()!!
                     transform.setScale(
                         Vector3(
@@ -104,12 +105,7 @@ class GrassGenerator {
                             patchCorner0.y * scaleZ + worldOffset.z
                         )
                     )
-
-                    val p0 = Vector3(patchCorner0.x * scaleX, minHeight * scaleY, patchCorner0.y * scaleZ)
-                    val p1 = Vector3(patchCorner1.x * scaleX, maxHeight * scaleY, patchCorner1.y * scaleZ)
-                    val patchBounds = Rect3d(p0, p1)
-                    grassPatch.getComponent<BoxAABB>()!!.setShape(patchBounds)
-
+                    grassPatch.recalculateBounds()
                     patches.add(grassPatch)
                 }
 
@@ -123,7 +119,7 @@ class GrassGenerator {
 
     private fun isValidGrassPoint(blendmap: Blendmap, channel: TextureChannel, x: Int, y: Int): Boolean {
         val blendValue = blendmap.readRGBA(x, y)
-        return when(channel) {
+        return when (channel) {
             TextureChannel.R -> blendValue.x != 0.0f && blendValue.x > blendValue.y && blendValue.x > blendValue.z
             TextureChannel.G -> blendValue.y != 0.0f && blendValue.y > blendValue.x && blendValue.y > blendValue.z
             TextureChannel.B -> blendValue.z != 0.0f && blendValue.z > blendValue.x && blendValue.z > blendValue.y

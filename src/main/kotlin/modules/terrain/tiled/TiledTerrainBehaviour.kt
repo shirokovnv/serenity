@@ -128,8 +128,6 @@ class TiledTerrainBehaviour(
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         val patchSize = Vector2(1f / config.gridSize, 1f / config.gridSize)
-        val xzScale = Vector2(config.worldScale.x, config.worldScale.z)
-        val xzOffset = Vector2(config.worldOffset.x, config.worldOffset.z)
         for (i in 0..<config.gridSize) {
             for (j in 0..<config.gridSize) {
                 val patchLocation = Vector2(
@@ -137,14 +135,7 @@ class TiledTerrainBehaviour(
                     j.toFloat() / config.gridSize
                 )
 
-                val minPoint = xzOffset + patchLocation * xzScale
-                val maxPoint = minPoint + patchSize * xzScale
-                val bounds = config.heightmap.calculatePatchBounds(
-                    minPoint, maxPoint
-                )
-
-                val patchObject = TiledTerrainPatch()
-                patchObject.getComponent<BoxAABB>()!!.setShape(bounds.shape())
+                val patchObject = TiledTerrainPatch(config.heightmap, patchLocation, patchSize)
                 patchObject.addComponent(BoxAABBDrawer(Colors.Blue))
 
                 (owner() as Object).addChild(patchObject)

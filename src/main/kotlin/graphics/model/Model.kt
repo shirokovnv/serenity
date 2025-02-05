@@ -5,7 +5,9 @@ import core.math.Matrix4
 import graphics.rendering.Drawable
 import org.lwjgl.opengl.GL43.*
 
-class Model(private val modelData: MutableMap<String, ModelData>) : Drawable, Disposable {
+class Model(private val modelData: MutableMap<String, ModelData>) :
+    Drawable,
+    Disposable {
     private val instanceMatrices = mutableListOf<Matrix4>()
     private var buffers = mutableMapOf<String, ModelDataBuffer>()
     private var instanceBuffer: ModelInstanceBuffer? = null
@@ -37,7 +39,7 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable, Di
     }
 
     fun destroyTextures() {
-        modelData.values.forEach{mtlData ->
+        modelData.values.forEach { mtlData ->
             mtlData.material?.textures?.forEach { texture ->
                 texture.value.texture?.destroy()
             }
@@ -74,8 +76,17 @@ class Model(private val modelData: MutableMap<String, ModelData>) : Drawable, Di
         instanceMatrices.addAll(arrayOfMatrices)
     }
 
-    fun addInstance(matrix: Matrix4) {
+    fun addInstance(matrix: Matrix4): Int {
         instanceMatrices.add(matrix)
+
+        return instanceMatrices.size - 1
+    }
+
+    fun updateInstance(matrix: Matrix4, instanceId: Int) {
+        require(instanceId in instanceMatrices.indices)
+
+        instanceMatrices[instanceId] = matrix
+        instanceBuffer?.updateMatrix(matrix.transpose(), instanceId)
     }
 
     fun isInstanced(): Boolean = instanceMatrices.isNotEmpty()

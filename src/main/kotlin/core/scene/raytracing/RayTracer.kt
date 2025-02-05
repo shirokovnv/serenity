@@ -9,12 +9,19 @@ class RayTracer(
     private val camera: PerspectiveCamera,
 ) {
 
-    fun calculateRay(screenX: Float, screenY: Float): Vector3 {
+    fun castRayInWorldSpace(screenX: Float, screenY: Float): Vector3 {
         val ndc = getNdc(screenX, screenY)
         val clipCoordinates = Quaternion(ndc.x, ndc.y, 1.0f, 1.0f)
         val eyeCoordinates = getEyeCoordinates(clipCoordinates)
 
         return getWorldCoordinates(eyeCoordinates)
+    }
+
+    fun castRayInViewSpace(screenX: Float, screenY: Float): Vector3 {
+        val ndc = getNdc(screenX, screenY)
+        val clipCoordinates = Quaternion(ndc.x, ndc.y, 1.0f, 1.0f)
+
+        return getEyeCoordinates(clipCoordinates).xyz()
     }
 
     fun traceToDistance(ray: Vector3, distance: Float): Vector3 {

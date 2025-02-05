@@ -3,15 +3,19 @@ package modules.flora.trees
 import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
-import core.math.*
-import core.scene.volumes.BoxAABB
+import core.math.IntersectionDetector
+import core.math.Matrix4
+import core.math.Vector2
+import core.math.Vector3
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import core.scene.volumes.BoxAABB
 import core.scene.volumes.BoxAABBFactory
+import core.scene.volumes.BoxAABBHierarchy
 import graphics.assets.surface.bind
 import graphics.model.Model
 import graphics.model.ModelMaterial
@@ -98,22 +102,21 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             val angle = Random.nextFloat() * 2 * PI.toFloat()
             val rotation = Vector3(0f, angle, 0f)
 
-            transform.setRotation(rotation)
-            transform.setTranslation(position)
-            transform.setScale(Vector3(10f))
+            transform.set(rotation, Vector3(10f), position)
 
             val randomModel = models.random()
-            randomModel.addInstance(transform.matrix())
+            val instanceId = randomModel.addInstance(transform.matrix())
+
+            val treeInstance = TreeInstance(randomModel, instanceId)
+            treeInstance.transform().set(transform)
+            treeInstance.addComponent(BoxAABBDrawer(Colors.Green))
+            (owner() as Object).addChild(treeInstance)
 
             randomModel.getModelData().values.forEach { modelData ->
-                val treeInstance = TreeInstance()
                 val bounds = BoxAABBFactory.fromVertices(modelData.vertices, 3, modelData.indices)
-                treeInstance.getComponent<BoxAABB>()!!.setShape(bounds.shape())
-                treeInstance.getComponent<BoxAABB>()!!.transform(transform)
-
-                treeInstance.addComponent(BoxAABBDrawer(Colors.Green))
-                (owner() as Object).addChild(treeInstance)
+                treeInstance.getComponent<BoxAABBHierarchy>()!!.add(bounds)
             }
+            treeInstance.recalculateBounds()
         }
 
         models.forEach {
@@ -166,13 +169,14 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             .filterIsInstance<TreeInstance>()
             .forEach { treeInstance ->
                 treeInstance.getComponent<BoxAABBDrawer>()?.dispose()
+                treeInstance.dispose()
             }
 
         shader.destroy()
         if (enablePostProcessing) {
             ppShader.destroy()
         }
-        models.forEach{ model ->
+        models.forEach { model ->
             model.destroyBuffers()
             model.destroyTextures()
         }
@@ -185,7 +189,10 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             .getChildren()
             .filterIsInstance<TreeInstance>()
             .filter { treeInstance ->
-                IntersectionDetector.intersects(frustum.searchVolume().shape(), treeInstance.getComponent<BoxAABB>()!!.shape())
+                IntersectionDetector.intersects(
+                    frustum.searchVolume().shape(),
+                    treeInstance.getComponent<BoxAABB>()!!.shape()
+                )
             }
             .forEach { treeInstance ->
                 treeInstance.getComponent<BoxAABBDrawer>()?.draw()

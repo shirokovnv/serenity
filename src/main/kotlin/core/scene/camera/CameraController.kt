@@ -183,7 +183,7 @@ class CameraController(
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {
-        val ray = rayTracer.calculateRay(mouseInput.lastX().toFloat(), mouseInput.lastY().toFloat())
+        val ray = rayTracer.castRayInWorldSpace(mouseInput.lastX().toFloat(), mouseInput.lastY().toFloat())
         rays.add(RayData(camera.position(), ray, rayDistance, System.currentTimeMillis()))
     }
 

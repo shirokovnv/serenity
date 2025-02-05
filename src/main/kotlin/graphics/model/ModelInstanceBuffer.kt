@@ -1,6 +1,7 @@
 package graphics.model
 
 import core.math.Matrix4
+import core.math.toFloatBuffer
 import graphics.assets.Asset
 import graphics.assets.buffer.BufferUtil
 import org.lwjgl.opengl.GL43.*
@@ -24,7 +25,7 @@ class ModelInstanceBuffer(
     override fun create() {
         instanceBufferId = glGenBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId)
-        glBufferData(GL_ARRAY_BUFFER, BufferUtil.createFlippedBuffer(matrices), GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, BufferUtil.createFlippedBuffer(matrices), GL_DYNAMIC_DRAW)
 
         vaoIds.forEach { vaoId ->
             glBindVertexArray(vaoId)
@@ -73,5 +74,15 @@ class ModelInstanceBuffer(
         for (i in 0..3) {
             glDisableVertexAttribArray(attributeIndexOffset + i)
         }
+    }
+
+    fun updateMatrix(matrix: Matrix4, instanceId: Int) {
+        require(instanceId in matrices.indices)
+
+        glBindBuffer(GL_ARRAY_BUFFER, instanceBufferId)
+
+        val offset = instanceId * 16L * Float.SIZE_BYTES
+        glBufferSubData(GL_ARRAY_BUFFER, offset, matrix.toFloatBuffer())
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 }

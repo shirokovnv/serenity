@@ -16,6 +16,8 @@ class MouseInput(val window: Long) {
 
     private var guiWrapper: GuiWrapper? = null
 
+    private val pressedButtons = mutableSetOf<Int>()
+
     fun setGuiWrapper(guiWrapper: GuiWrapper?) {
         this.guiWrapper = guiWrapper
     }
@@ -49,10 +51,16 @@ class MouseInput(val window: Long) {
 
     fun mouseButtonCallback(window: Long, button: Int, action: Int, mods: Int) {
         if (action == GLFW_PRESS) {
+            pressedButtons.add(button)
             Events.publish(MouseButtonPressedEvent(button), this)
         } else if (action == GLFW_RELEASE) {
+            pressedButtons.remove(button)
             Events.publish(MouseButtonReleasedEvent(button), this)
         }
+    }
+
+    fun isMouseButtonHolding(button: Int): Boolean {
+        return pressedButtons.contains(button)
     }
 
     fun resetMouse(){

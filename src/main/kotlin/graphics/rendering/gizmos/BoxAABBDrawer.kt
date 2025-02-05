@@ -3,9 +3,9 @@ package graphics.rendering.gizmos
 import core.ecs.BaseComponent
 import core.management.Disposable
 import core.management.Resources
-import core.math.Rect3d
 import core.scene.camera.Camera
 import core.scene.volumes.BoxAABB
+import core.scene.volumes.BoxAABBHierarchy
 import graphics.assets.surface.bind
 import graphics.rendering.Color
 import graphics.rendering.ColorGenerator
@@ -18,9 +18,6 @@ class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawabl
         private var material: BoxAABBMaterial? = null
         private var shader: BoxAABBShader? = null
     }
-
-    private val rect3d: Rect3d
-        get() = owner()!!.getComponent<BoxAABB>()!!.shape()
 
     private val camera: Camera
         get() = Resources.get<Camera>()!!
@@ -50,14 +47,31 @@ class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawabl
     }
 
     override fun draw() {
-        material?.boxCenter = rect3d.center
-        material?.boxSize = rect3d.size()
-        material?.boxColor = color?.toVector3() ?: ColorGenerator.fromUUID(owner()!!.id).toVector3()
-        material?.viewProjection = camera.viewProjection
-
         shader?.bind()
-        shader?.updateUniforms()
-        buffer?.draw()
+        material?.viewProjection = camera.viewProjection
+        material?.boxColor = color?.toVector3() ?: ColorGenerator.fromUUID(owner()!!.id).toVector3()
+        drawBounds()
+        drawBoundsHierarchy()
         shader?.unbind()
+    }
+
+    private fun drawBounds() {
+        if (owner()!!.hasComponent<BoxAABB>()) {
+            val rect3d = owner()!!.getComponent<BoxAABB>()!!.shape()
+            material?.boxCenter = rect3d.center
+            material?.boxSize = rect3d.size()
+            shader?.updateUniforms()
+            buffer?.draw()
+        }
+    }
+
+    private fun drawBoundsHierarchy() {
+        owner()!!.getComponent<BoxAABBHierarchy>()?.transformedInnerBounds()?.forEach {
+            val rect3d = it.shape()
+            material?.boxCenter = rect3d.center
+            material?.boxSize = rect3d.size()
+            shader?.updateUniforms()
+            buffer?.draw()
+        }
     }
 }

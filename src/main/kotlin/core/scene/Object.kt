@@ -93,4 +93,11 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     fun getRoot(): Object {
         return parent?.getRoot() ?: this
     }
+
+    fun transform(): Transform {
+        return getComponent<Transform>()!!
+    }
+
+    open fun recalculateBounds() {
+    }
 }

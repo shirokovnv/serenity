@@ -34,6 +34,17 @@ class Transform : BaseComponent() {
         this.isDirty = true
     }
 
+    fun set(rotation: Vector3, scale: Vector3, translation: Vector3) {
+        this.rotation = rotation
+        this.scale = scale
+        this.translation = translation
+        isDirty = true
+    }
+
+    fun set(transform: Transform) {
+        set(transform.rotation(), transform.scale(), transform.translation())
+    }
+
     fun rotateAroundAxis(angle: Float, axis: Vector3) {
         val currentQuaternion = Quaternion.fromEulerAngles(
             rotation.x,

@@ -1,16 +1,21 @@
 package modules.flora.grass
 
 import core.ecs.Behaviour
+import core.events.Events
 import core.management.Resources
-import core.math.*
-import core.scene.BoxAABB
+import core.math.Rect3d
+import core.math.Vector3
+import core.scene.volumes.BoxAABB
 import core.scene.camera.Camera
 import core.scene.spatial.LinearQuadTree
 import core.scene.spatial.SpatialPartitioningInterface
 import graphics.assets.surface.bind
 import graphics.assets.texture.TextureChannel
 import graphics.model.Model
+import graphics.rendering.Colors
 import graphics.rendering.Renderer
+import graphics.rendering.gizmos.BoxAABBDrawer
+import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Blendmap
@@ -25,8 +30,10 @@ class GrassBehaviour : Behaviour(), Renderer {
     private lateinit var shader: GrassPatchShader
     private lateinit var grassPatchParams: GrassPatchParams
     private lateinit var grassGenerator: GrassGenerator
+    private lateinit var patches: List<GrassPatch>
 
     private lateinit var quadTree: SpatialPartitioningInterface
+    private lateinit var searchResults: List<GrassPatch>
 
     private var blendMapReady: Boolean = false
 
@@ -57,6 +64,8 @@ class GrassBehaviour : Behaviour(), Renderer {
             9
         )
 
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
         println("GRASS RENDER BEHAVIOUR INITIALIZED")
     }
 
@@ -65,8 +74,9 @@ class GrassBehaviour : Behaviour(), Renderer {
             val blendmap = Resources.get<Blendmap>()
 
             if (blendmap != null) {
-                val patches = grassGenerator.generatePatches(heightmap, blendmap, grassPatchParams, TextureChannel.R)
+                patches = grassGenerator.generatePatches(heightmap, blendmap, grassPatchParams, TextureChannel.R)
                 patches.forEach { grassPatch ->
+                    grassPatch.addComponent(BoxAABBDrawer(Colors.Red))
                     quadTree.insert(grassPatch)
                 }
 
@@ -78,6 +88,12 @@ class GrassBehaviour : Behaviour(), Renderer {
     }
 
     override fun destroy() {
+        Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        patches.forEach { grassPatch ->
+            grassPatch.getComponent<BoxAABBDrawer>()!!.dispose()
+        }
+
         grassModel.dispose()
         shader.destroy()
     }
@@ -108,10 +124,11 @@ class GrassBehaviour : Behaviour(), Renderer {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        quadTree
+        searchResults = quadTree
             .buildSearchResults(searchVolume)
             .filterIsInstance<GrassPatch>()
-            .forEach { grassPatch ->
+
+            searchResults.forEach { grassPatch ->
                 material.worldMatrix = grassPatch.worldMatrix()
                 shader.updateUniforms()
                 grassModel.draw()
@@ -124,5 +141,11 @@ class GrassBehaviour : Behaviour(), Renderer {
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {
         return pass == NormalPass
+    }
+
+    private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        searchResults.forEach { grassPatch ->
+            grassPatch.getComponent<BoxAABBDrawer>()!!.draw()
+        }
     }
 }

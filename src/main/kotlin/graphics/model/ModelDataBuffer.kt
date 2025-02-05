@@ -28,9 +28,18 @@ class ModelDataBuffer(private val modelData: ModelData) : Asset {
     }
 
     override fun destroy() {
-        glDeleteVertexArrays(vaoId)
-        glDeleteBuffers(vboId)
-        glDeleteBuffers(eboId)
+        if (vaoId != 0) {
+            glDeleteVertexArrays(vaoId)
+        }
+        if (vboId != 0) {
+            glDeleteBuffers(vboId)
+        }
+        if (eboId != 0) {
+            glDeleteBuffers(eboId)
+        }
+        vaoId = 0
+        vboId = 0
+        eboId = 0
     }
 
     override fun bind() {

@@ -8,6 +8,7 @@ import core.math.Vector3
 import core.scene.ObjectFlag.Companion.Active
 import core.scene.ObjectFlag.Companion.None
 import core.scene.ObjectFlag.Companion.or
+import core.scene.volumes.BoxAABB
 
 open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
@@ -34,7 +35,14 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     }
 
     fun addChild(child: Object) {
+        child.setParent(this)
         children.add(child)
+    }
+
+    fun removeChild(child: Object) {
+        if (children.remove(child)) {
+            child.setParent(null)
+        }
     }
 
     fun getChildren(): MutableList<Object> {
@@ -42,6 +50,7 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
     }
 
     fun clearChildren() {
+        children.forEach { child -> child.setParent(null) }
         children.clear()
     }
 
@@ -79,5 +88,16 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
 
     fun hasExactFlags(targetFlag: ObjectFlag): Boolean {
         return this.flags.value and targetFlag.value == targetFlag.value
+    }
+
+    fun getRoot(): Object {
+        return parent?.getRoot() ?: this
+    }
+
+    fun transform(): Transform {
+        return getComponent<Transform>()!!
+    }
+
+    open fun recalculateBounds() {
     }
 }

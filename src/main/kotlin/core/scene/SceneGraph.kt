@@ -1,6 +1,7 @@
 package core.scene
 
 import core.math.Rect3d
+import core.scene.volumes.BoxAABB
 
 class SceneGraph(worldBounds: Rect3d) {
     private var root: Object = Object()

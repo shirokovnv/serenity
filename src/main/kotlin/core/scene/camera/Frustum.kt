@@ -2,7 +2,7 @@ package core.scene.camera
 
 import core.math.*
 import core.math.extensions.toRadians
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import kotlin.math.*
 
 class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes: Boolean = true) {
@@ -15,13 +15,6 @@ class Frustum(private val camera: PerspectiveCamera, private val normalizePlanes
 
     private var searchVolume = BoxAABB(
         Rect3d(Vector3(0f), Vector3(0f))
-    )
-
-    data class FrustumPlaneSize(
-        val nearWidth: Float,
-        val nearHeight: Float,
-        val farWidth: Float,
-        val farHeight: Float
     )
 
     init {

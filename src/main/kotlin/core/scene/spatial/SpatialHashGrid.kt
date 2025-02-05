@@ -4,7 +4,7 @@ import core.math.IntersectionDetector
 import core.math.Rect3d
 import core.math.Vector3
 import core.math.extensions.saturate
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 import kotlin.math.floor
 

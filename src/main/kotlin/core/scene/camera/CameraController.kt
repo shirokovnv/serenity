@@ -4,8 +4,12 @@ import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
 import core.math.extensions.toRadians
+import core.scene.raytracing.RayData
+import core.scene.raytracing.RayTracer
+import graphics.rendering.Colors
+import graphics.rendering.gizmos.DrawGizmosEvent
+import graphics.rendering.gizmos.RayDrawer
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
 import platform.services.input.*
 
 enum class CameraMovement {
@@ -30,19 +34,31 @@ class CameraController(
     private var mouseSensitivity: Float
 ) : Behaviour() {
 
-    private var isWireframe: Boolean = false
-
     private val camera: Camera
         get() = owner()?.getComponent<Camera>()!!
 
+    private val mouseInput: MouseInput
+        get() = Resources.get<MouseInput>()!!
+
     private val movement = mutableMapOf<CameraMovement, Boolean>()
     private val rotation = mutableMapOf<CameraRotation, Boolean>()
+
+    private lateinit var rayTracer: RayTracer
+    private val rayDistance = 2500f
+    private val rayLifeTimeMillis = 5000L
+    private val rays = mutableListOf<RayData>()
 
     override fun create() {
         Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
         Events.subscribe<KeyReleasedEvent, Any>(::onKeyReleased)
         Events.subscribe<MouseMovedEvent, Any>(::onMouseMoved)
         Events.subscribe<WindowResizedEvent, Any>(::onWindowResized)
+        Events.subscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
+
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        rayTracer = RayTracer(camera as PerspectiveCamera)
+        owner()!!.addComponent(RayDrawer(camera, { rays }, Colors.Yellow))
     }
 
     override fun update(deltaTime: Float) {
@@ -67,6 +83,8 @@ class CameraController(
                 processRotation(direction)
             }
         }
+
+        rays.removeAll { it.timestamp + rayLifeTimeMillis < System.currentTimeMillis() }
     }
 
     override fun destroy() {
@@ -74,6 +92,11 @@ class CameraController(
         Events.unsubscribe<KeyReleasedEvent, Any>(::onKeyReleased)
         Events.unsubscribe<MouseMovedEvent, Any>(::onMouseMoved)
         Events.unsubscribe<WindowResizedEvent, Any>(::onWindowResized)
+        Events.unsubscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
+
+        Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        owner()?.getComponent<RayDrawer>()?.dispose()
     }
 
     private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {
@@ -85,10 +108,6 @@ class CameraController(
 
         getRotationDirection(key)?.let { direction ->
             rotation[direction] = true
-        }
-
-        when (key) {
-            GLFW.GLFW_KEY_5 -> toggleWireframeMode()
         }
     }
 
@@ -159,18 +178,13 @@ class CameraController(
         camera.rotateAroundVerticalAxis(xOffsetModified.toRadians())
     }
 
-    private fun toggleWireframeMode() {
-        if (isWireframe) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL)
-        } else {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE)
-        }
-
-        isWireframe = !isWireframe
-    }
-
     private fun onMouseMoved(event: MouseMovedEvent, sender: Any) {
         processMouseMovement(event.xOffset, event.yOffset)
+    }
+
+    private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {
+        val ray = rayTracer.castRayInWorldSpace(mouseInput.lastX().toFloat(), mouseInput.lastY().toFloat())
+        rays.add(RayData(camera.position(), ray, rayDistance, System.currentTimeMillis()))
     }
 
     private fun onWindowResized(event: WindowResizedEvent, sender: Any) {
@@ -181,5 +195,9 @@ class CameraController(
             (camera as PerspectiveCamera).zNear,
             (camera as PerspectiveCamera).zFar
         )
+    }
+
+    private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        owner()?.getComponent<RayDrawer>()?.draw()
     }
 }

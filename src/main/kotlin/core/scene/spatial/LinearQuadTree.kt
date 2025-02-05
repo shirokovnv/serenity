@@ -3,7 +3,7 @@ package core.scene.spatial
 import core.math.Rect3d
 import core.math.Vector3
 import core.math.helpers.highestBitSet
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 import kotlin.math.max
 import kotlin.math.min

@@ -2,7 +2,7 @@ package core.scene.spatial
 
 import core.math.IntersectionDetector
 import core.math.Rect3d
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 import java.util.*
 

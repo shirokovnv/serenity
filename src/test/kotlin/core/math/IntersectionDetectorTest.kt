@@ -60,4 +60,32 @@ class IntersectionDetectorTest {
         val sphere = Sphere(Vector3(3f, 3f, 3f), 1f)
         assertFalse(IntersectionDetector.intersects(rect, sphere))
     }
+
+    @Test
+    fun `test rect3d point intersects`() {
+        val rect = Rect3d(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val point = Vector3(0.5f, 0.5f, 0.5f)
+        assertTrue(IntersectionDetector.intersects(rect, point))
+    }
+
+    @Test
+    fun `test rect3d point not intersects`() {
+        val rect = Rect3d(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val point = Vector3(1.5f, 1.5f, 1.5f)
+        assertFalse(IntersectionDetector.intersects(rect, point))
+    }
+
+    @Test
+    fun `test sphere point intersects`() {
+        val sphere = Sphere(Vector3(0f), 10f)
+        val point = Vector3(1f)
+        assertTrue(IntersectionDetector.intersects(sphere, point))
+    }
+
+    @Test
+    fun `test sphere point not intersects`() {
+        val sphere = Sphere(Vector3(0f), 10f)
+        val point = Vector3(12f)
+        assertFalse(IntersectionDetector.intersects(sphere, point))
+    }
 }

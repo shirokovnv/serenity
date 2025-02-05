@@ -4,7 +4,7 @@ import core.math.IntersectionDetector
 import core.math.OverlapDetector
 import core.math.Rect2d
 import core.math.Vector2
-import core.scene.BoxAABB
+import core.scene.volumes.BoxAABB
 import core.scene.Object
 import java.util.*
 

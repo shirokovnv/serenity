@@ -1,20 +1,25 @@
 package modules.terrain.heightmap
 
+import core.math.Rect3d
+import core.math.Vector2
 import core.math.Vector3
 import core.math.extensions.clamp
+import core.scene.volumes.BoundsInterface
+import core.scene.volumes.BoxAABB
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.nio.FloatBuffer
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 class Heightmap(
     heightMapTexture: Texture2d,
     worldScale: Vector3,
     worldOffset: Vector3
-) : Basemap(heightMapTexture, worldScale, worldOffset) {
+) : Basemap(heightMapTexture, worldScale, worldOffset), BoundsInterface {
 
     companion object {
         fun <TGenerator : HeightmapGenerationInterface<TParams>, TParams : HeightmapGenerationParams> fromGenerator(
@@ -91,5 +96,47 @@ class Heightmap(
         mapTexture.bind()
         GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RED, GL11.GL_FLOAT, heightmapDataBuffer)
         return heightmapDataBuffer
+    }
+
+    override fun calculateBounds(): BoxAABB {
+        val minX = worldOffset.x
+        val minZ = worldOffset.z
+        val maxX = worldOffset.x + worldScale.x
+        val maxZ = worldOffset.z + worldScale.z
+        var minY = Float.MAX_VALUE
+        var maxY = Float.MIN_VALUE
+
+        for (i in 0..<mapData.limit()) {
+            val value = worldOffset.y + mapData.get(i) * worldScale.y
+            minY = min(minY, value)
+            maxY = max(maxY, value)
+        }
+
+        return BoxAABB(Rect3d(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ)))
+    }
+
+    fun calculatePatchBounds(
+        minPoint: Vector2,
+        maxPoint: Vector2,
+    ): BoxAABB {
+        val tMinPoint = worldToTexture(minPoint.x, minPoint.y)
+        val tMaxPoint = worldToTexture(maxPoint.x, maxPoint.y)
+
+        val minX = minPoint.x
+        val maxX = maxPoint.x
+        val minZ = minPoint.y
+        val maxZ = maxPoint.y
+        var minY = Float.MAX_VALUE
+        var maxY = Float.MIN_VALUE
+
+        for (y in tMinPoint.y.toInt()..<tMaxPoint.y.toInt()) {
+            for (x in tMinPoint.x.toInt()..<tMaxPoint.x.toInt()) {
+                val worldY = worldOffset.y + getHeightAt(x, y) * worldScale.y
+                minY = min(minY, worldY)
+                maxY = max(maxY, worldY)
+            }
+        }
+
+        return BoxAABB(Rect3d(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ)))
     }
 }

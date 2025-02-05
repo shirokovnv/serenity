@@ -89,7 +89,7 @@ class GrassGenerator {
                     val p0 = Vector3(0f, 0f, 0f)
                     val p1 = Vector3(1f, 1f / params.verticalScale, 1f)
 
-                    val grassPatch = GrassPatch(p0, p1)
+                    val grassPatch = GrassPatch(heightmap, p0, p1)
                     val transform = grassPatch.getComponent<Transform>()!!
                     transform.setScale(
                         Vector3(

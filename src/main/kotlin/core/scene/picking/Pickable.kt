@@ -2,7 +2,6 @@ package core.scene.picking
 
 import core.ecs.Component
 
-interface Pickable {
+interface Pickable : Component {
     val pickingKey: PickingKey
-    val componentRef: Component?
 }

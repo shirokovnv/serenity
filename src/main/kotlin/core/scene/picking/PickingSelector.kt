@@ -9,7 +9,7 @@ import core.scene.volumes.BoxAABB
 object PickingSelector {
     fun selectInRange(rayOrigin: Vector3, rayDirection: Vector3, rayLength: Float): MutableList<BoxAABB> {
         return PickingContainer.pickings()
-            .mapNotNull { (it.componentRef?.owner() as Object).getComponent<BoxAABB>() }
+            .mapNotNull { (it.owner() as Object).getComponent<BoxAABB>() }
             .parallelStream()
             .filter { bounds -> distanceSquared(rayOrigin, bounds.shape().center) <= rayLength * rayLength }
             .sorted(PickingSortComparator(rayOrigin))

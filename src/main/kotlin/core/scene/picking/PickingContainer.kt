@@ -1,5 +1,7 @@
 package core.scene.picking
 
+import core.scene.Object
+
 object PickingContainer {
     private val pickings = mutableMapOf<Int, Pickable>()
 
@@ -23,7 +25,7 @@ object PickingContainer {
         pickings.clear()
     }
 
-    fun pickings(): List<Pickable> = pickings.values.toList()
+    fun pickings(): List<Pickable> = pickings.values.filter { it.isActive() && (it.owner() as Object).isActive() }
 
-    fun count(): Int = pickings.size
+    fun count(): Int = pickings.values.filter { it.isActive() && (it.owner() as Object).isActive() }.size
 }

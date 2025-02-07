@@ -10,7 +10,7 @@ import core.scene.ObjectFlag.Companion.None
 import core.scene.ObjectFlag.Companion.or
 import core.scene.volumes.BoxAABB
 
-open class Object(private var parent: Object? = null) : Entity(), Activatable {
+open class Object(private var parent: Object? = null) : Entity(), Activatable, ObjectInterface {
 
     private val children = mutableListOf<Object>()
     private var flags: ObjectFlag = None
@@ -94,8 +94,12 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable {
         return parent?.getRoot() ?: this
     }
 
-    fun transform(): Transform {
+    override fun transform(): Transform {
         return getComponent<Transform>()!!
+    }
+
+    override fun bounds(): BoxAABB {
+        return getComponent<BoxAABB>()!!
     }
 
     open fun recalculateBounds() {

@@ -19,6 +19,8 @@ object Colors {
     val Orange = Color(0.8f, 0.5f, 0.1f)
     val LightGreen = Color(0.5f, 0.8f, 0.1f)
     val CornflowerBlue = Color(0.61f, 0.86f, 0.92f)
+    val LightBlue = Color(0.68f, 0.85f, 0.90f)
+    val LightRed = Color(1.0f, 0.5f, 0.5f)
 }
 
 object ColorGenerator {

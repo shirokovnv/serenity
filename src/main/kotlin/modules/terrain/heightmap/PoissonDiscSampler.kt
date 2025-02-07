@@ -11,7 +11,7 @@ data class PoissonDiscSamplerParams(
     val numSamplesBeforeRejection: Int = 30,
     val minHeight: Float = 0.0f,
     val maxHeight: Float = 1.0f,
-    val minSlope: Float = 0.7f
+    val maxSlope: Float = 0.7f
 )
 
 class PoissonDiscSampler {
@@ -86,7 +86,7 @@ class PoissonDiscSampler {
             val normal = heightmap.getInterpolatedNormal(worldX, worldY)
             val slope = normal.dot(upVector)
 
-            if(1 - slope < params.minSlope){
+            if(slope < params.maxSlope){
                 return false
             }
 

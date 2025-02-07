@@ -4,6 +4,7 @@ import core.events.Events
 import core.management.Disposable
 import core.scene.Object
 import core.scene.Transform
+import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.picking.PickingTargetEvent
 import core.scene.picking.Picking
 import core.scene.volumes.BoxAABB
@@ -13,7 +14,11 @@ import graphics.model.Model
 class TreeInstance(
     private val treeModel: Model,
     private val instanceId: Int
-) : Object(), Disposable {
+) : Object(), Disposable, NavMeshObstacle {
+
+    override val objectRef: Object
+        get() = this
+
     init {
         addComponent(BoxAABBHierarchy())
         addComponent(Picking())
@@ -37,5 +42,9 @@ class TreeInstance(
 
     override fun dispose() {
         Events.unsubscribe<PickingTargetEvent, Any>(::onPickingTarget)
+    }
+
+    override fun getObstacleBounds(): BoxAABB {
+        return getComponent<BoxAABBHierarchy>()?.minInnerBounds() ?: bounds()
     }
 }

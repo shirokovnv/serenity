@@ -3,7 +3,6 @@ package graphics.tools
 import core.management.Resources
 import core.scene.Object
 import core.scene.TraversalOrder
-import core.scene.picking.PickingContainer
 import core.scene.traverse
 import graphics.gui.GuiBehaviour
 import graphics.gui.GuiWindow
@@ -25,15 +24,11 @@ class MonitoringBehaviour: GuiBehaviour() {
             return counter
         }
 
-    private val countPickingObjects: Int
-        get() = PickingContainer.count()
-
     override fun update(deltaTime: Float) {
     }
 
     override fun onRenderGUI() {
         ImGui.text("FPS: $fps")
         ImGui.text("Num objects in scene graph: $countSceneObjects")
-        ImGui.text("Num picking objects: $countPickingObjects")
     }
 }

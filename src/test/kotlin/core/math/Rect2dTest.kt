@@ -56,4 +56,19 @@ class Rect2dTest {
             Rect2d(Vector2(1f, 6f), Vector2(5f, 2f))
         }
     }
+
+    @Test
+    fun `test rect2d size`() {
+        val rect1 = Rect2d(Vector2(0f, 0f), Vector2(1f, 1f))
+        assertEquals(1f, rect1.size().x)
+        assertEquals(1f, rect1.size().y)
+
+        val rect2 = Rect2d(Vector2(0f, 0f), Vector2(0f, 0f))
+        assertEquals(0f, rect2.size().x)
+        assertEquals(0f, rect2.size().y)
+
+        val rect3 = Rect2d(Vector2(-1f, -1f), Vector2(1f, 1f))
+        assertEquals(2f, rect3.size().x)
+        assertEquals(2f, rect3.size().y)
+    }
 }

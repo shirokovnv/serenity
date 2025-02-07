@@ -25,9 +25,8 @@ import modules.ocean.Ocean
 import modules.ocean.OceanParams
 import modules.sky.SkyDome
 import modules.sky.SkyDomeParams
-import modules.terrain.heightmap.DiamondSquareGenerator
-import modules.terrain.heightmap.DiamondSquareParams
-import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.*
+import modules.terrain.navigation.TerrainNavMeshBehaviour
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
@@ -97,6 +96,15 @@ class App(settings: ApplicationSettings) : Application(settings) {
             worldOffset,
             worldScale
         )
+        val heightmap2 = Heightmap.fromGenerator(
+            PlainGenerator(),
+            PlainParams(0.3f),
+            1024,
+            1024,
+            worldOffset,
+            worldScale
+        )
+
         Resources.put<Heightmap>(heightmap)
 
         val tiledTerrain = TiledTerrain(
@@ -132,11 +140,21 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         val ocean = Ocean(oceanParams, true)
         ocean.getComponent<Transform>()!!.setScale(worldScale)
-        scene.attachToRoot(ocean)
+
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)
+
+        val terrainNavMesh = Object()
+        val terrainNavMeshBehaviour = TerrainNavMeshBehaviour(
+            heightmap,
+            camera,
+            5.0f,
+            0.5f
+        )
+        terrainNavMesh.addComponent(terrainNavMeshBehaviour)
+        scene.attachToRoot(terrainNavMesh)
 
         // Post Processing
         //PostProcessor.add(GodraysPPEffect(::defaultSunScreenPositionProvider))

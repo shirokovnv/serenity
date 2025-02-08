@@ -97,6 +97,9 @@ class TerrainNavigator(
 
                     if (!openedQueue.contains(neighbor)) {
                         openedQueue.add(neighbor)
+                    } else {
+                        openedQueue.remove(neighbor)
+                        openedQueue.add(neighbor)
                     }
                 }
             }

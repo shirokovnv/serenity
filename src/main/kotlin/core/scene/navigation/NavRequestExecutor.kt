@@ -13,7 +13,7 @@ class NavRequestExecutor(private val navigator: NavigatorInterface) : Disposable
     private val processIntervalMillis: Long = 100
 
     init {
-        startQueueWatcher()
+        scheduleQueueProcessing()
     }
 
     fun execute(request: NavRequest): Boolean {
@@ -29,7 +29,7 @@ class NavRequestExecutor(private val navigator: NavigatorInterface) : Disposable
         workerPool.shutdownNow()
     }
 
-    private fun startQueueWatcher() {
+    private fun scheduleQueueProcessing() {
         scheduler.scheduleAtFixedRate(
             {
                 try {

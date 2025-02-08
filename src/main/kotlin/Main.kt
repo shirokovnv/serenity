@@ -96,15 +96,6 @@ class App(settings: ApplicationSettings) : Application(settings) {
             worldOffset,
             worldScale
         )
-        val heightmap2 = Heightmap.fromGenerator(
-            PlainGenerator(),
-            PlainParams(0.3f),
-            1024,
-            1024,
-            worldOffset,
-            worldScale
-        )
-
         Resources.put<Heightmap>(heightmap)
 
         val tiledTerrain = TiledTerrain(

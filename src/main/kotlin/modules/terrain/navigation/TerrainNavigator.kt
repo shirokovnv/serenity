@@ -139,11 +139,11 @@ class TerrainNavigator(
         val minPoint = point - agent.radius
         val maxPoint = point + agent.radius
         val bounds = Rect2d(
-            Vector2(minPoint.x, minPoint.y),
-            Vector2(maxPoint.x, maxPoint.y)
+            Vector2(minPoint.x, minPoint.z),
+            Vector2(maxPoint.x, maxPoint.z)
         )
 
-        return !IntersectionDetector.intersects(terrainBounds, bounds)
+        return !OverlapDetector.contains(terrainBounds, bounds)
     }
 
     private fun isNodesNear(nodeA: PathNode, nodeB: PathNode, stepSize: Float): Boolean {
@@ -184,18 +184,16 @@ class TerrainNavigator(
     ): List<PathNode> {
         val neighbours = mutableListOf<PathNode?>()
         val p = currentNode.point
-        p.y = 0f
-
         val stepSize = agent.stepSize
 
-        val p0 = Vector3(p.x - stepSize, p.y, p.z - stepSize)
-        val p1 = Vector3(p.x - stepSize, p.y, p.z)
-        val p2 = Vector3(p.x, p.y, p.z - stepSize)
-        val p3 = Vector3(p.x + stepSize, p.y, p.z)
-        val p4 = Vector3(p.x, p.y, p.z + stepSize)
-        val p5 = Vector3(p.x - stepSize, p.y, p.z + stepSize)
-        val p6 = Vector3(p.x + stepSize, p.y, p.z - stepSize)
-        val p7 = Vector3(p.x + stepSize, p.y, p.z + stepSize)
+        val p0 = Vector3(p.x - stepSize, 0f, p.z - stepSize)
+        val p1 = Vector3(p.x - stepSize, 0f, p.z)
+        val p2 = Vector3(p.x, 0f, p.z - stepSize)
+        val p3 = Vector3(p.x + stepSize, 0f, p.z)
+        val p4 = Vector3(p.x, 0f, p.z + stepSize)
+        val p5 = Vector3(p.x - stepSize, 0f, p.z + stepSize)
+        val p6 = Vector3(p.x + stepSize, 0f, p.z - stepSize)
+        val p7 = Vector3(p.x + stepSize, 0f, p.z + stepSize)
 
         val n0 = evaluateNode(p0, agent)
         val n1 = evaluateNode(p1, agent)

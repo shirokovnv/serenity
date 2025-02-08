@@ -30,6 +30,7 @@ import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
 import platform.services.input.MouseInput
+import java.util.Collections
 
 class TerrainNavMeshBehaviour(
     private val heightmap: Heightmap,
@@ -55,7 +56,7 @@ class TerrainNavMeshBehaviour(
     // TODO: replace with real object
     private val agent = TerrainNavMeshAgent(Object())
     private val targets = mutableListOf<Vector3>()
-    private var targetPath = mutableListOf<PathNode>()
+    private var targetPath: MutableList<PathNode> = Collections.synchronizedList(mutableListOf())
 
     private val raysProvider: MutableList<RayData>
         get() {

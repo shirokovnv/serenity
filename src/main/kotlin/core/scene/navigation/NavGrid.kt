@@ -9,11 +9,15 @@ import core.scene.navigation.agents.NavMeshAgent
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.spatial.SpatialPartitioningInterface
 import core.scene.volumes.BoxAABB
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 import kotlin.math.floor
 
 class NavGrid(private val bounds: Rect2d, private val dimensions: Vector2) : SpatialPartitioningInterface {
-    private val cells: HashMap<String, HashSet<Object>> = HashMap()
-    private val objectIndexCache: HashMap<Object, Array<Vector2>> = HashMap()
+    private val cells: ConcurrentHashMap<String, ThreadSafeHashSet<Object>> = ConcurrentHashMap()
+    private val objectIndexCache: ConcurrentHashMap<Object, Array<Vector2>> = ConcurrentHashMap()
 
     override fun insert(obj: Object): Boolean {
         val objRect = getObjectBounds(obj)
@@ -25,7 +29,7 @@ class NavGrid(private val bounds: Rect2d, private val dimensions: Vector2) : Spa
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {
                 val k = getKey(xi, yi)
-                cells.computeIfAbsent(k) { HashSet() }
+                cells.computeIfAbsent(k) { ThreadSafeHashSet() }
                 isAdded = isAdded and (cells[k]?.add(obj) ?: false)
             }
         }
@@ -43,7 +47,7 @@ class NavGrid(private val bounds: Rect2d, private val dimensions: Vector2) : Spa
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {
                 val k = getKey(xi, yi)
-                cells.computeIfAbsent(k) { HashSet() }
+                cells.computeIfAbsent(k) { ThreadSafeHashSet() }
                 isRemoved = isRemoved and (cells[k]?.remove(obj) ?: false)
             }
         }
@@ -66,7 +70,7 @@ class NavGrid(private val bounds: Rect2d, private val dimensions: Vector2) : Spa
         for (xi in i1.x.toInt()..i2.x.toInt()) {
             for (yi in i1.y.toInt()..i2.y.toInt()) {
                 val k = getKey(xi, yi)
-                cells.computeIfAbsent(k) { HashSet() }
+                cells.computeIfAbsent(k) { ThreadSafeHashSet() }
                 objects.addAll(cells[k]?.filter { obj ->
                     IntersectionDetector.intersects(getObjectBounds(obj), searchRect)
                 } ?: emptySet())
@@ -106,7 +110,35 @@ class NavGrid(private val bounds: Rect2d, private val dimensions: Vector2) : Spa
         return when (obj) {
             is NavMeshObstacle -> obj.getObstacleBounds().toRect2d()
             is NavMeshAgent -> obj.getAgentBounds().toRect2d()
-            else -> { obj.bounds().toRect2d() }
+            else -> {
+                obj.bounds().toRect2d()
+            }
         }
     }
+}
+
+class ThreadSafeHashSet<T : Any> {
+    private val map = ConcurrentHashMap<T, Boolean>()
+    private val lock = ReentrantReadWriteLock()
+
+    fun add(element: T): Boolean {
+        return lock.write { map.put(element, true) == null }
+    }
+
+    fun remove(element: T): Boolean {
+        return lock.write { map.remove(element) != null }
+    }
+
+    fun contains(element: T): Boolean {
+        return lock.read { map.containsKey(element) }
+    }
+
+    fun filter(predicate: (T) -> Boolean): List<T> {
+        return lock.read {
+            map.keys.filter(predicate).toList()
+        }
+    }
+
+    val size: Int
+        get() = lock.read { map.size }
 }

@@ -29,7 +29,9 @@ class TerrainNavigator(
     private val scaleXZ = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
 
     private val terrainBounds = Rect2d(Vector2(offsetXZ), offsetXZ + scaleXZ)
-    private val nodes = mutableMapOf<PathNodeIndex, PathNode>()
+    private val threadNodes = ThreadLocal.withInitial { mutableMapOf<PathNodeIndex, PathNode>() }
+    private val nodes
+        get() = threadNodes.get()
 
     override fun calculatePath(start: Vector3, finish: Vector3, agent: NavMeshAgent): PathResult {
         if (outOfBounds(start, agent)) {

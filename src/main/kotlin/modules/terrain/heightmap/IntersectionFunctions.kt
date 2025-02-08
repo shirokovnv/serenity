@@ -6,6 +6,7 @@ import core.scene.raytracing.getPointOnRay
 
 private const val MAX_BINARY_SEARCH_DEPTH = 200
 
+// TODO: If terrain is too hilly, this method can return improper results depending on view angle
 fun binarySearch(
     heightmap: Heightmap,
     rayOrigin: Vector3,

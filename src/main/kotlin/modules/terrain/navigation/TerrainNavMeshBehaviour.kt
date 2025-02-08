@@ -3,6 +3,7 @@ package modules.terrain.navigation
 import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
+import core.math.Sphere
 import core.math.Vector2
 import core.math.Vector3
 import core.scene.Object
@@ -18,6 +19,7 @@ import graphics.rendering.Colors
 import graphics.rendering.Renderer
 import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.gizmos.RayDrawer
+import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Heightmap
@@ -34,10 +36,12 @@ class TerrainNavMeshBehaviour(
 ) : Behaviour(), Renderer {
     companion object {
         private const val RAY_LENGTH = 2500.0f
+        private const val V_OFFSET = 3f
     }
 
     private lateinit var rayTracer: RayTracer
     private lateinit var rayDrawer: RayDrawer
+    private lateinit var sphereDrawer: SphereDrawer
     private lateinit var navMesh: TerrainNavMesh
     private lateinit var navigator: TerrainNavigator
 
@@ -60,7 +64,7 @@ class TerrainNavMeshBehaviour(
 
                 rays.add(
                     RayData(
-                        Vector3(currentPoint.x, currentPoint.y + 3f, currentPoint.z),
+                        Vector3(currentPoint.x, currentPoint.y + V_OFFSET, currentPoint.z),
                         rayDirection,
                         rayLength,
                         System.currentTimeMillis()
@@ -71,9 +75,17 @@ class TerrainNavMeshBehaviour(
             return rays
         }
 
+    private val sphereProvider: MutableList<Sphere>
+        get() {
+            return targetPath.map {
+                Sphere(Vector3(it.point.x, it.point.y + V_OFFSET, it.point.z), 1f)
+            }.toMutableList()
+        }
+
     override fun create() {
         rayTracer = RayTracer(camera as PerspectiveCamera)
         rayDrawer = RayDrawer(camera, { raysProvider }, Colors.Cyan)
+        sphereDrawer = SphereDrawer(camera, { sphereProvider }, Colors.Red)
 
         navMesh = TerrainNavMesh(heightmap, gridSize, maxSlope, collectObstacles())
         navMesh.bake()
@@ -120,6 +132,7 @@ class TerrainNavMeshBehaviour(
 
     override fun render(pass: RenderPass) {
         rayDrawer.draw()
+        sphereDrawer.draw()
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {

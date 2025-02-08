@@ -178,10 +178,6 @@ class TerrainNavigator(
         return true
     }
 
-    private fun getLowestFCostNode(pathNodeQueue: PriorityQueue<PathNode>): PathNode {
-        return pathNodeQueue.remove()
-    }
-
     private fun getNeighbours(
         currentNode: PathNode,
         agent: NavMeshAgent

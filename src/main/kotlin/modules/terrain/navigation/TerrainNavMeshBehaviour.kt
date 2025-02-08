@@ -10,6 +10,9 @@ import core.scene.Object
 import core.scene.TraversalOrder
 import core.scene.camera.Camera
 import core.scene.camera.PerspectiveCamera
+import core.scene.navigation.NavRequest
+import core.scene.navigation.NavRequestExecutor
+import core.scene.navigation.NavResponse
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.path.PathNode
 import core.scene.raytracing.RayData
@@ -44,6 +47,7 @@ class TerrainNavMeshBehaviour(
     private lateinit var sphereDrawer: SphereDrawer
     private lateinit var navMesh: TerrainNavMesh
     private lateinit var navigator: TerrainNavigator
+    private lateinit var navRequestExecutor: NavRequestExecutor
 
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
@@ -90,6 +94,7 @@ class TerrainNavMeshBehaviour(
         navMesh = TerrainNavMesh(heightmap, gridSize, maxSlope, collectObstacles())
         navMesh.bake()
         navigator = TerrainNavigator(heightmap, navMesh.grid())
+        navRequestExecutor = NavRequestExecutor(navigator)
 
         owner()!!.addComponent(TerrainNavMeshDrawer(navMesh) { camera.viewProjection })
         owner()!!.addComponent(TerrainNavMeshGui(agent))
@@ -106,6 +111,8 @@ class TerrainNavMeshBehaviour(
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.dispose()
+
+        navRequestExecutor.dispose()
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {
@@ -118,13 +125,7 @@ class TerrainNavMeshBehaviour(
             }
 
             if (targets.size == 2) {
-                val pathResult = navigator.calculatePath(targets[0], targets[1], agent)
-
-                if (pathResult.isValid()) {
-                    targetPath = pathResult.path!!.toMutableList()
-                }
-                Events.publish(CalcTerrainPathEvent(pathResult), this)
-
+                navRequestExecutor.execute(NavRequest(targets[0], targets[1], agent, ::onNavResponseCompleted))
                 targets.clear()
             }
         }
@@ -141,6 +142,14 @@ class TerrainNavMeshBehaviour(
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.draw()
+    }
+
+    private fun onNavResponseCompleted(response: NavResponse) {
+        val pathResult = response.pathResult
+        if (pathResult != null && pathResult.isValid()) {
+            targetPath = pathResult.path!!.toMutableList()
+            Events.publish(CalcTerrainPathEvent(pathResult), this)
+        }
     }
 
     private fun collectObstacles(): List<NavMeshObstacle> {

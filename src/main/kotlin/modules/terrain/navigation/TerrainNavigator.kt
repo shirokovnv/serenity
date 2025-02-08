@@ -12,6 +12,7 @@ import core.scene.navigation.path.PathResult
 import core.scene.navigation.path.PathResultStatus
 import core.scene.volumes.BoxAABB
 import modules.terrain.heightmap.Heightmap
+import java.util.PriorityQueue
 
 class TerrainNavigator(
     private val heightmap: Heightmap,
@@ -52,15 +53,17 @@ class TerrainNavigator(
 
         nodes.clear()
 
-        val openedList = mutableListOf(startNode)
-        val closedList = mutableListOf<PathNode>()
+        val openedQueue = PriorityQueue<PathNode>()
+        openedQueue.add(startNode)
+        val closedSet = mutableSetOf<PathNode>()
 
         startNode.gCost = 0f
         startNode.hCost = agent.getHeuristic().calculateDistanceCost(startNode, endNode)
         startNode.calculateFCost()
 
-        while (openedList.isNotEmpty()) {
-            val currentNode = getLowestFCostNode(openedList)
+        while (openedQueue.isNotEmpty()) {
+            val currentNode = openedQueue.remove()
+            closedSet.add(currentNode)
 
             if (currentNode == endNode) {
                 return buildPath(endNode)
@@ -71,18 +74,15 @@ class TerrainNavigator(
                 return buildPath(endNode)
             }
 
-            openedList.remove(currentNode)
-            closedList.add(currentNode)
-
-            if (closedList.size >= MAX_CLOSED_NODES_LENGTH) {
+            if (closedSet.size >= MAX_CLOSED_NODES_LENGTH) {
                 return PathResult(null, PathResultStatus.TOO_LONG)
             }
 
             for (neighbor in getNeighbours(currentNode, agent)) {
-                if (closedList.contains(neighbor)) continue
+                if (closedSet.contains(neighbor)) continue
 
                 if (!neighbor.isWalkable) {
-                    closedList.add(neighbor)
+                    closedSet.add(neighbor)
                     continue
                 }
 
@@ -95,8 +95,8 @@ class TerrainNavigator(
                     neighbor.hCost = agent.getHeuristic().calculateDistanceCost(neighbor, endNode)
                     neighbor.calculateFCost()
 
-                    if (!openedList.contains(neighbor)) {
-                        openedList.add(neighbor)
+                    if (!openedQueue.contains(neighbor)) {
+                        openedQueue.add(neighbor)
                     }
                 }
             }
@@ -178,14 +178,8 @@ class TerrainNavigator(
         return true
     }
 
-    private fun getLowestFCostNode(pathNodeList: MutableList<PathNode>): PathNode {
-        var lowestFCostNode = pathNodeList[0]
-        for (i in 1..<pathNodeList.size) {
-            if (pathNodeList[i].fCost < lowestFCostNode.fCost) {
-                lowestFCostNode = pathNodeList[i]
-            }
-        }
-        return lowestFCostNode
+    private fun getLowestFCostNode(pathNodeQueue: PriorityQueue<PathNode>): PathNode {
+        return pathNodeQueue.remove()
     }
 
     private fun getNeighbours(

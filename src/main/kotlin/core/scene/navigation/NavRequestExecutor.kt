@@ -9,7 +9,7 @@ class NavRequestExecutor(private val navigator: NavigatorInterface) : Disposable
     private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
 
     private val maxQueueSize = 1000
-    private val maxElements = 10
+    private val maxProcessingElements = 10
     private val processIntervalMillis: Long = 100
 
     init {
@@ -34,7 +34,7 @@ class NavRequestExecutor(private val navigator: NavigatorInterface) : Disposable
             {
                 try {
                     val requests = mutableListOf<NavRequest>()
-                    requestQueue.drainTo(requests, maxElements)
+                    requestQueue.drainTo(requests, maxProcessingElements)
 
                     requests.forEach { request ->
                         val worker = NavWorker(request, navigator)

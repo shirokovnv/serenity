@@ -76,9 +76,10 @@ class Heightmap(
         val z7 = getHeightAt(x + 1, y + 1)
 
         val normal = Vector3()
-        normal.z = 1.0f / normalStrength
+        // TODO: note, that in normal map compute shader up vector is (0, 0, 1)
+        normal.y = 1.0f / normalStrength
         normal.x = z0 + 2 * z3 + z5 - z2 - 2 * z4 - z7
-        normal.y = z0 + 2 * z1 + z2 - z5 - 2 * z6 - z7
+        normal.z = z0 + 2 * z1 + z2 - z5 - 2 * z6 - z7
         return normal.normalize()
     }
 

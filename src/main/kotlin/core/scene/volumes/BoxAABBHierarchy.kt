@@ -60,4 +60,8 @@ class BoxAABBHierarchy : BaseComponent() {
             .map { BoxAABB(it.shape()).transform(transform) }
             .toList()
     }
+
+    fun minInnerBounds(): BoxAABB? {
+        return transformedInnerBounds().minByOrNull { it.shape().size().lengthSquared() }
+    }
 }

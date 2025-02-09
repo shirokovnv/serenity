@@ -10,7 +10,7 @@ abstract class Basemap(
     protected var mapTexture: Texture2d,
     protected val worldScale: Vector3,
     protected val worldOffset: Vector3
-): Disposable {
+) : Disposable {
     protected var mapData: FloatBuffer
 
     init {
@@ -31,6 +31,19 @@ abstract class Basemap(
         val textureY = (scaledY * height).coerceIn(0f, (height - 1).toFloat())
 
         return Vector2(textureX, textureY)
+    }
+
+    protected fun textureToWorld(textureX: Float, textureY: Float): Vector2 {
+        val normalizedX = textureX / width
+        val normalizedZ = textureY / height
+
+        val scaledX = normalizedX * worldScale.x
+        val scaledZ = normalizedZ * worldScale.z
+
+        val worldX = scaledX + worldOffset.x
+        val worldZ = scaledZ + worldOffset.z
+
+        return Vector2(worldX, worldZ)
     }
 
     fun texture(): Texture2d = mapTexture

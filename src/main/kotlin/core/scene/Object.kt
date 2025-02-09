@@ -94,11 +94,11 @@ open class Object(private var parent: Object? = null) : Entity(), Activatable, O
         return parent?.getRoot() ?: this
     }
 
-    override fun transform(): Transform {
+    final override fun transform(): Transform {
         return getComponent<Transform>()!!
     }
 
-    override fun bounds(): BoxAABB {
+    final override fun bounds(): BoxAABB {
         return getComponent<BoxAABB>()!!
     }
 

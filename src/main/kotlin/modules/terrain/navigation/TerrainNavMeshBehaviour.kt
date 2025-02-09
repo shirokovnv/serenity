@@ -54,7 +54,7 @@ class TerrainNavMeshBehaviour(
         get() = Resources.get<MouseInput>()!!
 
     // TODO: replace with real object
-    private val agent = TerrainNavMeshAgent(Object())
+    private val agent = TerrainNavMeshAgent(Vector3(0f))
     private val targets = mutableListOf<Vector3>()
     private var targetPath: MutableList<PathNode> = Collections.synchronizedList(mutableListOf())
 

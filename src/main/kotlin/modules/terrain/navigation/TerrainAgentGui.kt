@@ -1,7 +1,7 @@
 package modules.terrain.navigation
 
 import core.events.Events
-import core.scene.navigation.path.PathResult
+import core.scene.navigation.path.Path
 import graphics.gui.GuiBehaviour
 import graphics.gui.GuiWindow
 import imgui.ImGui
@@ -21,7 +21,7 @@ class TerrainNavMeshGui(private val agent: TerrainNavMeshAgent) : GuiBehaviour()
     private val slopeRange = FloatArray(1) { agent.maxSlope }
     private val stepRange = FloatArray(1) { agent.stepSize }
 
-    private var pathResult: PathResult? = null
+    private var path: Path? = null
 
     override fun guiWindow(): GuiWindow {
         return GuiWindow.GridWindow("Navigation")
@@ -61,15 +61,15 @@ class TerrainNavMeshGui(private val agent: TerrainNavMeshAgent) : GuiBehaviour()
             MAX_STEP_SIZE
         )
 
-        if (pathResult != null) {
+        if (path != null) {
             ImGui.separator()
-            ImGui.text("Current path: (${pathResult?.path?.size}) ${pathResult?.status}")
-            ImGui.text("${pathResult?.path?.first()}")
-            ImGui.text("${pathResult?.path?.last()}")
+            ImGui.text("Current path: (${path?.nodes?.size}) ${path?.status}")
+            ImGui.text("${path?.nodes?.first()}")
+            ImGui.text("${path?.nodes?.last()}")
         }
     }
 
     private fun onCalcTerrainPath(event: CalcTerrainPathEvent, sender: Any) {
-        pathResult = event.pathResult
+        path = event.path
     }
 }

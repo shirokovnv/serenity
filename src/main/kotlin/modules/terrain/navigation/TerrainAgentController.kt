@@ -15,6 +15,7 @@ import core.scene.navigation.NavRequestExecutor
 import core.scene.navigation.NavResponse
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.path.PathNode
+import core.scene.navigation.steering.SteeringBehaviour
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
@@ -26,11 +27,16 @@ import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.PoissonDiscSampler
+import modules.terrain.heightmap.PoissonDiscSamplerParams
 import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
 import platform.services.input.MouseInput
 import java.util.Collections
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.random.Random
 
 class TerrainNavMeshBehaviour(
     private val heightmap: Heightmap,
@@ -54,9 +60,11 @@ class TerrainNavMeshBehaviour(
         get() = Resources.get<MouseInput>()!!
 
     // TODO: replace with real object
-    private val agent = TerrainNavMeshAgent(Vector3(0f))
+    private val agent = TerrainNavMeshAgent(Vector3(50f, 0f, 50f))
     private val targets = mutableListOf<Vector3>()
     private var targetPath: MutableList<PathNode> = Collections.synchronizedList(mutableListOf())
+
+    private var agents = mutableListOf<SteeringBehaviour>()
 
     private val raysProvider: MutableList<RayData>
         get() {
@@ -102,6 +110,45 @@ class TerrainNavMeshBehaviour(
 
         Events.subscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        val sampler = PoissonDiscSampler()
+        val positions = sampler.generatePoints(heightmap,
+            PoissonDiscSamplerParams(
+                50f,
+                Vector2(500f, 500f),
+                30,
+                0.0f,
+                1.0f,
+                0.0f
+            )
+            )
+
+        println("NUM AGENT POSITIONS: ${positions.size}")
+
+        val numAgents = positions.size
+        for (i in 0..<numAgents) {
+            val x = Random.nextFloat() * 2 * PI.toFloat()
+            val z = Random.nextFloat() * 2 * PI.toFloat()
+
+            val px = positions[i].x
+            val pz = positions[i].y
+            val py = heightmap.getInterpolatedHeight(px, pz) * heightmap.worldScale().y
+
+            val tmpAgent = TerrainNavMeshAgent(Vector3(px, py, pz))
+
+            val velocity = Vector3(cos(x), 0f, cos(z))
+            val sagent = SteeringBehaviour(tmpAgent, heightmap, navMesh.grid(), navigator, navRequestExecutor)
+            sagent.velocity = velocity
+
+            sagent.position = Vector3(px, py, pz)
+
+            agents.add(sagent)
+            owner()!!.addComponent(sagent)
+        }
+
+        agents.forEach { ag ->
+            ag.neighbours = agents.filter { it != ag }.toMutableList()
+        }
     }
 
     override fun update(deltaTime: Float) {
@@ -126,7 +173,7 @@ class TerrainNavMeshBehaviour(
             }
 
             if (targets.size == 2) {
-                navRequestExecutor.execute(NavRequest(targets[0], targets[1], agent, ::onNavResponseCompleted))
+                navRequestExecutor.execute(NavRequest(targets[0], targets[1], agent, ::onNavResponseCompletedCallback))
                 targets.clear()
             }
         }
@@ -145,10 +192,10 @@ class TerrainNavMeshBehaviour(
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.draw()
     }
 
-    private fun onNavResponseCompleted(response: NavResponse) {
-        val pathResult = response.pathResult
+    private fun onNavResponseCompletedCallback(response: NavResponse) {
+        val pathResult = response.path
         if (pathResult != null && pathResult.isValid()) {
-            targetPath = pathResult.path!!.toMutableList()
+            targetPath = pathResult.nodes!!.toMutableList()
             Events.publish(CalcTerrainPathEvent(pathResult), this)
         }
     }

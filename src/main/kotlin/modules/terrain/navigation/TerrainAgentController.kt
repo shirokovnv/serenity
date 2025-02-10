@@ -15,7 +15,9 @@ import core.scene.navigation.NavRequestExecutor
 import core.scene.navigation.NavResponse
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.path.PathNode
-import core.scene.navigation.steering.SteeringBehaviour
+import core.scene.navigation.steering.commands.AlignCommand
+import core.scene.navigation.steering.commands.CohereCommand
+import core.scene.navigation.steering.commands.SeparateCommand
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
@@ -38,7 +40,7 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.random.Random
 
-class TerrainNavMeshBehaviour(
+class TerrainAgentController(
     private val heightmap: Heightmap,
     private val camera: Camera,
     private val gridSize: Float,
@@ -49,6 +51,7 @@ class TerrainNavMeshBehaviour(
         private const val V_OFFSET = 3f
     }
 
+    private lateinit var agent: TerrainAgent
     private lateinit var rayTracer: RayTracer
     private lateinit var rayDrawer: RayDrawer
     private lateinit var sphereDrawer: SphereDrawer
@@ -59,12 +62,10 @@ class TerrainNavMeshBehaviour(
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
 
-    // TODO: replace with real object
-    private val agent = TerrainNavMeshAgent(Vector3(50f, 0f, 50f))
     private val targets = mutableListOf<Vector3>()
     private var targetPath: MutableList<PathNode> = Collections.synchronizedList(mutableListOf())
 
-    private var agents = mutableListOf<SteeringBehaviour>()
+    private var agents = mutableListOf<TerrainAgent>()
 
     private val raysProvider: MutableList<RayData>
         get() {
@@ -105,8 +106,10 @@ class TerrainNavMeshBehaviour(
         navigator = TerrainNavigator(heightmap, navMesh.grid())
         navRequestExecutor = NavRequestExecutor(navigator)
 
+        // TODO: replace with real object
+        agent = TerrainAgent(Vector3(0f), navMesh.grid())
         owner()!!.addComponent(TerrainNavMeshDrawer(navMesh) { camera.viewProjection })
-        owner()!!.addComponent(TerrainNavMeshGui(agent))
+        owner()!!.addComponent(TerrainAgentGui(agent))
 
         Events.subscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
@@ -134,20 +137,18 @@ class TerrainNavMeshBehaviour(
             val pz = positions[i].y
             val py = heightmap.getInterpolatedHeight(px, pz) * heightmap.worldScale().y
 
-            val tmpAgent = TerrainNavMeshAgent(Vector3(px, py, pz))
+            val terrainAgent = TerrainAgent(Vector3(px, py, pz), navMesh.grid())
+            terrainAgent.velocity = Vector3(cos(x), 0f, cos(z))
 
-            val velocity = Vector3(cos(x), 0f, cos(z))
-            val sagent = SteeringBehaviour(tmpAgent, heightmap, navMesh.grid(), navigator, navRequestExecutor)
-            sagent.velocity = velocity
+            val commands = listOf(
+                AlignCommand(),
+                SeparateCommand(20.0f),
+                CohereCommand()
+            )
+            terrainAgent.addComponent(TerrainAgentBehaviour(terrainAgent, navMesh.grid(), navigator, commands))
 
-            sagent.position = Vector3(px, py, pz)
-
-            agents.add(sagent)
-            owner()!!.addComponent(sagent)
-        }
-
-        agents.forEach { ag ->
-            ag.neighbours = agents.filter { it != ag }.toMutableList()
+            agents.add(terrainAgent)
+            (owner()!! as Object).addChild(terrainAgent)
         }
     }
 
@@ -161,6 +162,8 @@ class TerrainNavMeshBehaviour(
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.dispose()
 
         navRequestExecutor.dispose()
+        sphereDrawer.dispose()
+        rayDrawer.dispose()
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {
@@ -193,10 +196,10 @@ class TerrainNavMeshBehaviour(
     }
 
     private fun onNavResponseCompletedCallback(response: NavResponse) {
-        val pathResult = response.path
-        if (pathResult != null && pathResult.isValid()) {
-            targetPath = pathResult.nodes!!.toMutableList()
-            Events.publish(CalcTerrainPathEvent(pathResult), this)
+        val path = response.path
+        if (path != null && path.isValid()) {
+            targetPath = path.nodes.toMutableList()
+            Events.publish(CalcTerrainPathEvent(path), this)
         }
     }
 

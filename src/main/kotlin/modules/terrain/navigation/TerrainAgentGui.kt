@@ -6,7 +6,7 @@ import graphics.gui.GuiBehaviour
 import graphics.gui.GuiWindow
 import imgui.ImGui
 
-class TerrainNavMeshGui(private val agent: TerrainNavMeshAgent) : GuiBehaviour() {
+class TerrainAgentGui(private val agent: TerrainAgent) : GuiBehaviour() {
 
     companion object {
         private const val MIN_SLOPE = 0.1f

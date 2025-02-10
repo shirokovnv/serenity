@@ -1,31 +1,35 @@
 package core.scene.navigation.path
 
-data class PathResult(val path: List<PathNode>?, val status: PathResultStatus) {
+import core.math.Vector3
+
+data class Path(val nodes: List<PathNode>, val status: PathStatus) {
     fun isValid(): Boolean {
-        return status == PathResultStatus.OK
+        return status == PathStatus.OK
+    }
+
+    fun waypoints(): List<Vector3> {
+        return nodes.map { it.point }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as PathResult
+        other as Path
 
         if (status != other.status) return false
 
-        if (path == null && other.path == null) return false
-        if (path?.size != other.path?.size) return false
-        if (path != null && other.path != null) {
-            for (i in path.indices) {
-                if (path[i].point != other.path[i].point) return false
-            }
+        if (nodes.isEmpty() && other.nodes.isEmpty()) return false
+        if (nodes.size != other.nodes.size) return false
+        for (i in nodes.indices) {
+            if (nodes[i].point != other.nodes[i].point) return false
         }
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = path?.hashCode() ?: 0
+        var result = nodes.hashCode()
         result = 31 * result + status.hashCode()
         return result
     }

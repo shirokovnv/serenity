@@ -2,12 +2,13 @@ package core.scene.navigation.steering
 
 import core.math.Matrix4
 import core.math.Vector3
+import core.scene.navigation.agents.NavMeshAgent
 import core.scene.volumes.BoxAABB
 
 typealias NeighboursProvider = () -> MutableList<SteeringAgent>
 typealias ObstaclesProvider = () -> MutableList<BoxAABB>
 
-interface SteeringAgent {
+interface SteeringAgent : NavMeshAgent {
     var position: Vector3
     var velocity: Vector3
     var acceleration: Vector3

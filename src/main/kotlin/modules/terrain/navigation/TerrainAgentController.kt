@@ -143,7 +143,8 @@ class TerrainAgentController(
                 SeparateCommand(20.0f),
                 CohereCommand(),
                 ObstacleAvoidanceCommand(),
-                WanderCommand(10f, 50f)
+                WanderCommand(10f, 50f),
+                BounceCommand(navigator)
             )
             terrainAgent.addComponent(TerrainAgentBehaviour(terrainAgent, navMesh.grid(), navigator, commands))
 

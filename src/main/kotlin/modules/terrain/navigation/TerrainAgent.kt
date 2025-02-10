@@ -5,9 +5,12 @@ import core.math.Rect3d
 import core.math.Vector3
 import core.scene.navigation.NavGrid
 import core.scene.navigation.agents.BaseNavMeshAgent
+import core.scene.navigation.agents.NavMeshAgent
 import core.scene.navigation.heuristics.DiagonalDistanceHeuristic
 import core.scene.navigation.heuristics.PathHeuristicInterface
+import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.steering.NeighboursProvider
+import core.scene.navigation.steering.ObstaclesProvider
 import core.scene.navigation.steering.SteeringAgent
 import core.scene.volumes.BoxAABB
 
@@ -30,6 +33,8 @@ class TerrainAgent(
         bounds().setShape(Rect3d(getAgentBounds().shape()))
     }
 
+    override var isStatic: Boolean = false
+
     override var position: Vector3
         get() = transform().translation()
         set(value) {
@@ -37,9 +42,7 @@ class TerrainAgent(
         }
 
     override var velocity: Vector3 = Vector3(0f)
-
     override var acceleration: Vector3 = Vector3(0f)
-
     override var maxSpeed: Float = 0.1f
     override var maxForce: Float = 0.05f
 
@@ -48,8 +51,11 @@ class TerrainAgent(
         set(value) {}
 
     override var perceptionDistance: Float = 25.0f
-
     override var target: Vector3 = Vector3(0f)
+
+    override var avoidanceDistance: Float = 15.0f
+    override var avoidanceRadius: Float = 15.0f
+
     override val neighbours: NeighboursProvider
         get() {
             val searchVolume = BoxAABB(
@@ -67,6 +73,33 @@ class TerrainAgent(
                         it != this
                     }
                     .toMutableList()
+            }
+        }
+    override val obstacles: ObstaclesProvider
+        get() {
+            val avoidanceDirection = Vector3(velocity).normalize() * avoidanceDistance
+            val searchVolume = BoxAABB(
+                Rect3d(
+                    Vector3((position + avoidanceDirection) - avoidanceRadius),
+                    Vector3((position + avoidanceDirection) + avoidanceRadius)
+                )
+            )
+
+            return {
+                navGrid
+                    .buildSearchResults(searchVolume)
+                    .filter {
+                        it != this
+                    }
+                    .map {
+                        when (it) {
+                            is NavMeshAgent -> it.getAgentBounds()
+                            is NavMeshObstacle -> it.getObstacleBounds()
+                            else -> {
+                                it.bounds()
+                            }
+                        }
+                    }.toMutableList()
             }
         }
 }

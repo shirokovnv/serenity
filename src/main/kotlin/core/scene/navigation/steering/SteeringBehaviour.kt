@@ -13,7 +13,7 @@ abstract class SteeringBehaviour : FrameUpdateBehaviour() {
 
         commander.processCommands(agent)
 
-        if (shouldApplySteering()) {
+        if (shouldApplySteering() && !agent.isStatic) {
             agent.velocity = agent.velocity + agent.acceleration
             agent.position = agent.position + agent.velocity
         }

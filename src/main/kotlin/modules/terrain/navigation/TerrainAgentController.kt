@@ -15,9 +15,7 @@ import core.scene.navigation.NavRequestExecutor
 import core.scene.navigation.NavResponse
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.path.PathNode
-import core.scene.navigation.steering.commands.AlignCommand
-import core.scene.navigation.steering.commands.CohereCommand
-import core.scene.navigation.steering.commands.SeparateCommand
+import core.scene.navigation.steering.commands.*
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
@@ -143,7 +141,9 @@ class TerrainAgentController(
             val commands = listOf(
                 AlignCommand(),
                 SeparateCommand(20.0f),
-                CohereCommand()
+                CohereCommand(),
+                ObstacleAvoidanceCommand(),
+                WanderCommand(10f, 50f)
             )
             terrainAgent.addComponent(TerrainAgentBehaviour(terrainAgent, navMesh.grid(), navigator, commands))
 

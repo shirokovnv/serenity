@@ -6,22 +6,25 @@ import core.commands.CommanderInterface
 import core.math.Vector3
 import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
-import java.util.*
+import java.util.concurrent.PriorityBlockingQueue
 
 class SteeringCommander(
     initialCommands: List<SteeringCommand> = emptyList()
 ) : CommanderInterface<SteeringAgent, SteeringCommandResult> {
-    private val commandQueue = PriorityQueue(SteeringCommandComparator())
+    private val commandQueue = PriorityBlockingQueue(12, SteeringCommandComparator())
+    private val commandListLock = Object()
 
     override val commands: List<CommandInterface<SteeringAgent, SteeringCommandResult>>
-        get() = commandQueue.toList()
+        get() = synchronized(commandListLock) {
+            commandQueue.toList()
+        }
 
     init {
         commandQueue.addAll(initialCommands)
     }
 
     override fun addCommand(command: CommandInterface<SteeringAgent, SteeringCommandResult>) {
-        commandQueue.add(command as SteeringCommand)
+        commandQueue.put(command as SteeringCommand)
     }
 
     override fun removeCommand(command: CommandInterface<SteeringAgent, SteeringCommandResult>) {
@@ -32,8 +35,8 @@ class SteeringCommander(
         var acceleration = Vector3(0f)
 
         val repeatableCommands = mutableListOf<SteeringCommand>()
-        while (commandQueue.isNotEmpty()) {
-            val command = commandQueue.remove()
+        while (true) {
+            val command = commandQueue.poll() ?: break
             val result = command.execute(actor)
 
             if (result.steeringForce.x.isNaN()
@@ -51,7 +54,7 @@ class SteeringCommander(
                 repeatableCommands.add(command)
             }
         }
-        commandQueue.addAll(repeatableCommands)
+        repeatableCommands.forEach { commandQueue.put(it) }
 
         actor.velocity = actor.velocity.truncate(actor.maxSpeed)
         actor.acceleration = acceleration.truncate(actor.maxForce)

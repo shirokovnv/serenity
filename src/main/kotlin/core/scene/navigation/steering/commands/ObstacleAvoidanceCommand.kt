@@ -38,7 +38,7 @@ class ObstacleAvoidanceCommand(
         val steering = if (collision != null) {
             val awayFrom = (ahead - collision.shape().center)
             if (awayFrom.lengthSquared() > 0.0001f) {
-                val desiredVelocity = (ahead - collision.shape().center).normalize()
+                val desiredVelocity = awayFrom.normalize()
                 (desiredVelocity - actor.velocity) * weight
             } else {
                 Vector3(0f)

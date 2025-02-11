@@ -1,11 +1,11 @@
 package core.scene.navigation.steering.commands
 
 import core.commands.CommandFlag
+import core.math.Rect3d
 import core.math.Vector3
 import core.math.helpers.distance
-import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
-import kotlin.math.sqrt
+import core.scene.volumes.BoxAABB
 
 class ObstacleAvoidanceCommand(
     override var weight: Float = 1.0f,
@@ -14,34 +14,41 @@ class ObstacleAvoidanceCommand(
     override var priority: Int = 0
 
     override fun execute(actor: SteeringAgent): SteeringCommandResult {
-        if (actor.velocity.lengthSquared() < 0.01f) {
-            return SteeringCommandResult(Vector3(0f), true)
+        val ahead = if (actor.velocity.lengthSquared() > 0.0001f) {
+            actor.position + Vector3(actor.velocity).normalize() * actor.avoidanceDistance
+        } else {
+            Vector3(actor.position)
         }
 
-        val ahead = actor.position + actor.velocity.normalize() * actor.avoidanceDistance
-        var desiredVelocity = Vector3(0f)
-        var collisionDetected = false
-
-        for (obstacle in actor.obstacles()) {
-            val shape = obstacle.shape()
-            val distance = distance(ahead, shape.center)
-
-            if (distance < actor.avoidanceRadius + shape.size().length() / sqrt(2.0f)) {
-                val awayFrom = (ahead - shape.center).normalize()
-                desiredVelocity = awayFrom * actor.maxSpeed
-                collisionDetected = true
-                break
+        val position = Vector3(actor.position.x, 0f, actor.position.z)
+        val collision = actor
+            .obstacles()
+            .map {
+                val shape = it.shape()
+                val minPoint = Vector3(shape.min.x, 0f, shape.min.z)
+                val maxPoint = Vector3(shape.max.x, 0f, shape.max.z)
+                BoxAABB(Rect3d(minPoint, maxPoint))
             }
-        }
+            .filter {
+                distance(it.shape().center, position) < actor.avoidanceDistance
+            }.minByOrNull {
+                distance(it.shape().center, ahead) < actor.avoidanceRadius
+            }
 
-        val steering = if (collisionDetected) {
-            (desiredVelocity - actor.velocity) * weight
+        val steering = if (collision != null) {
+            val awayFrom = (ahead - collision.shape().center)
+            if (awayFrom.lengthSquared() > 0.0001f) {
+                val desiredVelocity = (ahead - collision.shape().center).normalize()
+                (desiredVelocity - actor.velocity) * weight
+            } else {
+                Vector3(0f)
+            }
         } else {
             Vector3(0f)
         }
 
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             true
         )
     }

@@ -6,7 +6,7 @@ import core.commands.CommanderInterface
 import core.math.Vector3
 import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
-import java.util.PriorityQueue
+import java.util.*
 
 class SteeringCommander(
     initialCommands: List<SteeringCommand> = emptyList()
@@ -35,6 +35,13 @@ class SteeringCommander(
         while (commandQueue.isNotEmpty()) {
             val command = commandQueue.remove()
             val result = command.execute(actor)
+
+            if (result.steeringForce.x.isNaN()
+                || result.steeringForce.y.isNaN()
+                || result.steeringForce.z.isNaN()
+            ) {
+                throw IllegalStateException("Illegal force: $command ${result.steeringForce}")
+            }
 
             acceleration = acceleration + result.steeringForce
 

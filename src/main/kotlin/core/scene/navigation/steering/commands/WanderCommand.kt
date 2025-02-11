@@ -3,7 +3,6 @@ package core.scene.navigation.steering.commands
 import core.commands.CommandFlag
 import core.math.Vector3
 import core.math.extensions.toRadians
-import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
 import kotlin.math.PI
 import kotlin.math.cos
@@ -21,7 +20,7 @@ class WanderCommand(
     override var priority: Int = 0
 
     override fun execute(actor: SteeringAgent): SteeringCommandResult {
-        if (actor.velocity.lengthSquared() < 0.01f) {
+        if (actor.velocity.lengthSquared() < 0.0001f) {
             actor.velocity = randomVelocity()
         }
 
@@ -37,7 +36,7 @@ class WanderCommand(
         wanderingTheta += randomRadianOffset(wanderingOffsetInDegrees)
 
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             true
         )
     }

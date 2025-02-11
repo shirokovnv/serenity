@@ -33,7 +33,7 @@ import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
 import platform.services.input.MouseInput
-import java.util.Collections
+import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.random.Random
@@ -113,7 +113,8 @@ class TerrainAgentController(
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         val sampler = PoissonDiscSampler()
-        val positions = sampler.generatePoints(heightmap,
+        val positions = sampler.generatePoints(
+            heightmap,
             PoissonDiscSamplerParams(
                 50f,
                 Vector2(500f, 500f),
@@ -122,7 +123,7 @@ class TerrainAgentController(
                 1.0f,
                 0.0f
             )
-            )
+        )
 
         println("NUM AGENT POSITIONS: ${positions.size}")
 
@@ -140,13 +141,22 @@ class TerrainAgentController(
 
             val commands = listOf(
                 AlignCommand(),
-                SeparateCommand(20.0f),
+                SeparateCommand(15.0f),
                 CohereCommand(),
                 ObstacleAvoidanceCommand(),
-                WanderCommand(10f, 50f),
+                //WanderCommand(10f, 50f),
                 BounceCommand(navigator)
             )
-            terrainAgent.addComponent(TerrainAgentBehaviour(terrainAgent, navMesh.grid(), navigator, commands))
+            terrainAgent.addComponent(
+                TerrainAgentBehaviour(
+                    terrainAgent,
+                    heightmap,
+                    navMesh.grid(),
+                    navigator,
+                    navRequestExecutor,
+                    commands
+                )
+            )
 
             agents.add(terrainAgent)
             (owner()!! as Object).addChild(terrainAgent)

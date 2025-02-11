@@ -3,7 +3,6 @@ package core.scene.navigation.steering.commands
 import core.commands.CommandFlag
 import core.math.Vector3
 import core.math.helpers.distance
-import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
 
 class SeparateCommand(
@@ -32,15 +31,20 @@ class SeparateCommand(
         // Average and divide by how many
         val steering = if (count > 0) {
             desiredVelocity = desiredVelocity / count.toFloat()
-            desiredVelocity.normalize()
-            desiredVelocity = desiredVelocity * actor.maxSpeed
-            desiredVelocity - actor.velocity
+            if (desiredVelocity.lengthSquared() > 0.0001f) {
+                desiredVelocity.normalize()
+                desiredVelocity = desiredVelocity * actor.maxSpeed
+                (desiredVelocity - actor.velocity) * weight
+            }
+            else {
+                Vector3(0f)
+            }
         } else {
             Vector3(0f)
         }
 
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             true
         )
     }

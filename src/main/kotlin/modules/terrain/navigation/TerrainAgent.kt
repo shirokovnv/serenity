@@ -16,7 +16,7 @@ import core.scene.volumes.BoxAABB
 
 class TerrainAgent(
     initialWorldPosition: Vector3,
-    val navGrid: NavGrid
+    private val navGrid: NavGrid
 ) : BaseNavMeshAgent(initialWorldPosition), SteeringAgent {
     override val pathHeuristic: PathHeuristicInterface
         get() = DiagonalDistanceHeuristic()
@@ -44,7 +44,7 @@ class TerrainAgent(
     override var velocity: Vector3 = Vector3(0f)
     override var acceleration: Vector3 = Vector3(0f)
     override var maxSpeed: Float = 0.1f
-    override var maxForce: Float = 0.05f
+    override var maxForce: Float = 0.1f
 
     override var orientation: Matrix4
         get() = TODO("Not yet implemented")
@@ -77,7 +77,12 @@ class TerrainAgent(
         }
     override val obstacles: ObstaclesProvider
         get() {
-            val avoidanceDirection = Vector3(velocity).normalize() * avoidanceDistance
+            val avoidanceDirection =
+                if (velocity.lengthSquared() < 0.0001f) {
+                    Vector3(0f)
+                } else {
+                    Vector3(velocity).normalize() * avoidanceDistance
+                }
             val searchVolume = BoxAABB(
                 Rect3d(
                     Vector3((position + avoidanceDirection) - avoidanceRadius),

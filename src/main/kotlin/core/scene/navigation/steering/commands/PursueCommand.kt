@@ -3,7 +3,6 @@ package core.scene.navigation.steering.commands
 import core.commands.CommandFlag
 import core.math.Vector3
 import core.math.helpers.distance
-import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
 
 class PursueCommand(
@@ -25,7 +24,7 @@ class PursueCommand(
         val steering = (desiredVelocity - actor.velocity) * weight
 
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             false
         )
     }

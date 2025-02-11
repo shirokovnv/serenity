@@ -2,7 +2,6 @@ package core.scene.navigation.steering.commands
 
 import core.commands.CommandFlag
 import core.math.Vector3
-import core.math.truncate
 import core.scene.navigation.NavigatorInterface
 import core.scene.navigation.steering.SteeringAgent
 
@@ -14,21 +13,20 @@ class BounceCommand(
     override var priority: Int = 0
 
     override fun execute(actor: SteeringAgent): SteeringCommandResult {
-        if (actor.velocity.lengthSquared() < 0.01f) {
+        if (actor.velocity.lengthSquared() < 0.0001f) {
             return SteeringCommandResult(Vector3(0f), true)
         }
 
-        val ahead = actor.position + actor.velocity.normalize() * actor.avoidanceRadius
-        val desiredVelocity = if (navigator.outOfBounds(ahead, actor)) {
-            (actor.position - ahead).normalize() * actor.maxSpeed
+        val ahead = actor.position + Vector3(actor.velocity).normalize() * actor.avoidanceDistance
+        val steering = if (navigator.outOfBounds(ahead, actor)) {
+            val desiredVelocity = (actor.position - ahead).normalize() * actor.maxSpeed
+            (desiredVelocity - actor.velocity) * weight
         } else {
-            actor.velocity
+            Vector3(0f)
         }
 
-        val steering = desiredVelocity - actor.velocity
-
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             true
         )
     }

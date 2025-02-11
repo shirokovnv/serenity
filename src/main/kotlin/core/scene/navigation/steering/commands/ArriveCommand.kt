@@ -2,7 +2,6 @@ package core.scene.navigation.steering.commands
 
 import core.commands.CommandFlag
 import core.math.Vector3
-import core.math.truncate
 import core.scene.navigation.steering.SteeringAgent
 import kotlin.math.min
 
@@ -29,7 +28,7 @@ class ArriveCommand(
         val steering = desiredVelocity - actor.velocity
 
         return SteeringCommandResult(
-            steering.truncate(actor.maxForce),
+            steering,
             false
         )
     }

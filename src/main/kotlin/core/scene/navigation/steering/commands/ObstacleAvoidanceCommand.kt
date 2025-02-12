@@ -14,13 +14,15 @@ class ObstacleAvoidanceCommand(
     override var priority: Int = 0
 
     override fun execute(actor: SteeringAgent): SteeringCommandResult {
-        val ahead = if (actor.velocity.lengthSquared() > 0.0001f) {
-            actor.position + Vector3(actor.velocity).normalize() * actor.avoidanceDistance
+        val position = Vector3(actor.position.x, 0f, actor.position.z)
+        val velocity = Vector3(actor.velocity.x, 0f, actor.velocity.z)
+
+        val ahead = if (velocity.lengthSquared() > 0.0001f) {
+            position + velocity.normalize() * actor.avoidanceDistance
         } else {
-            Vector3(actor.position)
+            Vector3(position)
         }
 
-        val position = Vector3(actor.position.x, 0f, actor.position.z)
         val collision = actor
             .obstacles()
             .map {
@@ -39,7 +41,7 @@ class ObstacleAvoidanceCommand(
             val awayFrom = (ahead - collision.shape().center)
             if (awayFrom.lengthSquared() > 0.0001f) {
                 val desiredVelocity = awayFrom.normalize()
-                (desiredVelocity - actor.velocity) * weight
+                (desiredVelocity - velocity) * weight
             } else {
                 Vector3(0f)
             }

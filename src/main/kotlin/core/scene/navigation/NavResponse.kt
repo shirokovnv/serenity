@@ -1,6 +1,6 @@
 package core.scene.navigation
 
-import core.scene.navigation.path.PathResult
+import core.scene.navigation.path.Path
 
 typealias NavResponseCallback = (response: NavResponse) -> Unit
 
@@ -9,4 +9,4 @@ enum class NavResponseStatus {
     INTERRUPTED
 }
 
-data class NavResponse(val pathResult: PathResult?, val status: NavResponseStatus)
+data class NavResponse(val path: Path?, val status: NavResponseStatus)

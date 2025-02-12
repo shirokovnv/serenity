@@ -10,8 +10,6 @@ import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
 import graphics.rendering.context.RenderContextController
-import graphics.rendering.postproc.PostProcessor
-import graphics.rendering.postproc.godrays.GodraysPPEffect
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
 import modules.fauna.Butterfly
@@ -19,14 +17,13 @@ import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
-import modules.light.defaultSunScreenPositionProvider
 import modules.light.flare.LensFlare
 import modules.ocean.Ocean
 import modules.ocean.OceanParams
 import modules.sky.SkyDome
 import modules.sky.SkyDomeParams
 import modules.terrain.heightmap.*
-import modules.terrain.navigation.TerrainNavMeshBehaviour
+import modules.terrain.navigation.TerrainAgentController
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import platform.Application
@@ -137,14 +134,15 @@ class App(settings: ApplicationSettings) : Application(settings) {
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)
 
+        // TODO: move to specific object
         val terrainNavMesh = Object()
-        val terrainNavMeshBehaviour = TerrainNavMeshBehaviour(
+        val terrainAgentController = TerrainAgentController(
             heightmap,
             camera,
             5.0f,
             0.5f
         )
-        terrainNavMesh.addComponent(terrainNavMeshBehaviour)
+        terrainNavMesh.addComponent(terrainAgentController)
         scene.attachToRoot(terrainNavMesh)
 
         // Post Processing

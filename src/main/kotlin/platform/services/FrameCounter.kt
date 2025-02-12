@@ -13,6 +13,7 @@ class FrameCounter(private var frameRate: Float) : Timer {
 
     private var currentFrameTime by Delegates.notNull<Float>()
     private var fps by Delegates.notNull<Int>()
+    private var currentFrame by Delegates.notNull<Int>()
 
     init {
         reset()
@@ -29,6 +30,7 @@ class FrameCounter(private var frameRate: Float) : Timer {
 
         currentFrameTime = 0.0f
         fps = 0
+        currentFrame = 0
     }
 
     fun begin() {
@@ -58,9 +60,13 @@ class FrameCounter(private var frameRate: Float) : Timer {
 
     fun incrementFrames() {
         frames++
+        currentFrame = (currentFrame + 1) % frameRate()
     }
 
     fun fps(): Int = fps
+
+    fun frame(): Int = currentFrame
+    fun frameRate(): Int = frameRate.toInt()
 
     override fun deltaTime(): Float {
         return (passedTime / NANOSECOND.toDouble()).toFloat()

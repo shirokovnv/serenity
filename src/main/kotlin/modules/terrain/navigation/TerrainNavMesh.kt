@@ -1,6 +1,9 @@
 package modules.terrain.navigation
 
-import core.math.*
+import core.math.Rect2d
+import core.math.Rect3d
+import core.math.Vector2
+import core.math.Vector3
 import core.scene.navigation.NavGrid
 import core.scene.navigation.NavMesh
 import core.scene.navigation.obstacles.NavMeshObstacle
@@ -162,8 +165,20 @@ class TerrainNavMesh(
         val normal = heightmap.getInterpolatedNormal(wx, wz)
         var color = if (normal.dot(upVector) < maxSlope) unwalkableAreaColor else walkableAreaColor
 
+        val h0 = heightmap.getInterpolatedHeight(wx0, wz0)
+        val h1 = heightmap.getInterpolatedHeight(wx1, wz1)
+        val h2 = heightmap.getInterpolatedHeight(wx0, wz1)
+        val h3 = heightmap.getInterpolatedHeight(wx1, wz0)
+
+        val minHeight = minOf(h0, h1, h2, h3) * heightmap.worldScale().y
+        val maxHeight = maxOf(h0, h1, h2, h3) * heightmap.worldScale().y
+
         if (x > 0 && z > 0 && x < widthQuads && z < heightQuads && !ensureCellIsWalkable(cellBounds, maxSlope)) {
-            val obstacle = Obstacle(cellBounds)
+            val obstacleBounds = Rect3d(
+                Vector3(cellMin.x, minHeight, cellMin.y),
+                Vector3(cellMax.x, maxHeight, cellMax.y)
+            )
+            val obstacle = Obstacle(obstacleBounds)
             navGrid.insert(obstacle)
             color = unwalkableAreaColor
         }

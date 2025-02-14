@@ -172,3 +172,13 @@ class Vector3 {
             else -> throw IndexOutOfBoundsException()
         }
 }
+
+fun Vector3.truncate(maxLength: Float): Vector3 {
+    val length = this.length()
+    return if (length > maxLength) {
+        val normalizedVector = this.normalize()
+        normalizedVector * maxLength
+    } else {
+        this
+    }
+}

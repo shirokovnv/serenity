@@ -56,8 +56,8 @@ class BoxAABBDrawer(private var color: Color? = null) : BaseComponent(), Drawabl
     }
 
     private fun drawBounds() {
-        if (owner()!!.hasComponent<BoxAABB>()) {
-            val rect3d = owner()!!.getComponent<BoxAABB>()!!.shape()
+        owner()!!.getComponent<BoxAABB>()?.let {
+            val rect3d = it.shape()
             material?.boxCenter = rect3d.center
             material?.boxSize = rect3d.size()
             shader?.updateUniforms()

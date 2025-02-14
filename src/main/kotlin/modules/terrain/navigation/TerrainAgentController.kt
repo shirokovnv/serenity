@@ -15,6 +15,7 @@ import core.scene.navigation.NavRequestExecutor
 import core.scene.navigation.NavResponse
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.navigation.path.PathNode
+import core.scene.navigation.steering.commands.*
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
@@ -26,13 +27,18 @@ import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Heightmap
+import modules.terrain.heightmap.PoissonDiscSampler
+import modules.terrain.heightmap.PoissonDiscSamplerParams
 import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
 import platform.services.input.MouseInput
-import java.util.Collections
+import java.util.*
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.random.Random
 
-class TerrainNavMeshBehaviour(
+class TerrainAgentController(
     private val heightmap: Heightmap,
     private val camera: Camera,
     private val gridSize: Float,
@@ -43,6 +49,7 @@ class TerrainNavMeshBehaviour(
         private const val V_OFFSET = 3f
     }
 
+    private lateinit var agent: TerrainAgent
     private lateinit var rayTracer: RayTracer
     private lateinit var rayDrawer: RayDrawer
     private lateinit var sphereDrawer: SphereDrawer
@@ -53,10 +60,10 @@ class TerrainNavMeshBehaviour(
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
 
-    // TODO: replace with real object
-    private val agent = TerrainNavMeshAgent(Vector3(0f))
     private val targets = mutableListOf<Vector3>()
     private var targetPath: MutableList<PathNode> = Collections.synchronizedList(mutableListOf())
+
+    private var agents = mutableListOf<TerrainAgent>()
 
     private val raysProvider: MutableList<RayData>
         get() {
@@ -97,11 +104,63 @@ class TerrainNavMeshBehaviour(
         navigator = TerrainNavigator(heightmap, navMesh.grid())
         navRequestExecutor = NavRequestExecutor(navigator)
 
+        // TODO: replace with real object
+        agent = TerrainAgent(Vector3(0f), navMesh.grid())
         owner()!!.addComponent(TerrainNavMeshDrawer(navMesh) { camera.viewProjection })
-        owner()!!.addComponent(TerrainNavMeshGui(agent))
+        owner()!!.addComponent(TerrainAgentGui(agent))
 
         Events.subscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        val sampler = PoissonDiscSampler()
+        val positions = sampler.generatePoints(
+            heightmap,
+            PoissonDiscSamplerParams(
+                50f,
+                Vector2(500f, 500f),
+                30,
+                0.0f,
+                1.0f,
+                0.0f
+            )
+        )
+
+        println("NUM AGENT POSITIONS: ${positions.size}")
+
+        val numAgents = positions.size
+        for (i in 0..<numAgents) {
+            val x = Random.nextFloat() * 2 * PI.toFloat()
+            val z = Random.nextFloat() * 2 * PI.toFloat()
+
+            val px = positions[i].x
+            val pz = positions[i].y
+            val py = heightmap.getInterpolatedHeight(px, pz) * heightmap.worldScale().y
+
+            val terrainAgent = TerrainAgent(Vector3(px, py, pz), navMesh.grid())
+            terrainAgent.velocity = Vector3(cos(x), 0f, cos(z))
+
+            val commands = listOf(
+                AlignCommand(),
+                SeparateCommand(15.0f),
+                //CohereCommand(),
+                ObstacleAvoidanceCommand(),
+                //WanderCommand(10f, 50f),
+                BounceCommand(navigator)
+            )
+            terrainAgent.addComponent(
+                TerrainAgentBehaviour(
+                    terrainAgent,
+                    heightmap,
+                    navMesh.grid(),
+                    navigator,
+                    navRequestExecutor,
+                    commands
+                )
+            )
+
+            agents.add(terrainAgent)
+            (owner()!! as Object).addChild(terrainAgent)
+        }
     }
 
     override fun update(deltaTime: Float) {
@@ -114,6 +173,8 @@ class TerrainNavMeshBehaviour(
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.dispose()
 
         navRequestExecutor.dispose()
+        sphereDrawer.dispose()
+        rayDrawer.dispose()
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {
@@ -126,7 +187,7 @@ class TerrainNavMeshBehaviour(
             }
 
             if (targets.size == 2) {
-                navRequestExecutor.execute(NavRequest(targets[0], targets[1], agent, ::onNavResponseCompleted))
+                navRequestExecutor.execute(NavRequest(targets[0], targets[1], agent, ::onNavResponseCompletedCallback))
                 targets.clear()
             }
         }
@@ -145,11 +206,11 @@ class TerrainNavMeshBehaviour(
         owner()!!.getComponent<TerrainNavMeshDrawer>()?.draw()
     }
 
-    private fun onNavResponseCompleted(response: NavResponse) {
-        val pathResult = response.pathResult
-        if (pathResult != null && pathResult.isValid()) {
-            targetPath = pathResult.path!!.toMutableList()
-            Events.publish(CalcTerrainPathEvent(pathResult), this)
+    private fun onNavResponseCompletedCallback(response: NavResponse) {
+        val path = response.path
+        if (path != null && path.isValid()) {
+            targetPath = path.nodes.toMutableList()
+            Events.publish(CalcTerrainPathEvent(path), this)
         }
     }
 

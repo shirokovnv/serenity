@@ -75,6 +75,8 @@ class AnimationModel(
         return meshes.firstOrNull { it.name == name }
     }
 
+    fun meshes(): List<Mesh> = meshes
+
     fun update(deltaTime: Float) {
         if (currentAnimation == null || currentMesh == null) {
             return
@@ -87,10 +89,10 @@ class AnimationModel(
             // animationTime = 0f
         }
 
-        boneTransforms(currentAnimation!!, currentMesh!!, animationTime)
+        boneTransforms(currentAnimation!!, animationTime)
     }
 
-    private fun boneTransforms(animation: Animation, mesh: Mesh, timeInSeconds: Float) {
+    private fun boneTransforms(animation: Animation, timeInSeconds: Float) {
         val ticksPerSecond = if (animation.ticksPerSecond != 0.0) {
             animation.ticksPerSecond.toFloat()
         } else {
@@ -100,10 +102,12 @@ class AnimationModel(
         val timeInTicks = timeInSeconds * ticksPerSecond
         val animationTime = timeInTicks % animation.duration.toFloat()
 
-        readNodeHierarchy(animationTime, root, animation, mesh, identity)
+        readNodeHierarchy(animationTime, root, animation, identity)
 
-        for (i in mesh.bones.indices) {
-            mesh.boneTransforms[i] = mesh.bones[i].transform
+        meshes.forEach { mesh ->
+            for (i in mesh.bones.indices) {
+                mesh.boneTransforms[i] = mesh.bones[i].transform
+            }
         }
     }
 
@@ -111,7 +115,6 @@ class AnimationModel(
         time: Float,
         node: Node,
         animation: Animation,
-        mesh: Mesh,
         parentTransform: Matrix4
     ) {
         var nodeTransform = node.transform
@@ -127,13 +130,15 @@ class AnimationModel(
 
         val globalTransform = parentTransform * nodeTransform
 
-        val bone: Bone? = mesh.findBone(node.name)
-        if (bone != null) {
-            bone.transform = globalInverseTransform * globalTransform * bone.offset
+        meshes.forEach { mesh ->
+            val bone: Bone? = mesh.findBone(node.name)
+            if (bone != null) {
+                bone.transform = globalInverseTransform * globalTransform * bone.offset
+            }
         }
 
         for (i in 0..<node.children.size) {
-            readNodeHierarchy(time, node.children[i], animation, mesh, globalTransform)
+            readNodeHierarchy(time, node.children[i], animation, globalTransform)
         }
     }
 

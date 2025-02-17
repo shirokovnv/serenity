@@ -66,7 +66,6 @@ class AnimationParser {
     }
 
     private fun parseBones(mesh: AIMesh, vertexArray: FloatArray): Array<Bone> {
-        val boneMap = HashMap<String, Int>()
         val boneIndexMap0 = HashMap<Int, Int>()
         val boneIndexMap1 = HashMap<Int, Int>()
 
@@ -77,10 +76,13 @@ class AnimationParser {
 
         println("NUM BONES: $numBones")
 
+        val bones = Array(numBones) { Bone() }
         for (b in 0..<numBones) {
             val bonePtr = mesh.mBones()!![b]
             val bone = AIBone.create(bonePtr)
-            boneMap[bone.mName().dataString()] = b
+
+            bones[b].name = bone.mName().dataString()
+            bones[b].offset = convertAiMatrixToMatrix4(bone.mOffsetMatrix())
 
             for (w in 0..<bone.mNumWeights()) {
                 val weight = bone.mWeights()[w]
@@ -109,15 +111,6 @@ class AnimationParser {
             }
         }
 
-        val bones = Array(mesh.mNumBones()) { Bone() }
-
-        for (b in 0..<mesh.mNumBones()) {
-            val bonePtr = mesh.mBones()?.get(b)!!
-            val bone = AIBone.create(bonePtr)
-
-            bones[b].name = bone.mName().dataString()
-            bones[b].offset = convertAiMatrixToMatrix4(bone.mOffsetMatrix())
-        }
         return bones
     }
 

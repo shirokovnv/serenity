@@ -55,9 +55,6 @@ class ButterflyBehaviour : FrameUpdateBehaviour(), Renderer {
         material.projection = camera.projection
 
         animationModel.update(animationSpeed)
-
-        material.boneTransforms.clear()
-        material.boneTransforms = animationModel.currentMesh()!!.boneTransforms.toMutableList()
     }
 
     override fun destroy() {
@@ -67,8 +64,14 @@ class ButterflyBehaviour : FrameUpdateBehaviour(), Renderer {
 
     override fun render(pass: RenderPass) {
         shader.bind()
-        shader.updateUniforms()
-        animationModel.draw()
+
+        animationModel.meshes().forEach { mesh ->
+            animationModel.setCurrentMeshByName(mesh.name)
+            material.boneTransforms = mesh.boneTransforms.toMutableList()
+            shader.updateUniforms()
+            animationModel.drawCurrent()
+        }
+
         shader.unbind()
     }
 

@@ -110,10 +110,11 @@ class App(settings: ApplicationSettings) : Application(settings) {
         scene.attachToRoot(trees)
 
         val grass = Grass()
-        scene.attachToRoot(grass)
+        //scene.attachToRoot(grass)
 
         val butterfly = Butterfly()
         butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))
+        //butterfly.getComponent<Transform>()!!.setScale(Vector3(1.01f))
         butterfly.getComponent<Transform>()!!.setRotation(Vector3(0f, 0f, 90f.toRadians()))
         scene.attachToRoot(butterfly)
 

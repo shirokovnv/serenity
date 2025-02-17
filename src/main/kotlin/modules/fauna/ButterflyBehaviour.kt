@@ -1,9 +1,9 @@
 package modules.fauna
 
-import core.ecs.Behaviour
 import core.management.Resources
 import core.math.Matrix4
 import core.scene.Object
+import core.scene.behaviour.FrameUpdateBehaviour
 import core.scene.camera.Camera
 import graphics.animation.AnimationModel
 import graphics.assets.surface.bind
@@ -14,7 +14,7 @@ import graphics.rendering.passes.RenderPass
 import platform.services.filesystem.AssimpLoader
 import platform.services.filesystem.ImageLoader
 
-class ButterflyBehaviour : Behaviour(), Renderer {
+class ButterflyBehaviour : FrameUpdateBehaviour(), Renderer {
     private lateinit var animationModel: AnimationModel
     private lateinit var material: ButterflyMaterial
     private lateinit var shader: ButterflyShader
@@ -49,7 +49,7 @@ class ButterflyBehaviour : Behaviour(), Renderer {
         println("BUTTERFLY RENDER BEHAVIOUR INITIALIZED")
     }
 
-    override fun update(deltaTime: Float) {
+    override fun onUpdate(deltaTime: Float) {
         material.model = model
         material.view = camera.view
         material.projection = camera.projection

@@ -26,6 +26,7 @@ import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.flora.trees.TreeSamplingContainer
 import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.sampling.PoissonDiscSampler
@@ -114,14 +115,21 @@ class TerrainAgentController(
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         val sampler = PoissonDiscSampler()
-        val samplingParams = PoissonDiscSamplerParams(50f, Vector2(500f, 500f), 30)
-        val validator = HeightAndSlopeBasedValidator(heightmap, 0.0f, 1.0f, 0.0f)
-        val positions = sampler.generatePoints(
+        val samplerRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
+        val samplingParams = PoissonDiscSamplerParams(36f, samplerRegionSize, 30)
+        val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 0.8f, 0.3f)
+        val initialPositions = sampler.generatePoints(
             samplingParams,
             validator
         )
+        val samplingContainer = TerrainAgentSamplingContainer(initialPositions, samplingParams.radius / 2, samplingParams.radius)
+        println("NUM POINTS: ${initialPositions.size}")
+        samplingContainer.reducePointsByObstacles(
+            Resources.get<TreeSamplingContainer>()!!,
+        )
+        val positions = samplingContainer.points
 
-        println("NUM AGENT POSITIONS: ${positions.size}")
+        println("NUM AGENT SAMPLING POSITIONS: ${positions.size}")
 
         val numAgents = positions.size
         for (i in 0..<numAgents) {

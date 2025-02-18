@@ -82,15 +82,17 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             models.add(model)
         }
 
-        val samplingParams = PoissonDiscSamplerParams(50f, sampleRegionSize, 30)
+        val samplingParams = PoissonDiscSamplerParams(75f, sampleRegionSize, 30)
         val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 0.9f, 0.3f)
 
         val points = sampler.generatePoints(
             samplingParams,
             validator
         )
+        val treeSamplingContainer = TreeSamplingContainer(points, samplingParams.radius / 2, samplingParams.radius)
+        Resources.put<TreeSamplingContainer>(treeSamplingContainer)
 
-        println("NUM SAMPLING POINTS: ${points.size}")
+        println("NUM TREE SAMPLING POINTS: ${points.size}")
 
         for (p in points) {
             val transform = Transform()

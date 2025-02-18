@@ -142,7 +142,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
             heightmap,
             camera,
             5.0f,
-            0.5f
+            0.35f
         )
         terrainNavMesh.addComponent(terrainAgentController)
         scene.attachToRoot(terrainNavMesh)

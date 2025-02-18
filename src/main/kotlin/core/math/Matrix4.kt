@@ -161,14 +161,45 @@ class Matrix4(other: Matrix4? = null) {
     }
 }
 
+fun createLookAtMatrix(target: Vector3, up: Vector3): Matrix4 {
+    val forward = Vector3(target).normalize()
+    val right = Vector3(up.x, up.y, up.z).cross(Vector3(forward.x, forward.y, forward.z)).normalize()
+    val actualUp = Vector3(forward.x, forward.y, forward.z).cross(right).normalize()
+
+    val lookAt = Matrix4()
+
+    lookAt[0, 0] = (right.x)
+    lookAt[1, 0] = (right.y)
+    lookAt[2, 0] = (right.z)
+    lookAt[3, 0] = (0f)
+
+    lookAt[0, 1] = (actualUp.x)
+    lookAt[1, 1] = (actualUp.y)
+    lookAt[2, 1] = (actualUp.z)
+    lookAt[3, 1] = (0f)
+
+    lookAt[0, 2] = (forward.x)
+    lookAt[1, 2] = (forward.y)
+    lookAt[2, 2] = (forward.z)
+    lookAt[3, 2] = (0f)
+
+    lookAt[0, 3] = (0f)
+    lookAt[1, 3] = (0f)
+    lookAt[2, 3] = (0f)
+    lookAt[3, 3] = (1f)
+    return lookAt
+}
+
+private val matrixBuffer = BufferUtils.createFloatBuffer(16)
+
 fun Matrix4.toFloatBuffer(): FloatBuffer {
-    val buffer = BufferUtils.createFloatBuffer(16)
+    matrixBuffer.rewind()
     for (i in 0..3) {
         for (j in 0..3) {
-            buffer.put(this[i, j])
+            matrixBuffer.put(this[i, j])
         }
     }
-    buffer.flip()
+    matrixBuffer.flip()
 
-    return buffer
+    return matrixBuffer
 }

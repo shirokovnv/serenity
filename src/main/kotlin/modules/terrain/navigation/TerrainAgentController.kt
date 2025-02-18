@@ -26,9 +26,10 @@ import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.heightmap.PoissonDiscSampler
-import modules.terrain.heightmap.PoissonDiscSamplerParams
+import modules.terrain.sampling.PoissonDiscSampler
+import modules.terrain.sampling.PoissonDiscSamplerParams
 import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
@@ -113,16 +114,11 @@ class TerrainAgentController(
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         val sampler = PoissonDiscSampler()
+        val samplingParams = PoissonDiscSamplerParams(50f, Vector2(500f, 500f), 30)
+        val validator = HeightAndSlopeBasedValidator(heightmap, 0.0f, 1.0f, 0.0f)
         val positions = sampler.generatePoints(
-            heightmap,
-            PoissonDiscSamplerParams(
-                50f,
-                Vector2(500f, 500f),
-                30,
-                0.0f,
-                1.0f,
-                0.0f
-            )
+            samplingParams,
+            validator
         )
 
         println("NUM AGENT POSITIONS: ${positions.size}")

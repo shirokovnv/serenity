@@ -2,9 +2,7 @@ package modules.terrain.navigation
 
 import core.events.Events
 import core.management.Resources
-import core.math.Sphere
-import core.math.Vector2
-import core.math.Vector3
+import core.math.*
 import core.scene.camera.Camera
 import core.scene.camera.PerspectiveCamera
 import core.scene.navigation.*

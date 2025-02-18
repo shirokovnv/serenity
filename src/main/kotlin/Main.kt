@@ -109,7 +109,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(trees)
 
-        val grass = Grass()
+        //val grass = Grass()
         //scene.attachToRoot(grass)
 
         val butterfly = Butterfly()
@@ -127,8 +127,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-        val ocean = Ocean(oceanParams, true)
-        ocean.getComponent<Transform>()!!.setScale(worldScale)
+//        val ocean = Ocean(oceanParams, true)
+//        ocean.getComponent<Transform>()!!.setScale(worldScale)
+//        scene.attachToRoot(ocean)
 
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 

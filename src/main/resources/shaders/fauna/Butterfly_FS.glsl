@@ -20,9 +20,9 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 void main()
 {
     float diffuseFactor = 10.0f;
-    vec4 diffuseColor = texture(diffuseTexture, TexCoords);
-    diffuseColor *= diffuse(-sunVector, Normal, sunIntensity * diffuseFactor);
-    diffuseColor *= vec4(sunColor, 1);
+    vec4 totalColor = texture(diffuseTexture, TexCoords);
+    totalColor *= diffuse(-sunVector, Normal, sunIntensity * diffuseFactor);
+    totalColor *= vec4(sunColor, 1);
 
-    FragColor = diffuseColor;
+    FragColor = totalColor;
 }

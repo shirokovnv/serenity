@@ -13,7 +13,8 @@ class AnimationModel(
     private val root: Node,
     private val globalInverseTransform: Matrix4,
     private val animations: List<Animation>,
-    private val meshes: List<Mesh>
+    private val meshes: List<Mesh>,
+    private val materials: List<MtlData>
 ) : Drawable, Disposable {
     private var animationTime: Float = 0f
     private var currentAnimation: Animation? = null
@@ -76,6 +77,15 @@ class AnimationModel(
     }
 
     fun meshes(): List<Mesh> = meshes
+
+    fun materials(): List<MtlData> = materials
+
+    fun getMaterialByIndex(index: Int): MtlData? {
+        if (index < 0 || index > materials.size) {
+            return null
+        }
+        return materials[index]
+    }
 
     fun update(deltaTime: Float) {
         if (currentAnimation == null || currentMesh == null) {

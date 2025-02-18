@@ -1,7 +1,6 @@
 package graphics.animation
 
 import core.math.Matrix4
-import graphics.animation.Bone
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
@@ -9,7 +8,8 @@ class Mesh(
     val name: String,
     val vertices: FloatBuffer,
     val indices: IntBuffer,
-    val bones: Array<Bone>
+    val bones: Array<Bone>,
+    val mtlIndex: Int = -1
 ) {
     var boneTransforms: Array<Matrix4> = Array(bones.size) { Matrix4().identity() }
 

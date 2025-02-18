@@ -1,10 +1,12 @@
 package graphics.rendering
 
+import core.math.Quaternion
 import core.math.Vector3
 import kotlin.math.abs
 
 data class Color(val red: Float, val green: Float, val blue: Float, val alpha: Float = 1.0f) {
     fun toVector3(): Vector3 = Vector3(red, green, blue)
+    fun toQuaternion(): Quaternion = Quaternion(red, green, blue, alpha)
 }
 
 object Colors {
@@ -21,6 +23,7 @@ object Colors {
     val CornflowerBlue = Color(0.61f, 0.86f, 0.92f)
     val LightBlue = Color(0.68f, 0.85f, 0.90f)
     val LightRed = Color(1.0f, 0.5f, 0.5f)
+    val LightGray = Color(0.2f, 0.2f, 0.2f, 1.0f)
 }
 
 object ColorGenerator {

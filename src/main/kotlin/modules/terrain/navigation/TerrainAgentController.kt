@@ -19,6 +19,7 @@ import core.scene.navigation.steering.commands.*
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
+import graphics.assets.surface.bind
 import graphics.rendering.Colors
 import graphics.rendering.Renderer
 import graphics.rendering.gizmos.DrawGizmosEvent
@@ -26,6 +27,9 @@ import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.fauna.AnimalBehaviour
+import modules.fauna.AnimalMaterial
+import modules.fauna.AnimalShader
 import modules.flora.trees.TreeSamplingContainer
 import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
@@ -58,6 +62,9 @@ class TerrainAgentController(
     private lateinit var navMesh: TerrainNavMesh
     private lateinit var navigator: TerrainNavigator
     private lateinit var navRequestExecutor: NavRequestExecutor
+
+    private lateinit var animalMaterial: AnimalMaterial
+    private lateinit var animalShader: AnimalShader
 
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
@@ -105,6 +112,11 @@ class TerrainAgentController(
         navMesh.bake()
         navigator = TerrainNavigator(heightmap, navMesh.grid())
         navRequestExecutor = NavRequestExecutor(navigator)
+
+        animalMaterial = AnimalMaterial()
+        animalShader = AnimalShader()
+        animalShader bind animalMaterial
+        animalShader.setup()
 
         // TODO: replace with real object
         agent = TerrainAgent(Vector3(0f), navMesh.grid())
@@ -161,6 +173,14 @@ class TerrainAgentController(
                     commands
                 )
             )
+            terrainAgent.addComponent(
+                AnimalBehaviour(
+                    terrainAgent,
+                    heightmap,
+                    animalMaterial,
+                    animalShader
+                )
+            )
 
             agents.add(terrainAgent)
             (owner()!! as Object).addChild(terrainAgent)
@@ -179,6 +199,8 @@ class TerrainAgentController(
         navRequestExecutor.dispose()
         sphereDrawer.dispose()
         rayDrawer.dispose()
+
+        animalShader.destroy()
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {

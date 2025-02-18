@@ -12,11 +12,9 @@ import core.scene.navigation.steering.commands.SteeringCommand
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import graphics.rendering.Colors
-import graphics.rendering.Renderer
+import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
-import graphics.rendering.passes.NormalPass
-import graphics.rendering.passes.RenderPass
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
@@ -30,7 +28,7 @@ class TerrainAgentBehaviour(
     private val navigator: NavigatorInterface,
     private val navRequestExecutor: NavRequestExecutor,
     private val initialCommands: List<SteeringCommand> = emptyList()
-) : SteeringBehaviour(), Renderer {
+) : SteeringBehaviour() {
 
     private lateinit var sphereDrawer: SphereDrawer
     private lateinit var rayDrawer: RayDrawer
@@ -68,10 +66,12 @@ class TerrainAgentBehaviour(
         owner()?.addComponent(rayDrawer)
 
         Events.subscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
     }
 
     override fun destroy() {
         Events.unsubscribe<MouseButtonPressedEvent, Any>(::onMouseButtonPressed)
+        Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         commander.clearCommands()
         sphereDrawer.dispose()
@@ -99,13 +99,9 @@ class TerrainAgentBehaviour(
         navGrid.insert(agent)
     }
 
-    override fun render(pass: RenderPass) {
+    private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         if (::sphereDrawer.isInitialized) sphereDrawer.draw()
         if (::rayDrawer.isInitialized) rayDrawer.draw()
-    }
-
-    override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {

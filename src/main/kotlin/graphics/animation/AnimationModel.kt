@@ -72,6 +72,10 @@ class AnimationModel(
         return animations.firstOrNull { it.name == name }
     }
 
+    fun findAnimationByToken(token: String): Animation? {
+        return animations.firstOrNull { it.name.contains(token, true) }
+    }
+
     fun getMeshByName(name: String): Mesh? {
         return meshes.firstOrNull { it.name == name }
     }

@@ -25,8 +25,8 @@ class NavRequestExecutor(private val navigator: NavigatorInterface) : Disposable
     }
 
     override fun dispose() {
-        scheduler.shutdownNow()
         workerPool.shutdownNow()
+        scheduler.shutdownNow()
     }
 
     private fun scheduleQueueProcessing() {

@@ -42,6 +42,7 @@ import platform.services.input.MouseInput
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.random.Random
 
 class TerrainAgentController(
@@ -143,7 +144,8 @@ class TerrainAgentController(
 
         println("NUM AGENT SAMPLING POSITIONS: ${positions.size}")
 
-        val numAgents = positions.size
+        // TODO: move animations to the separate class and remove min restriction
+        val numAgents = min(positions.size, 10)
         for (i in 0..<numAgents) {
             val x = Random.nextFloat() * 2 * PI.toFloat()
             val z = Random.nextFloat() * 2 * PI.toFloat()

@@ -2,10 +2,7 @@ package core.math.helpers
 
 import core.math.Quaternion
 import core.math.Vector3
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 fun lerp(a: Float, b: Float, t: Float): Float {
     return a + t * (b - a)

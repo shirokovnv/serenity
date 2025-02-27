@@ -19,6 +19,7 @@ import core.scene.navigation.steering.commands.*
 import core.scene.raytracing.RayData
 import core.scene.raytracing.RayTracer
 import core.scene.traverse
+import graphics.assets.surface.bind
 import graphics.rendering.Colors
 import graphics.rendering.Renderer
 import graphics.rendering.gizmos.DrawGizmosEvent
@@ -26,9 +27,14 @@ import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
+import modules.fauna.AnimalBehaviour
+import modules.fauna.AnimalMaterial
+import modules.fauna.AnimalShader
+import modules.flora.trees.TreeSamplingContainer
+import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.heightmap.PoissonDiscSampler
-import modules.terrain.heightmap.PoissonDiscSamplerParams
+import modules.terrain.sampling.PoissonDiscSampler
+import modules.terrain.sampling.PoissonDiscSamplerParams
 import modules.terrain.heightmap.binarySearch
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
@@ -56,6 +62,9 @@ class TerrainAgentController(
     private lateinit var navMesh: TerrainNavMesh
     private lateinit var navigator: TerrainNavigator
     private lateinit var navRequestExecutor: NavRequestExecutor
+
+    private lateinit var animalMaterial: AnimalMaterial
+    private lateinit var animalShader: AnimalShader
 
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
@@ -104,6 +113,11 @@ class TerrainAgentController(
         navigator = TerrainNavigator(heightmap, navMesh.grid())
         navRequestExecutor = NavRequestExecutor(navigator)
 
+        animalMaterial = AnimalMaterial()
+        animalShader = AnimalShader()
+        animalShader bind animalMaterial
+        animalShader.setup()
+
         // TODO: replace with real object
         agent = TerrainAgent(Vector3(0f), navMesh.grid())
         owner()!!.addComponent(TerrainNavMeshDrawer(navMesh) { camera.viewProjection })
@@ -113,19 +127,21 @@ class TerrainAgentController(
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         val sampler = PoissonDiscSampler()
-        val positions = sampler.generatePoints(
-            heightmap,
-            PoissonDiscSamplerParams(
-                50f,
-                Vector2(500f, 500f),
-                30,
-                0.0f,
-                1.0f,
-                0.0f
-            )
+        val samplerRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
+        val samplingParams = PoissonDiscSamplerParams(36f, samplerRegionSize, 30)
+        val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 0.8f, 0.3f)
+        val initialPositions = sampler.generatePoints(
+            samplingParams,
+            validator
         )
+        val samplingContainer = TerrainAgentSamplingContainer(initialPositions, samplingParams.radius / 2, samplingParams.radius)
+        println("NUM POINTS: ${initialPositions.size}")
+        samplingContainer.reducePointsByObstacles(
+            Resources.get<TreeSamplingContainer>()!!,
+        )
+        val positions = samplingContainer.points
 
-        println("NUM AGENT POSITIONS: ${positions.size}")
+        println("NUM AGENT SAMPLING POSITIONS: ${positions.size}")
 
         val numAgents = positions.size
         for (i in 0..<numAgents) {
@@ -157,6 +173,14 @@ class TerrainAgentController(
                     commands
                 )
             )
+            terrainAgent.addComponent(
+                AnimalBehaviour(
+                    terrainAgent,
+                    heightmap,
+                    animalMaterial,
+                    animalShader
+                )
+            )
 
             agents.add(terrainAgent)
             (owner()!! as Object).addChild(terrainAgent)
@@ -175,6 +199,8 @@ class TerrainAgentController(
         navRequestExecutor.dispose()
         sphereDrawer.dispose()
         rayDrawer.dispose()
+
+        animalShader.destroy()
     }
 
     private fun onMouseButtonPressed(event: MouseButtonPressedEvent, sender: Any) {

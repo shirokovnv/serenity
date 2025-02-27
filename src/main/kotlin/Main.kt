@@ -109,11 +109,12 @@ class App(settings: ApplicationSettings) : Application(settings) {
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(trees)
 
-        val grass = Grass()
-        scene.attachToRoot(grass)
+        //val grass = Grass()
+        //scene.attachToRoot(grass)
 
         val butterfly = Butterfly()
         butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))
+        //butterfly.getComponent<Transform>()!!.setScale(Vector3(1.01f))
         butterfly.getComponent<Transform>()!!.setRotation(Vector3(0f, 0f, 90f.toRadians()))
         scene.attachToRoot(butterfly)
 
@@ -126,8 +127,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-        val ocean = Ocean(oceanParams, true)
-        ocean.getComponent<Transform>()!!.setScale(worldScale)
+//        val ocean = Ocean(oceanParams, true)
+//        ocean.getComponent<Transform>()!!.setScale(worldScale)
+//        scene.attachToRoot(ocean)
 
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
@@ -140,7 +142,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
             heightmap,
             camera,
             5.0f,
-            0.5f
+            0.35f
         )
         terrainNavMesh.addComponent(terrainAgentController)
         scene.attachToRoot(terrainNavMesh)

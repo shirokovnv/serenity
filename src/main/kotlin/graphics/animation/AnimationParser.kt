@@ -3,8 +3,10 @@ package graphics.animation
 import core.math.Matrix4
 import core.math.Quaternion
 import core.math.Vector3
+import graphics.rendering.Color
 import org.lwjgl.BufferUtils
 import org.lwjgl.assimp.*
+import org.lwjgl.assimp.Assimp.*
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import kotlin.math.min
@@ -21,19 +23,20 @@ class AnimationParser {
         numMeshes: Int = maxNumMeshes,
         numAnimations: Int = maxNumAnimations
     ): AnimationModel {
-        val scene = Assimp.aiImportFileFromMemory(
+        val scene = aiImportFileFromMemory(
             buffer,
-            Assimp.aiProcess_Triangulate
-                    or Assimp.aiProcess_FlipUVs
-                    or Assimp.aiProcess_GenSmoothNormals
-                    or Assimp.aiProcess_JoinIdenticalVertices
-                    or Assimp.aiProcess_CalcTangentSpace
-                    or Assimp.aiProcess_LimitBoneWeights,
+            aiProcess_Triangulate
+                    or aiProcess_FlipUVs
+                    or aiProcess_GenSmoothNormals
+                    or aiProcess_JoinIdenticalVertices
+                    or aiProcess_CalcTangentSpace
+                    or aiProcess_LimitBoneWeights,
             null as ByteBuffer?
-        ) ?: throw RuntimeException("Error parsing model: ${Assimp.aiGetErrorString()}")
+        ) ?: throw RuntimeException("Error parsing model: ${aiGetErrorString()}")
 
         val animations = parseAnimations(scene, numAnimations)
         val meshes = parseMeshes(scene, numMeshes)
+        val materials = parseMaterials(scene, numMeshes)
 
         val aiRoot = scene.mRootNode()!!
         val root = Node(aiRoot.mName().dataString(), convertAiMatrixToMatrix4(aiRoot.mTransformation()))
@@ -41,13 +44,14 @@ class AnimationParser {
 
         val globalInverseTransform = convertAiMatrixToMatrix4(aiRoot.mTransformation()).invert()
 
-        Assimp.aiReleaseImport(scene)
+        aiReleaseImport(scene)
 
         return AnimationModel(
             root,
             globalInverseTransform,
             animations,
-            meshes
+            meshes,
+            materials
         )
     }
 
@@ -66,7 +70,6 @@ class AnimationParser {
     }
 
     private fun parseBones(mesh: AIMesh, vertexArray: FloatArray): Array<Bone> {
-        val boneMap = HashMap<String, Int>()
         val boneIndexMap0 = HashMap<Int, Int>()
         val boneIndexMap1 = HashMap<Int, Int>()
 
@@ -77,10 +80,13 @@ class AnimationParser {
 
         println("NUM BONES: $numBones")
 
+        val bones = Array(numBones) { Bone() }
         for (b in 0..<numBones) {
             val bonePtr = mesh.mBones()!![b]
             val bone = AIBone.create(bonePtr)
-            boneMap[bone.mName().dataString()] = b
+
+            bones[b].name = bone.mName().dataString()
+            bones[b].offset = convertAiMatrixToMatrix4(bone.mOffsetMatrix())
 
             for (w in 0..<bone.mNumWeights()) {
                 val weight = bone.mWeights()[w]
@@ -109,16 +115,43 @@ class AnimationParser {
             }
         }
 
-        val bones = Array(mesh.mNumBones()) { Bone() }
-
-        for (b in 0..<mesh.mNumBones()) {
-            val bonePtr = mesh.mBones()?.get(b)!!
-            val bone = AIBone.create(bonePtr)
-
-            bones[b].name = bone.mName().dataString()
-            bones[b].offset = convertAiMatrixToMatrix4(bone.mOffsetMatrix())
-        }
         return bones
+    }
+
+    private fun parseMaterials(scene: AIScene, limit: Int): MutableList<MtlData> {
+        val numMaterials = min(scene.mNumMaterials(), limit)
+        val materials = mutableListOf<MtlData>()
+
+        println("NUM MATERIALS: $numMaterials")
+
+        for (m in 0..<numMaterials) {
+            val mtlPtr = scene.mMaterials()!!.get(m)
+            val mtl = AIMaterial.create(mtlPtr)
+
+            val diffuseColor = getMaterialColorProperty(mtl, MtlColorKey.DIFFUSE)
+            val specularColor = getMaterialColorProperty(mtl, MtlColorKey.SPECULAR)
+            val emissiveColor = getMaterialColorProperty(mtl, MtlColorKey.EMISSIVE)
+            val ambientColor = getMaterialColorProperty(mtl, MtlColorKey.AMBIENT)
+
+            val opacity = getMaterialFloatProperty(mtl, MtlKey.OPACITY)
+            val shininess = getMaterialFloatProperty(mtl, MtlKey.SHININESS)
+            val shininessStrength = getMaterialFloatProperty(mtl, MtlKey.SHININESS_STRENGTH)
+
+            val mtlData = MtlData(
+                m,
+                diffuseColor,
+                ambientColor,
+                specularColor,
+                emissiveColor,
+                shininess,
+                shininessStrength,
+                opacity
+            )
+
+            materials.add(mtlData)
+        }
+
+        return materials
     }
 
     private fun parseMeshes(scene: AIScene, limit: Int): MutableList<Mesh> {
@@ -137,12 +170,13 @@ class AnimationParser {
 
             val vertexArray = FloatArray(mesh.mNumVertices() * vertexSize)
             var index = 0
+            val defaultVector3d = AIVector3D.create()
 
             for (v in 0..<mesh.mNumVertices()) {
                 val position = mesh.mVertices()[v]
-                val normal = mesh.mNormals()!![v]
-                val tangent = mesh.mTangents()!![v]
-                val texCoord = mesh.mTextureCoords(0)!![v]
+                val normal = mesh.mNormals()?.get(v) ?: defaultVector3d
+                val tangent = mesh.mTangents()?.get(v) ?: defaultVector3d
+                val texCoord = mesh.mTextureCoords(0)?.get(v) ?: defaultVector3d
 
                 vertexArray[index++] = position.x()
                 vertexArray[index++] = position.y()
@@ -188,7 +222,9 @@ class AnimationParser {
             }
             vertices.flip()
 
-            meshes.add(Mesh(meshName, vertices, indices, bones))
+            val mtlIndex = mesh.mMaterialIndex()
+
+            meshes.add(Mesh(meshName, vertices, indices, bones, mtlIndex))
         }
 
         return meshes
@@ -244,6 +280,29 @@ class AnimationParser {
         }
 
         return animations
+    }
+
+    private fun getMaterialColorProperty(material: AIMaterial, key: MtlColorKey): Color {
+        val aiColor4D = AIColor4D.create()
+        val result = aiGetMaterialColor(material, key.value, 0, 0, aiColor4D)
+
+        return if (result == aiReturn_SUCCESS) Color(aiColor4D.r(), aiColor4D.g(), aiColor4D.b(), aiColor4D.a())
+        else Color(1f, 1f, 1f, 1f)
+    }
+
+    private fun getMaterialFloatProperty(material: AIMaterial, key: MtlKey): Float {
+        val floatArray = FloatArray(1) { 0.0f }
+        val intArray = IntArray(1) { 1 }
+        val result = aiGetMaterialFloatArray(
+            material,
+            key.value,
+            0,
+            0,
+            floatArray,
+            intArray
+        )
+
+        return if (result == aiReturn_SUCCESS) floatArray[0] else 0.0f
     }
 
     private fun convertAiMatrixToMatrix4(matrix: AIMatrix4x4): Matrix4 {

@@ -9,7 +9,8 @@ out vec4 FragColor;
 uniform vec3 sunVector;
 uniform vec3 sunColor;
 uniform float sunIntensity;
-uniform sampler2D diffuseTexture;
+uniform vec4 diffuseColor;
+uniform bool isShadowPass = false;
 
 // TODO: separate
 float diffuse(vec3 direction, vec3 normal, float intensity)
@@ -19,9 +20,13 @@ float diffuse(vec3 direction, vec3 normal, float intensity)
 
 void main()
 {
+    if (isShadowPass) {
+        return;
+    }
+
     float diffuseFactor = 10.0f;
-    vec4 totalColor = texture(diffuseTexture, TexCoords);
-    totalColor *= diffuse(-sunVector, Normal, sunIntensity * diffuseFactor);
+    vec4 totalColor = diffuseColor;
+    totalColor *= diffuse(-sunVector, normalize(Normal), sunIntensity * diffuseFactor);
     totalColor *= vec4(sunColor, 1);
 
     FragColor = totalColor;

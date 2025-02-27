@@ -25,9 +25,10 @@ import graphics.rendering.Colors
 import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
 import modules.light.SunLightManager
+import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.heightmap.PoissonDiscSampler
-import modules.terrain.heightmap.PoissonDiscSamplerParams
+import modules.terrain.sampling.PoissonDiscSampler
+import modules.terrain.sampling.PoissonDiscSamplerParams
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
@@ -81,18 +82,17 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             models.add(model)
         }
 
-        val points = sampler.generatePoints(
-            heightmap, PoissonDiscSamplerParams(
-                50f,
-                sampleRegionSize,
-                30,
-                0.2f,
-                0.9f,
-                0.3f
-            )
-        )
+        val samplingParams = PoissonDiscSamplerParams(75f, sampleRegionSize, 30)
+        val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 0.9f, 0.3f)
 
-        println("NUM SAMPLING POINTS: ${points.size}")
+        val points = sampler.generatePoints(
+            samplingParams,
+            validator
+        )
+        val treeSamplingContainer = TreeSamplingContainer(points, samplingParams.radius / 2, samplingParams.radius)
+        Resources.put<TreeSamplingContainer>(treeSamplingContainer)
+
+        println("NUM TREE SAMPLING POINTS: ${points.size}")
 
         for (p in points) {
             val transform = Transform()

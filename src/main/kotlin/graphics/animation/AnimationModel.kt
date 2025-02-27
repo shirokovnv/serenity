@@ -13,7 +13,8 @@ class AnimationModel(
     private val root: Node,
     private val globalInverseTransform: Matrix4,
     private val animations: List<Animation>,
-    private val meshes: List<Mesh>
+    private val meshes: List<Mesh>,
+    private val materials: List<MtlData>
 ) : Drawable, Disposable {
     private var animationTime: Float = 0f
     private var currentAnimation: Animation? = null
@@ -71,8 +72,23 @@ class AnimationModel(
         return animations.firstOrNull { it.name == name }
     }
 
+    fun findAnimationByToken(token: String): Animation? {
+        return animations.firstOrNull { it.name.contains(token, true) }
+    }
+
     fun getMeshByName(name: String): Mesh? {
         return meshes.firstOrNull { it.name == name }
+    }
+
+    fun meshes(): List<Mesh> = meshes
+
+    fun materials(): List<MtlData> = materials
+
+    fun getMaterialByIndex(index: Int): MtlData? {
+        if (index < 0 || index > materials.size) {
+            return null
+        }
+        return materials[index]
     }
 
     fun update(deltaTime: Float) {
@@ -87,10 +103,10 @@ class AnimationModel(
             // animationTime = 0f
         }
 
-        boneTransforms(currentAnimation!!, currentMesh!!, animationTime)
+        boneTransforms(currentAnimation!!, animationTime)
     }
 
-    private fun boneTransforms(animation: Animation, mesh: Mesh, timeInSeconds: Float) {
+    private fun boneTransforms(animation: Animation, timeInSeconds: Float) {
         val ticksPerSecond = if (animation.ticksPerSecond != 0.0) {
             animation.ticksPerSecond.toFloat()
         } else {
@@ -100,10 +116,12 @@ class AnimationModel(
         val timeInTicks = timeInSeconds * ticksPerSecond
         val animationTime = timeInTicks % animation.duration.toFloat()
 
-        readNodeHierarchy(animationTime, root, animation, mesh, identity)
+        readNodeHierarchy(animationTime, root, animation, identity)
 
-        for (i in mesh.bones.indices) {
-            mesh.boneTransforms[i] = mesh.bones[i].transform
+        meshes.forEach { mesh ->
+            for (i in mesh.bones.indices) {
+                mesh.boneTransforms[i] = mesh.bones[i].transform
+            }
         }
     }
 
@@ -111,7 +129,6 @@ class AnimationModel(
         time: Float,
         node: Node,
         animation: Animation,
-        mesh: Mesh,
         parentTransform: Matrix4
     ) {
         var nodeTransform = node.transform
@@ -127,13 +144,15 @@ class AnimationModel(
 
         val globalTransform = parentTransform * nodeTransform
 
-        val bone: Bone? = mesh.findBone(node.name)
-        if (bone != null) {
-            bone.transform = globalInverseTransform * globalTransform * bone.offset
+        meshes.forEach { mesh ->
+            val bone: Bone? = mesh.findBone(node.name)
+            if (bone != null) {
+                bone.transform = globalInverseTransform * globalTransform * bone.offset
+            }
         }
 
         for (i in 0..<node.children.size) {
-            readNodeHierarchy(time, node.children[i], animation, mesh, globalTransform)
+            readNodeHierarchy(time, node.children[i], animation, globalTransform)
         }
     }
 
@@ -234,8 +253,6 @@ class AnimationModel(
     }
 
     private fun calculateTransform(rotation: Quaternion, scale: Vector3, position: Vector3): Matrix4 {
-        val matrix = Matrix4().identity()
-
         val x = rotation.x
         val y = rotation.y
         val z = rotation.z
@@ -251,20 +268,27 @@ class AnimationModel(
         val yw = y * w
         val zw = z * w
 
-        matrix[0, 0] = (1 - 2 * (y2 + z2)) * scale.x
-        matrix[0, 1] = 2 * (xy - zw)
-        matrix[0, 2] = 2 * (xz + yw)
-        matrix[1, 0] = 2 * (xy + zw)
-        matrix[1, 1] = (1 - 2 * (x2 + z2)) * scale.y
-        matrix[1, 2] = 2 * (yz - xw)
-        matrix[2, 0] = 2 * (xz - yw)
-        matrix[2, 1] = 2 * (yz + xw)
-        matrix[2, 2] = (1 - 2 * (x2 + y2)) * scale.z
+        val tM = Matrix4().identity()
+        tM[0, 3] = position.x
+        tM[1, 3] = position.y
+        tM[2, 3] = position.z
 
-        matrix[0, 3] = position.x
-        matrix[1, 3] = position.y
-        matrix[2, 3] = position.z
+        val rM = Matrix4().identity()
+        rM[0, 0] = (1 - 2 * (y2 + z2))
+        rM[0, 1] = 2 * (xy - zw)
+        rM[0, 2] = 2 * (xz + yw)
+        rM[1, 0] = 2 * (xy + zw)
+        rM[1, 1] = (1 - 2 * (x2 + z2))
+        rM[1, 2] = 2 * (yz - xw)
+        rM[2, 0] = 2 * (xz - yw)
+        rM[2, 1] = 2 * (yz + xw)
+        rM[2, 2] = (1 - 2 * (x2 + y2))
 
-        return matrix
+        val sM = Matrix4().identity()
+        sM[0, 0] = scale.x
+        sM[1, 1] = scale.y
+        sM[2, 2] = scale.z
+
+        return tM * rM * sM
     }
 }

@@ -1,27 +1,13 @@
-package modules.terrain.heightmap
+package modules.terrain.sampling
 
 import core.math.Vector2
-import core.math.Vector3
 import kotlin.math.*
 import kotlin.random.Random
 
-data class PoissonDiscSamplerParams(
-    val radius: Float,
-    val sampleRegionSize: Vector2,
-    val numSamplesBeforeRejection: Int = 30,
-    val minHeight: Float = 0.0f,
-    val maxHeight: Float = 1.0f,
-    val maxSlope: Float = 0.7f
-)
-
 class PoissonDiscSampler {
-    companion object {
-        private val upVector = Vector3(0f, 1f, 0f)
-    }
-
     fun generatePoints(
-        heightmap: Heightmap,
-        params: PoissonDiscSamplerParams
+        params: PoissonDiscSamplerParams,
+        validator: SamplingValidatorInterface
     ): List<Vector2> {
         val cellSize = params.radius / sqrt(2f)
 
@@ -44,7 +30,7 @@ class PoissonDiscSampler {
                 val dir = Vector2(sin(angle).toFloat(), cos(angle).toFloat())
                 val candidate = spawnCentre + dir * Random.nextFloat() * (params.radius + params.radius)
 
-                if (isValid(candidate, params, heightmap, cellSize, points, grid)) {
+                if (isValid(candidate, params, validator, cellSize, points, grid)) {
                     points.add(candidate)
                     spawnPoints.add(candidate)
                     grid[(candidate.x / cellSize).toInt()][(candidate.y / cellSize).toInt()] = points.size
@@ -64,7 +50,7 @@ class PoissonDiscSampler {
     private fun isValid(
         candidate: Vector2,
         params: PoissonDiscSamplerParams,
-        heightmap: Heightmap,
+        validator: SamplingValidatorInterface,
         cellSize: Float,
         points: List<Vector2>,
         grid: Array<IntArray>
@@ -74,19 +60,7 @@ class PoissonDiscSampler {
             && candidate.y >= 0
             && candidate.y < params.sampleRegionSize.y
         ) {
-            val worldX = candidate.x - heightmap.worldOffset().x
-            val worldY = candidate.y - heightmap.worldOffset().z
-
-            val height = heightmap.getInterpolatedHeight(worldX, worldY)
-
-            if (height < params.minHeight || height > params.maxHeight) {
-                return false
-            }
-
-            val normal = heightmap.getInterpolatedNormal(worldX, worldY)
-            val slope = normal.dot(upVector)
-
-            if(slope < params.maxSlope){
+            if (!validator.validate(candidate)) {
                 return false
             }
 

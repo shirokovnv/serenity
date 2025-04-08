@@ -10,10 +10,6 @@ import platform.services.input.WindowResizedEvent
 object NormalPass : BaseRenderPass(), Disposable {
     override val name = "NORMAL_PASS"
 
-    init {
-        Events.subscribe<WindowResizedEvent, Any>(::onWindowResize)
-    }
-
     override fun onStart() {
         if (PostProcessor.countEffects() > 0) {
             fbo.bind()

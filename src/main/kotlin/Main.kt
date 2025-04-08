@@ -127,9 +127,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-        val ocean = Ocean(oceanParams, true)
-        ocean.getComponent<Transform>()!!.setScale(worldScale)
-        scene.attachToRoot(ocean)
+//        val ocean = Ocean(oceanParams, true)
+//        ocean.getComponent<Transform>()!!.setScale(worldScale)
+//        scene.attachToRoot(ocean)
 
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 

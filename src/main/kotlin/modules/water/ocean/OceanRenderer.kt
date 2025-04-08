@@ -1,4 +1,4 @@
-package modules.ocean
+package modules.water.ocean
 
 import core.ecs.Behaviour
 import core.management.Resources
@@ -15,7 +15,7 @@ import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
-import modules.ocean.shaders.OceanFftShader
+import modules.water.ocean.shaders.OceanFftShader
 import org.lwjgl.glfw.GLFW.glfwGetTime
 import org.lwjgl.opengl.*
 import kotlin.math.ceil

@@ -18,8 +18,8 @@ import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare
-import modules.ocean.Ocean
-import modules.ocean.OceanParams
+import modules.water.ocean.Ocean
+import modules.water.ocean.OceanParams
 import modules.sky.SkyDome
 import modules.sky.SkyDomeParams
 import modules.terrain.heightmap.*
@@ -127,9 +127,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
             0.5f
         )
 
-//        val ocean = Ocean(oceanParams, true)
-//        ocean.getComponent<Transform>()!!.setScale(worldScale)
-//        scene.attachToRoot(ocean)
+        val ocean = Ocean(oceanParams, true)
+        ocean.getComponent<Transform>()!!.setScale(worldScale)
+        scene.attachToRoot(ocean)
 
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 

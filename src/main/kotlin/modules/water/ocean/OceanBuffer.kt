@@ -1,4 +1,4 @@
-package modules.ocean
+package modules.water.ocean
 
 import graphics.assets.Asset
 import graphics.rendering.Drawable

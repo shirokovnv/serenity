@@ -1,9 +1,9 @@
-package modules.ocean.shaders
+package modules.water.ocean.shaders
 
 import core.management.Resources
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
-import modules.ocean.OceanShader
+import modules.water.ocean.OceanShader
 import org.lwjgl.opengl.GL43.*
 import platform.services.filesystem.FileLoader
 
@@ -12,12 +12,12 @@ class OceanMeshShader: OceanShader() {
         val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.loadAsString("shaders/ocean/Mesh_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/water/ocean/Mesh_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/ocean/Mesh_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/water/ocean/Mesh_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

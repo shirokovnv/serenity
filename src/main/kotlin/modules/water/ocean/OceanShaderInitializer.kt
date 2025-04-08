@@ -1,7 +1,7 @@
-package modules.ocean
+package modules.water.ocean
 
 import core.management.Disposable
-import modules.ocean.shaders.*
+import modules.water.ocean.shaders.*
 
 class OceanShaderInitializer(private val material: OceanMaterial): Disposable {
     lateinit var meshShader: OceanMeshShader private set

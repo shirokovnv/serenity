@@ -1,4 +1,4 @@
-package modules.ocean
+package modules.water.ocean
 
 import core.management.Disposable
 import graphics.assets.texture.Texture2d

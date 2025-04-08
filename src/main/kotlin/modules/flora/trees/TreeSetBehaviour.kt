@@ -3,10 +3,7 @@ package modules.flora.trees
 import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
-import core.math.IntersectionDetector
-import core.math.Matrix4
-import core.math.Vector2
-import core.math.Vector3
+import core.math.*
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
@@ -24,11 +21,15 @@ import graphics.model.ModelShader
 import graphics.rendering.Colors
 import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
+import graphics.rendering.passes.ReflectionPass
+import graphics.rendering.passes.RefractionPass
+import graphics.rendering.passes.RenderPass
 import modules.light.SunLightManager
 import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.sampling.PoissonDiscSampler
 import modules.terrain.sampling.PoissonDiscSamplerParams
+import modules.water.plane.WaterPlaneConstants
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
@@ -51,6 +52,14 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
     private val orthoProjectionProvider: Matrix4
         get() = Resources.get<OrthographicCamera>()!!.projection
+
+    private val clipPlanes: Map<RenderPass, Quaternion>
+        get() {
+            return mapOf(
+                RefractionPass to Quaternion(0f, -1f, 0f, WaterPlaneConstants.DEFAULT_WORLD_HEIGHT),
+                ReflectionPass to Quaternion(0f, 1f, 0f, -WaterPlaneConstants.DEFAULT_WORLD_HEIGHT + 1.0f)
+            )
+        }
 
     override fun create() {
         val objLoader = Resources.get<ObjLoader>()!!
@@ -133,6 +142,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             models,
             material,
             shader,
+            clipPlanes,
             { viewProjectionProvider },
             { orthoProjectionProvider },
             { lightViewProvider }

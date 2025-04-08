@@ -29,7 +29,7 @@ class GodraysPPEffect(
 
         material.lightScreenPosition = lightScreenPositionProvider()
         material.firstPass = inputImage
-        material.secondPass = PostProcPass.getColorTexture()
+        material.secondPass = PostProcPass.fbo().getColorTexture()
         shader.bind()
         shader.updateUniforms()
         screenQuad.draw()

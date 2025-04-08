@@ -27,6 +27,7 @@ import modules.terrain.navigation.TerrainAgentController
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import modules.water.plane.WaterPlane
+import modules.water.plane.WaterPlaneParams
 import platform.Application
 import platform.ApplicationSettings
 import kotlin.math.max
@@ -133,7 +134,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
 //        scene.attachToRoot(ocean)
 
         // Water plane
-        val waterPlane = WaterPlane(20.0f)
+        val waterPlane = WaterPlane(WaterPlaneParams())
         waterPlane.getComponent<Transform>()!!
             .setScale(
                 Vector3(

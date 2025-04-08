@@ -23,6 +23,7 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
 
         linkAndValidate()
 
+        addUniform("m_WorldMatrix")
         addUniform("m_WorldViewProjection")
         addUniform("isInstanced")
         addUniform("ambientMap")
@@ -41,6 +42,7 @@ class ModelShader: BaseShader<ModelShader, ModelMaterial>() {
     }
 
     override fun updateUniforms() {
+        setUniform("m_WorldMatrix", shaderMaterial!!.worldMatrix)
         setUniform("m_WorldViewProjection", shaderMaterial!!.worldViewProjection)
         setUniformi("isInstanced", if (shaderMaterial!!.isInstanced) 1 else 0)
         setUniformf("alphaThreshold", shaderMaterial!!.alphaThreshold)

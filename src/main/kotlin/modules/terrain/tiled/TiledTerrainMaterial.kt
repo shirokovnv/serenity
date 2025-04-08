@@ -1,6 +1,7 @@
 package modules.terrain.tiled
 
 import core.math.Matrix4
+import core.math.Quaternion
 import graphics.assets.surface.BaseMaterial
 import graphics.assets.texture.Texture2d
 import modules.terrain.heightmap.Heightmap
@@ -25,6 +26,7 @@ class TiledTerrainMaterial : BaseMaterial<TiledTerrainMaterial, TiledTerrainShad
     lateinit var view: Matrix4
     lateinit var viewProjection: Matrix4
     lateinit var lightViewProjection: Matrix4
+    lateinit var clipPlane: Quaternion
     var gridScale by Delegates.notNull<Float>()
     lateinit var heightmap: Heightmap
     lateinit var normalmap: Texture2d

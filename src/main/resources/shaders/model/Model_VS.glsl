@@ -5,6 +5,8 @@ layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 uvs;
 layout (location = 3) in mat4 instance;
 
+uniform vec4 clipPlane;
+uniform mat4 m_WorldMatrix;
 uniform mat4 m_WorldViewProjection = mat4(1.0);
 uniform bool isInstanced = false;
 
@@ -23,4 +25,6 @@ void main() {
     gl_Position = m_WorldViewProjection * localPosition;
     fragment.normal = normal;
     fragment.uv = uvs;
+
+    gl_ClipDistance[0] = dot(m_WorldMatrix * localPosition, clipPlane);
 }

@@ -23,6 +23,6 @@ object PostProcPass : BaseRenderPass(), Disposable {
         }
         fbo.unbind()
 
-        PostProcessor.process(NormalPass.getColorTexture())
+        PostProcessor.process(NormalPass.fbo().getColorTexture())
     }
 }

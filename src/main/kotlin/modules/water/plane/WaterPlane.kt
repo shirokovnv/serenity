@@ -2,8 +2,8 @@ package modules.water.plane
 
 import core.scene.Object
 
-class WaterPlane(worldHeight: Float = 0.0f) : Object() {
+class WaterPlane(params: WaterPlaneParams) : Object() {
     init {
-        addComponent(WaterPlaneRenderer(worldHeight))
+        addComponent(WaterPlaneRenderer(params))
     }
 }

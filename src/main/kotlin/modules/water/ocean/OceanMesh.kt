@@ -1,4 +1,4 @@
-package modules.ocean
+package modules.water.ocean
 
 import core.math.Vector2
 import core.math.Vector3

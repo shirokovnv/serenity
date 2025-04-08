@@ -5,13 +5,12 @@ import core.management.Disposable
 import core.management.Resources
 import graphics.assets.buffer.DepthBufferType
 import graphics.assets.buffer.Fbo
-import graphics.assets.texture.Texture2d
 import graphics.rendering.viewport.ViewportInterface
 import platform.services.input.WindowResizedEvent
 
 abstract class BaseRenderPass : RenderPass, Disposable {
     protected var viewport: ViewportInterface = Resources.get<ViewportInterface>()!!
-    protected var fbo: Fbo = Fbo(viewport.getWidth(), viewport.getHeight(), DepthBufferType.DEPTH_RENDER_BUFFER)
+    protected var fbo: Fbo = initFbo()
 
     protected var width: Int = viewport.getWidth()
     protected var height: Int = viewport.getHeight()
@@ -42,10 +41,14 @@ abstract class BaseRenderPass : RenderPass, Disposable {
         fbo.destroy()
     }
 
-    fun getColorTexture(): Texture2d = fbo.getColorTexture()
+    fun fbo(): Fbo = fbo
 
     abstract fun onStart()
     abstract fun onFinish()
+
+    protected open fun initFbo(): Fbo {
+        return Fbo(viewport.getWidth(), viewport.getHeight(), DepthBufferType.DEPTH_RENDER_BUFFER)
+    }
 
     private fun processResizing() {
         if (isResized) {

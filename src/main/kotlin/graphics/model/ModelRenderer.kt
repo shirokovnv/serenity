@@ -2,20 +2,24 @@ package graphics.model
 
 import core.ecs.BaseComponent
 import core.math.Matrix4
+import core.math.Quaternion
 import core.scene.Object
 import graphics.rendering.Renderer
-import graphics.rendering.passes.NormalPass
-import graphics.rendering.passes.RenderPass
-import graphics.rendering.passes.ShadowPass
+import graphics.rendering.passes.*
 
 class ModelRenderer(
     private val models: List<Model>,
     private val material: ModelMaterial,
     private val shader: ModelShader,
+    private val clipPlanes: Map<RenderPass, Quaternion>,
     private val viewProjectionProvider: (() -> Matrix4)?,
     private val orthoProjectionProvider: (() -> Matrix4)?,
     private val lightViewProvider: (() -> Matrix4)?
 ): BaseComponent(), Renderer {
+
+    companion object {
+        private val supportedPasses = listOf(NormalPass, ShadowPass, ReflectionPass, RefractionPass)
+    }
 
     private val viewProjection: Matrix4
         get() = viewProjectionProvider?.invoke() ?: Matrix4()
@@ -36,15 +40,18 @@ class ModelRenderer(
         get() = orthoProjection * lightView * worldMatrix
 
     override fun render(pass: RenderPass) {
+        material.clipPlane = clipPlanes[pass] ?: Quaternion(0f, -1f, 0f, 10000f)
+
         shader.bind()
         models.forEach { model ->
             val mtlNames = model.getMaterialNames()
             mtlNames.forEach { mtlName ->
                 material.mtlData = model.getMtlDataByName(mtlName)
 
-                when(pass) {
-                    NormalPass -> material.worldViewProjection = worldViewProjection
-                    ShadowPass -> material.worldViewProjection = worldLightViewProjection
+                material.worldMatrix = worldMatrix
+                material.worldViewProjection = when(pass) {
+                    ShadowPass -> worldLightViewProjection
+                    else -> worldViewProjection
                 }
 
                 material.isInstanced = model.isInstanced()
@@ -57,6 +64,6 @@ class ModelRenderer(
     }
 
     override fun supportsRenderPass(pass: RenderPass): Boolean {
-        return pass == NormalPass || pass == ShadowPass
+        return pass in supportedPasses
     }
 }

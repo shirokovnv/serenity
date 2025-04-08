@@ -11,6 +11,7 @@ uniform sampler2D heightmap;
 uniform sampler2D normalmap;
 uniform sampler2D blendmap;
 uniform vec3 cameraPosition;
+uniform vec4 clipPlane;
 uniform float tbnRange;
 
 in vec2 mapCoord_GS[];
@@ -120,6 +121,7 @@ void main() {
             tangent_FS = tangent;
 
             gl_Position = m_ViewProjection * position;
+            gl_ClipDistance[0] = dot(position, clipPlane);
 
             EmitVertex();
         }

@@ -18,14 +18,16 @@ import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare
-import modules.ocean.Ocean
-import modules.ocean.OceanParams
+import modules.water.ocean.Ocean
+import modules.water.ocean.OceanParams
 import modules.sky.SkyDome
 import modules.sky.SkyDomeParams
 import modules.terrain.heightmap.*
 import modules.terrain.navigation.TerrainAgentController
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
+import modules.water.plane.WaterPlane
+import modules.water.plane.WaterPlaneParams
 import platform.Application
 import platform.ApplicationSettings
 import kotlin.math.max
@@ -131,6 +133,21 @@ class App(settings: ApplicationSettings) : Application(settings) {
 //        ocean.getComponent<Transform>()!!.setScale(worldScale)
 //        scene.attachToRoot(ocean)
 
+        // Water plane
+        val waterPlane = WaterPlane(WaterPlaneParams())
+        waterPlane.getComponent<Transform>()!!
+            .setScale(
+                Vector3(
+                worldScale.x,
+                1.0f,
+                worldScale.z
+            )
+            )
+        waterPlane.getComponent<Transform>()!!
+            .setTranslation(worldOffset)
+        scene.attachToRoot(waterPlane)
+
+        // SkyDome
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()

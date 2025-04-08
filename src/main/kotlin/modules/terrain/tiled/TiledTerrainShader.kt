@@ -59,6 +59,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         addUniform("m_ViewProjection")
         addUniform("m_LightViewProjection")
         addUniform("cameraPosition")
+        addUniform("clipPlane")
         addUniform("gridScale")
         addUniform("heightmap")
         addUniform("normalmap")
@@ -91,6 +92,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniform("m_ViewProjection", shaderMaterial!!.viewProjection)
         setUniform("m_LightViewProjection", shaderMaterial!!.lightViewProjection)
         setUniform("cameraPosition", Resources.get<Camera>()!!.position())
+        setUniform("clipPlane", shaderMaterial!!.clipPlane)
         setUniformf("gridScale", shaderMaterial!!.gridScale)
         setUniformi("renderInBlack", if (shaderMaterial!!.renderInBlack) 1 else 0)
 

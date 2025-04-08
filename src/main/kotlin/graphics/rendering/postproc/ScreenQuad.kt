@@ -6,8 +6,6 @@ import graphics.rendering.Drawable
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL43.*
 
-typealias ScreenQuadProvider = () -> ScreenQuad
-
 class ScreenQuad : Drawable, Disposable {
     companion object {
         private val VERTICES = floatArrayOf(

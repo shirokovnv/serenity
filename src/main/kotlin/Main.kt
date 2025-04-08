@@ -26,6 +26,7 @@ import modules.terrain.heightmap.*
 import modules.terrain.navigation.TerrainAgentController
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
+import modules.water.plane.WaterPlane
 import platform.Application
 import platform.ApplicationSettings
 import kotlin.math.max
@@ -131,6 +132,21 @@ class App(settings: ApplicationSettings) : Application(settings) {
 //        ocean.getComponent<Transform>()!!.setScale(worldScale)
 //        scene.attachToRoot(ocean)
 
+        // Water plane
+        val waterPlane = WaterPlane(20.0f)
+        waterPlane.getComponent<Transform>()!!
+            .setScale(
+                Vector3(
+                worldScale.x,
+                1.0f,
+                worldScale.z
+            )
+            )
+        waterPlane.getComponent<Transform>()!!
+            .setTranslation(worldOffset)
+        scene.attachToRoot(waterPlane)
+
+        // SkyDome
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
 
         val lensFlare = LensFlare()

@@ -9,10 +9,6 @@ import platform.services.input.WindowResizedEvent
 object PostProcPass : BaseRenderPass(), Disposable {
     override val name = "POST_PROCESSING_PASS"
 
-    init {
-        Events.subscribe<WindowResizedEvent, Any>(::onWindowResize)
-    }
-
     override fun onStart() {
         if (PostProcessor.countEffects() == 0) {
             return

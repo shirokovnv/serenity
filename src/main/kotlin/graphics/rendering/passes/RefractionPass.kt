@@ -1,11 +1,13 @@
 package graphics.rendering.passes
 
-object RefractionPass : RenderPass {
+object RefractionPass : BaseRenderPass() {
     override val name = "REFRACTION_PASS"
 
-    override fun start() {
+    override fun onStart() {
+
     }
 
-    override fun finish() {
+    override fun onFinish() {
+
     }
 }

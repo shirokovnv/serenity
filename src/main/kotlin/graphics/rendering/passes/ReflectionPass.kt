@@ -1,11 +1,13 @@
 package graphics.rendering.passes
 
-object ReflectionPass : RenderPass {
+object ReflectionPass : BaseRenderPass() {
     override val name = "REFLECTION_PASS"
 
-    override fun start() {
+    override fun onStart() {
+
     }
 
-    override fun finish() {
+    override fun onFinish() {
+
     }
 }

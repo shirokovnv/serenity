@@ -1,10 +1,8 @@
 package graphics.rendering.passes
 
-import core.events.Events
 import core.management.Disposable
 import graphics.rendering.postproc.PostProcessor
 import org.lwjgl.opengl.GL43
-import platform.services.input.WindowResizedEvent
 
 object PostProcPass : BaseRenderPass(), Disposable {
     override val name = "POST_PROCESSING_PASS"

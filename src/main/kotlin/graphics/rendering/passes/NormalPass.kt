@@ -1,11 +1,9 @@
 package graphics.rendering.passes
 
-import core.events.Events
 import core.management.Disposable
 import graphics.rendering.context.RenderContext
 import graphics.rendering.postproc.PostProcessor
 import org.lwjgl.opengl.GL43.*
-import platform.services.input.WindowResizedEvent
 
 object NormalPass : BaseRenderPass(), Disposable {
     override val name = "NORMAL_PASS"
@@ -25,11 +23,5 @@ object NormalPass : BaseRenderPass(), Disposable {
         if (PostProcessor.countEffects() > 0) {
             fbo.unbind()
         }
-    }
-
-    override fun dispose() {
-        Events.unsubscribe<WindowResizedEvent, Any>(::onWindowResize)
-
-        fbo.destroy()
     }
 }

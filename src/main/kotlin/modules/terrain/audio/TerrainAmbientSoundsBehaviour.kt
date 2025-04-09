@@ -34,7 +34,7 @@ class TerrainAmbientSoundsBehaviour(
             .setPosition(terrainCenter)
             .setGain(1f)
             .setPitch(1f)
-            .setAttenuationModel(AudioAttenuationModel.EXPONENT, 1f, 10f, hearingRadius)
+            .setAttenuationModel(AudioAttenuationModel.EXPONENT, hearingRadius / 2.0f, 1f, hearingRadius)
             .setLooping(true)
 
         audioManager.setListener(listener)

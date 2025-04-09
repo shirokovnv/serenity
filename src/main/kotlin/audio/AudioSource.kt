@@ -74,7 +74,7 @@ class AudioSource : Disposable {
         model: AudioAttenuationModel,
         referenceDistance: Float = 1f,
         rolloffFactor: Float = 1f,
-        maxDistance: Float = 100.0f
+        maxDistance: Float = 1000.0f
     ): AudioSource {
         alSourcef(id, AL_REFERENCE_DISTANCE, referenceDistance)
         alSourcef(id, AL_MAX_DISTANCE, maxDistance)
@@ -82,31 +82,32 @@ class AudioSource : Disposable {
 
         when (model) {
             AudioAttenuationModel.NONE -> {
-                alDistanceModel(AL_NONE)
+                alSourcei(id, AL_DISTANCE_MODEL, AL_NONE)
+                alSourcef(id, AL_ROLLOFF_FACTOR, 0f)
             }
 
             AudioAttenuationModel.LINEAR -> {
-                alDistanceModel(AL11.AL_LINEAR_DISTANCE)
+                alSourcei(id, AL_DISTANCE_MODEL, AL11.AL_LINEAR_DISTANCE)
             }
 
             AudioAttenuationModel.LINEAR_CLAMPED -> {
-                alDistanceModel(AL11.AL_LINEAR_DISTANCE_CLAMPED)
+                alSourcei(id, AL_DISTANCE_MODEL, AL11.AL_LINEAR_DISTANCE_CLAMPED)
             }
 
             AudioAttenuationModel.INVERSE -> {
-                alDistanceModel(AL_INVERSE_DISTANCE)
+                alSourcei(id, AL_DISTANCE_MODEL, AL_INVERSE_DISTANCE)
             }
 
             AudioAttenuationModel.INVERSE_CLAMPED -> {
-                alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED)
+                alSourcei(id, AL_DISTANCE_MODEL, AL_INVERSE_DISTANCE_CLAMPED)
             }
 
             AudioAttenuationModel.EXPONENT -> {
-                alDistanceModel(AL11.AL_EXPONENT_DISTANCE)
+                alSourcei(id, AL_DISTANCE_MODEL, AL11.AL_EXPONENT_DISTANCE)
             }
 
             AudioAttenuationModel.EXPONENT_CLAMPED -> {
-                alDistanceModel(AL11.AL_EXPONENT_DISTANCE_CLAMPED)
+                alSourcei(id, AL_DISTANCE_MODEL, AL11.AL_EXPONENT_DISTANCE_CLAMPED)
             }
         }
 

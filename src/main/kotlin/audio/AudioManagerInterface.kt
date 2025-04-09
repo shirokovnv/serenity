@@ -9,4 +9,5 @@ interface AudioManagerInterface : Disposable {
     fun removeListener()
     fun playSoundWithinHearingRange(hearingRadius: Float)
     fun pauseAllSounds()
+    fun isReady(): Boolean
 }

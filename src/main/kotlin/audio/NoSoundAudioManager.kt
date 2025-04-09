@@ -27,6 +27,10 @@ class NoSoundAudioManager : AudioManagerInterface {
         println("Audio not initialized. Nothing to pause.")
     }
 
+    override fun isReady(): Boolean {
+        return false
+    }
+
     override fun dispose() {
         println("Audio not initialized. Nothing to dispose.")
     }

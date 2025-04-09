@@ -192,6 +192,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         GLFW.glfwSetMouseButtonCallback(window, appResources.mouseInput::mouseButtonCallback)
         GLFW.glfwSetKeyCallback(window, appResources.keyboardInput::keyCallback)
         GLFW.glfwSetFramebufferSizeCallback(window, appResources.windowInput::windowResizeCallback)
+        GLFW.glfwSetWindowFocusCallback(window, appResources.windowInput::windowFocusCallback)
     }
 
     private fun registerGui() {

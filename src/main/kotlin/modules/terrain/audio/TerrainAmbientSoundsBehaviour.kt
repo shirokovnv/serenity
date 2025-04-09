@@ -47,10 +47,12 @@ class TerrainAmbientSoundsBehaviour(
     }
 
     override fun onUpdate(deltaTime: Float) {
-        listener.setPosition(camera.position())
-        listener.setOrientation(camera.forward(), camera.up())
-        if (playSounds) {
-            audioManager.playSoundWithinHearingRange(hearingRadius)
+        if (audioManager.isReady()) {
+            listener.setPosition(camera.position())
+            listener.setOrientation(camera.forward(), camera.up())
+            if (playSounds) {
+                audioManager.playSoundWithinHearingRange(hearingRadius)
+            }
         }
     }
 

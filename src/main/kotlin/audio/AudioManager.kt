@@ -1,5 +1,6 @@
 package audio
 
+import core.events.Events
 import core.math.Vector3
 import core.math.helpers.distance
 import org.lwjgl.openal.AL
@@ -7,6 +8,7 @@ import org.lwjgl.openal.AL10.*
 import org.lwjgl.openal.ALC
 import org.lwjgl.openal.ALC10
 import org.lwjgl.openal.ALCCapabilities
+import platform.services.input.WindowFocusedEvent
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
@@ -18,8 +20,12 @@ class AudioManager : AudioManagerInterface {
     private var listener: AudioListener? = null
     private val sources: MutableMap<String, Pair<AudioBuffer, AudioSource>> = mutableMapOf()
 
+    private var isReady: Boolean = false
+
     init {
         create()
+
+        Events.subscribe<WindowFocusedEvent, Any>(::onWindowFocused)
     }
 
     fun create() {
@@ -45,6 +51,7 @@ class AudioManager : AudioManagerInterface {
         }
 
         AL.createCapabilities(deviceCaps)
+        isReady = true
 
         println("AUDIO MANAGER INITIALIZED")
     }
@@ -119,7 +126,13 @@ class AudioManager : AudioManagerInterface {
         }
     }
 
+    override fun isReady(): Boolean {
+        return isReady
+    }
+
     override fun dispose() {
+        Events.unsubscribe<WindowFocusedEvent, Any>(::onWindowFocused)
+
         sources.values.forEach { source ->
             if (isSourcePlaying(source.second.getId())) {
                 source.second.stop()
@@ -151,5 +164,29 @@ class AudioManager : AudioManagerInterface {
     private fun isSourcePlaying(sourceId: Int): Boolean {
         val state = alGetSourcei(sourceId, AL_SOURCE_STATE)
         return state == AL_PLAYING
+    }
+
+    private fun onWindowFocused(event: WindowFocusedEvent, sender: Any) {
+        if (event.focused) {
+            resumeAudioContext()
+        } else {
+            pauseAudioContext()
+        }
+    }
+
+    private fun pauseAudioContext() {
+        if (context != 0L) {
+            pauseAllSounds()
+            ALC10.alcMakeContextCurrent(0)
+            isReady = false
+        }
+    }
+
+    private fun resumeAudioContext() {
+        if (context != 0L) {
+            ALC10.alcMakeContextCurrent(context)
+            AL.createCapabilities(deviceCaps)
+            isReady = true
+        }
     }
 }

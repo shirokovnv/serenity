@@ -45,6 +45,7 @@ These input keys are used in the demo program:
 - **W-A-S-D** - camera movement
 - **Arrow Keys** - camera rotation
 - **+-** - sun movement
+- **O** - play/pause ambient sounds
 
 [Check out windows binaries (128MB)][link-binaries]
 

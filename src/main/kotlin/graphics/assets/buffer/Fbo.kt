@@ -39,6 +39,10 @@ class Fbo(
             return
         }
 
+        if (width == 0 || height == 0) {
+            return
+        }
+
         frameBuffer = glGenFramebuffers()
         glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer)
         glDrawBuffer(GL_COLOR_ATTACHMENT0)

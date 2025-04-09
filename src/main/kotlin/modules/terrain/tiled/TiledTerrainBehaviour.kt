@@ -22,6 +22,7 @@ import graphics.rendering.shadows.ShadowFrameBuffer
 import modules.light.SunLightManager
 import modules.terrain.TerrainBlendRenderer
 import modules.terrain.TerrainNormalRenderer
+import modules.terrain.audio.TerrainAmbientSoundsBehaviour
 import platform.services.filesystem.ImageLoader
 
 class TiledTerrainBehaviour(
@@ -143,6 +144,13 @@ class TiledTerrainBehaviour(
         }
 
         frustum = Frustum(camera as PerspectiveCamera)
+
+        // ambient sounds
+        val terrainCenter = transform.translation() + (transform.scale() * 0.5f)
+        owner()?.addComponent(TerrainAmbientSoundsBehaviour(
+            terrainCenter,
+            1000.0f
+        ))
 
         println("TILED BEHAVIOUR INITIALIZED")
     }

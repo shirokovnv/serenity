@@ -1,5 +1,7 @@
 package platform
 
+import audio.AudioInitializationFactory
+import audio.AudioManagerInterface
 import core.ecs.Behaviour
 import core.management.Resources
 import core.scene.SceneGraph
@@ -42,6 +44,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         lateinit var objLoader: ObjLoader
         lateinit var fbxLoader: AssimpLoader
         lateinit var frameCounter: FrameCounter
+        lateinit var audioManager: AudioManagerInterface
         lateinit var guiWrapper: GuiWrapper
     }
 
@@ -211,6 +214,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         appResources.objLoader = ObjLoader(appResources.fileLoader, appResources.imageLoader)
         appResources.fbxLoader = AssimpLoader(appResources.fileLoader, AnimationParser())
         appResources.frameCounter = FrameCounter(settings.frameRate)
+        appResources.audioManager = AudioInitializationFactory.initialize()
 
         Resources.put<KeyboardInput>(appResources.keyboardInput)
         Resources.put<MouseInput>(appResources.mouseInput)
@@ -220,6 +224,7 @@ abstract class Application(private val settings: ApplicationSettings) {
         Resources.put<ObjLoader>(appResources.objLoader)
         Resources.put<AssimpLoader>(appResources.fbxLoader)
         Resources.put<FrameCounter>(appResources.frameCounter)
+        Resources.put<AudioManagerInterface>(appResources.audioManager)
     }
 
     protected open fun registerPipelines() {

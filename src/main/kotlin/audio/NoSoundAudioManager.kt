@@ -23,6 +23,10 @@ class NoSoundAudioManager : AudioManagerInterface {
         println("Audio not initialized. Cannot play sounds.")
     }
 
+    override fun pauseAllSounds() {
+        println("Audio not initialized. Nothing to pause.")
+    }
+
     override fun dispose() {
         println("Audio not initialized. Nothing to dispose.")
     }

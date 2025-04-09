@@ -4,10 +4,13 @@ import audio.AudioAttenuationModel
 import audio.AudioListener
 import audio.AudioManagerInterface
 import audio.AudioSource
+import core.events.Events
 import core.management.Resources
 import core.math.Vector3
 import core.scene.behaviour.FrameUpdateBehaviour
 import core.scene.camera.Camera
+import org.lwjgl.glfw.GLFW
+import platform.services.input.KeyPressedEvent
 
 class TerrainAmbientSoundsBehaviour(
     private val terrainCenter: Vector3,
@@ -24,6 +27,7 @@ class TerrainAmbientSoundsBehaviour(
     private val listener: AudioListener = AudioListener()
 
     private lateinit var source: AudioSource
+    private var playSounds: Boolean = true
 
     override fun create() {
         source = audioManager.loadSound(ambientSoundsFilename)
@@ -34,6 +38,8 @@ class TerrainAmbientSoundsBehaviour(
             .setLooping(true)
 
         audioManager.setListener(listener)
+
+        Events.subscribe<KeyPressedEvent, Any>(::onKeyPressed)
     }
 
     override fun destroy() {
@@ -42,6 +48,18 @@ class TerrainAmbientSoundsBehaviour(
 
     override fun onUpdate(deltaTime: Float) {
         listener.setPosition(camera.position())
-        audioManager.playSoundWithinHearingRange(hearingRadius)
+        if (playSounds) {
+            audioManager.playSoundWithinHearingRange(hearingRadius)
+        }
+    }
+
+    private fun onKeyPressed(event: KeyPressedEvent, sender: Any) {
+        if (event.key == GLFW.GLFW_KEY_O) {
+            playSounds = !playSounds
+        }
+
+        if (!playSounds) {
+            audioManager.pauseAllSounds()
+        }
     }
 }

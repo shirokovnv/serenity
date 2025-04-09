@@ -113,6 +113,12 @@ class AudioManager : AudioManagerInterface {
         }
     }
 
+    override fun pauseAllSounds() {
+        sources.values.forEach { source ->
+            source.second.pause()
+        }
+    }
+
     override fun dispose() {
         sources.values.forEach { source ->
             if (isSourcePlaying(source.second.getId())) {

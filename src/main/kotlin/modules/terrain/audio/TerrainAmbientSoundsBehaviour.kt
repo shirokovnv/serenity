@@ -27,7 +27,7 @@ class TerrainAmbientSoundsBehaviour(
     private val listener: AudioListener = AudioListener()
 
     private lateinit var source: AudioSource
-    private var playSounds: Boolean = true
+    private var playSounds: Boolean = false
 
     override fun create() {
         source = audioManager.loadSound(ambientSoundsFilename)

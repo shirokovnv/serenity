@@ -260,7 +260,7 @@ class Quaternion {
         z *= scalar
         w *= scalar
     }
-    
+
     fun xyz(): Vector3 {
         return Vector3(x, y, z)
     }
@@ -270,15 +270,33 @@ class Quaternion {
     operator fun component3() = z
     operator fun component4() = w
 
-    fun dot(other: Quaternion) : Float {
+    operator fun get(index: Int): Float =
+        when (index) {
+            0 -> x
+            1 -> y
+            2 -> z
+            3 -> w
+            else -> throw IndexOutOfBoundsException()
+        }
+
+    operator fun set(index: Int, value: Float) =
+        when (index) {
+            0 -> x = value
+            1 -> y = value
+            2 -> z = value
+            3 -> w = value
+            else -> throw IndexOutOfBoundsException()
+        }
+
+    fun dot(other: Quaternion): Float {
         return (this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w)
     }
 
     fun rotate(vector: Vector3): Vector3 {
         val qVec = Vector3(x, y, z)
         val uv = qVec.cross(vector)
-        val uuv = qVec.cross(uv);
-        return vector + (uv * (2f * w)) + (uuv * 2f);
+        val uuv = qVec.cross(uv)
+        return vector + (uv * (2f * w)) + (uuv * 2f)
     }
 
     override fun equals(other: Any?): Boolean {

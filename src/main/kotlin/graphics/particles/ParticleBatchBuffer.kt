@@ -100,7 +100,6 @@ class ParticleBatchBuffer(
     }
 
     fun uploadData(particles: Iterable<Particle>) {
-        // Upload vertices and texture coordinates
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
 
         vertexInMemoryBuffer

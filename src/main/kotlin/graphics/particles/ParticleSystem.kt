@@ -17,7 +17,7 @@ class ParticleSystem {
     private var activeParticles = StaticArray<Particle>(MAX_PARTICLES_PER_SYSTEM)
     private var poolIndex: Int = MAX_PARTICLES_PER_SYSTEM - 1
 
-    fun activeParticles(): Iterable<Particle> = activeParticles
+    fun activeParticles(): StaticArray<Particle> = activeParticles
 
     fun onUpdate(deltaTime: Float) {
         activeParticles.clear()

@@ -55,4 +55,39 @@ class StaticArray<T>(private val capacity: Int) : Iterable<T> {
             action(data[i]!!)
         }
     }
+
+    fun sort(comparator: Comparator<T>) {
+        quickSort(0, count - 1, comparator)
+    }
+
+    private fun quickSort(low: Int, high: Int, comparator: Comparator<T>) {
+        if (low < high) {
+            val partitionIndex = partition(low, high, comparator)
+
+            quickSort(low, partitionIndex - 1, comparator)
+            quickSort(partitionIndex + 1, high, comparator)
+        }
+    }
+
+    private fun partition(low: Int, high: Int, comparator: Comparator<T>): Int {
+        val pivot = data[high]!!
+        var i = (low - 1)
+
+        for (j in low..<high) {
+            if (comparator.compare(data[j]!!, pivot) < 0) {
+                i++
+
+                // Swap data[i] and data[j]
+                val temp = data[i]
+                data[i] = data[j]
+                data[j] = temp
+            }
+        }
+
+        // Swap data[i+1] and data[high] (or pivot)
+        val temp = data[i + 1]
+        data[i + 1] = data[high]
+        data[high] = temp
+        return i + 1
+    }
 }

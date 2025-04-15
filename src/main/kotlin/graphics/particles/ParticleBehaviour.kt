@@ -37,8 +37,11 @@ class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
     private val camera: Camera
         get() = Resources.get<Camera>()!!
 
+    private val transform: Transform
+        get() = owner()!!.getComponent<Transform>()!!
+
     private val model: Matrix4
-        get() = owner()!!.getComponent<Transform>()!!.matrix()
+        get() = transform.matrix()
 
     override fun create() {
         particleSystem = ParticleSystem()

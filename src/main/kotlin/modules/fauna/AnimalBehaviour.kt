@@ -24,6 +24,10 @@ class AnimalBehaviour(
     private val shader: AnimalShader
 ) : FrameUpdateBehaviour(), Renderer {
 
+    companion object {
+        private val zeroVector = Vector3(0f)
+    }
+
     private lateinit var animal: AnimationModel
     private var animationSpeed: Float = 0.01f
 
@@ -78,6 +82,7 @@ class AnimalBehaviour(
                 material.view = lightView
                 material.projection = orthoProjection
             }
+
             NormalPass -> {
                 material.view = camera.view
                 material.projection = camera.projection
@@ -85,7 +90,7 @@ class AnimalBehaviour(
         }
 
         val up = heightmap.getInterpolatedNormal(agent.position.x, agent.position.z)
-        material.model = model * createLookAtMatrix(agent.velocity, up)
+        material.model = model * createLookAtMatrix(zeroVector, agent.velocity, up)
 
         shader.bind()
         animal.meshes().forEach { mesh ->

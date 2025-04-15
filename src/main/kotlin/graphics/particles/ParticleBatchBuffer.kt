@@ -20,7 +20,8 @@ class ParticleBatchBuffer(
     private val vertexSize = 3
     private val colorSize = 4
     private val scaleSize = 1
-    private val stride = Float.SIZE_BYTES * (vertexSize + colorSize + scaleSize)
+    private val lifeSize = 1
+    private val stride = Float.SIZE_BYTES * (vertexSize + colorSize + scaleSize + lifeSize)
 
     init {
         create()
@@ -59,6 +60,14 @@ class ParticleBatchBuffer(
             false,
             stride,
             ((vertexSize + colorSize) * Float.SIZE_BYTES).toLong()
+        )
+        GL43.glVertexAttribPointer(
+            3,
+            lifeSize,
+            GL43.GL_FLOAT,
+            false,
+            stride,
+            ((vertexSize + colorSize + scaleSize) * Float.SIZE_BYTES).toLong()
         )
 
         GL43.glBindVertexArray(0)
@@ -111,6 +120,7 @@ class ParticleBatchBuffer(
             }
 
             vertexInMemoryBuffer.put(particle.scale)
+            vertexInMemoryBuffer.put(1.0f - particle.life)
         }
         vertexInMemoryBuffer.flip()
 
@@ -123,12 +133,14 @@ class ParticleBatchBuffer(
         GL43.glEnableVertexAttribArray(0)
         GL43.glEnableVertexAttribArray(1)
         GL43.glEnableVertexAttribArray(2)
+        GL43.glEnableVertexAttribArray(3)
 
         GL43.glDrawArrays(GL43.GL_POINTS, 0, numVertices)
 
         GL43.glDisableVertexAttribArray(0)
         GL43.glDisableVertexAttribArray(1)
         GL43.glDisableVertexAttribArray(2)
+        GL43.glDisableVertexAttribArray(3)
         GL43.glBindVertexArray(0)
     }
 

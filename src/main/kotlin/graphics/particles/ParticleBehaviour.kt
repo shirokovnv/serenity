@@ -8,16 +8,19 @@ import core.scene.Transform
 import core.scene.behaviour.FrameUpdateBehaviour
 import core.scene.camera.Camera
 import graphics.assets.surface.bind
+import graphics.assets.texture.Texture2d
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import org.lwjgl.opengl.GL43
+import platform.services.filesystem.ImageLoader
 
 class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
     private lateinit var particleSystem: ParticleSystem
     private lateinit var buffer: ParticleBatchBuffer
     private lateinit var shader: ParticleShader
     private lateinit var material: ParticleMaterial
+    private lateinit var texture: Texture2d
 
     private val particleProps = ParticleProps(
         Vector3(0f),
@@ -44,12 +47,21 @@ class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
         shader = ParticleShader()
         shader bind material
         shader.setup()
+
+        val imageLoader = Resources.get<ImageLoader>()!!
+
+        texture = Texture2d(imageLoader.loadImage("textures/particles/particleAtlas.png"))
+        texture.bind()
+        texture.bilinearFilter()
+        texture.unbind()
     }
 
     override fun onUpdate(deltaTime: Float) {
         material.model = model
         material.view = camera.view
         material.projection = camera.projection
+        material.texture = texture
+        material.textureNumRows = 4
 
         particleSystem.emit(particleProps)
         particleSystem.onUpdate(0.05f)
@@ -58,13 +70,14 @@ class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
     override fun destroy() {
         shader.destroy()
         buffer.destroy()
+        texture.destroy()
     }
 
     override fun render(pass: RenderPass) {
         buffer.uploadData(particleSystem.activeParticles())
 
         GL43.glEnable(GL43.GL_BLEND)
-        GL43.glBlendFunc(GL43.GL_SRC_ALPHA, GL43.GL_ONE_MINUS_SRC_ALPHA)
+        GL43.glBlendFunc(GL43.GL_SRC_ALPHA, GL43.GL_ONE)
         GL43.glDepthMask(false)
 
         shader.bind()

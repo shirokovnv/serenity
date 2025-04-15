@@ -9,6 +9,10 @@ import core.scene.behaviour.FrameUpdateBehaviour
 import core.scene.camera.Camera
 import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
+import graphics.particles.emitters.SphericalEmitter
+import graphics.particles.interfaces.ParticleEmitterInterface
+import graphics.particles.interfaces.ParticleUpdateStrategyInterface
+import graphics.particles.strategies.WithGravityStrategy
 import graphics.rendering.Renderer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
@@ -16,16 +20,19 @@ import org.lwjgl.opengl.GL43
 import platform.services.filesystem.ImageLoader
 
 class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
-    private lateinit var particleSystem: ParticleSystem
     private lateinit var buffer: ParticleBatchBuffer
     private lateinit var shader: ParticleShader
     private lateinit var material: ParticleMaterial
     private lateinit var texture: Texture2d
 
+    private lateinit var emitter: ParticleEmitterInterface
+    private lateinit var updateStrategy: ParticleUpdateStrategyInterface
+    private lateinit var particleSystem: ParticleSystem
+
     private val particleProps = ParticleProps(
         Vector3(0f),
         Vector3(0f),
-        Vector3(1.0f, 1.0f, 0.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
         Quaternion(254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f),
         Quaternion(254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f),
         5.0f,
@@ -44,7 +51,11 @@ class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
         get() = transform.matrix()
 
     override fun create() {
-        particleSystem = ParticleSystem()
+        emitter = SphericalEmitter()
+
+        updateStrategy = WithGravityStrategy(0.01f)
+        particleSystem = ParticleSystem(emitter, updateStrategy)
+
         buffer = ParticleBatchBuffer(1000)
         material = ParticleMaterial()
         shader = ParticleShader()
@@ -67,6 +78,7 @@ class ParticleBehaviour : FrameUpdateBehaviour(), Renderer {
         material.textureNumRows = 4
 
         particleSystem.emit(particleProps)
+
         particleSystem.onUpdate(0.05f)
     }
 

@@ -46,7 +46,7 @@ abstract class Camera : BaseComponent() {
     }
 
     fun rotateAroundHorizontalAxis(angle: Float) {
-        val hAxis = yAxis.cross(forward()).normalize()
+        val hAxis = up().cross(forward()).normalize()
 
         transform.rotateAroundAxis(angle, hAxis)
     }

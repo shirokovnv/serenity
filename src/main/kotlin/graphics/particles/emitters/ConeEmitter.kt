@@ -6,7 +6,6 @@ import core.math.createLookAtMatrix
 import core.math.extensions.toRadians
 import graphics.particles.Particle
 import graphics.particles.ParticleProps
-import graphics.particles.interfaces.ParticleEmitterInterface
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -16,9 +15,10 @@ class ConeEmitter(
     private val origin: Vector3,
     private val direction: Vector3,
     private val angle: Float
-) : ParticleEmitterInterface {
+) : BaseParticleEmitter() {
     override fun onEmit(particle: Particle, particleProps: ParticleProps) {
-        particle.position = Vector3(particleProps.position)
+        emitBaseProperties(particle, particleProps)
+
         particle.rotation = 0f
 
         // Velocity is a unit vector within cone
@@ -27,18 +27,6 @@ class ConeEmitter(
             direction,
             angle
         )
-
-        // Color
-        particle.colorBegin = particleProps.colorBegin
-        particle.colorEnd = particleProps.colorEnd
-
-        // Lifetime
-        particle.lifeTime = particleProps.lifeTime
-        particle.lifeRemaining = particleProps.lifeTime
-
-        // Size with variation
-        particle.sizeBegin = particleProps.sizeBegin + particleProps.sizeVariation * (Random.nextFloat() - 0.5f)
-        particle.sizeEnd = particleProps.sizeEnd
     }
 
     private fun randomUnitVectorWithinCone(origin: Vector3, direction: Vector3, angle: Float): Vector3 {

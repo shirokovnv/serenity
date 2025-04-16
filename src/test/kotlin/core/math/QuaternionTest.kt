@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.math.sqrt
+import kotlin.test.assertFailsWith
 
 class QuaternionTest {
     @Test
@@ -259,6 +260,43 @@ class QuaternionTest {
         assertEquals(2f, y)
         assertEquals(3f, z)
         assertEquals(4f, w)
+    }
+
+    @Test
+    fun `test get`() {
+        val quaternion = Quaternion(1f, 2f, 3f, 4f)
+        assertEquals(1f, quaternion[0])
+        assertEquals(2f, quaternion[1])
+        assertEquals(3f, quaternion[2])
+        assertEquals(4f, quaternion[3])
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            quaternion[-1]
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            quaternion[4]
+        }
+    }
+
+    @Test
+    fun `test set`() {
+        val quaternion = Quaternion()
+        quaternion[0] = 1f
+        quaternion[1] = 2f
+        quaternion[2] = 3f
+        quaternion[3] = 4f
+
+        assertEquals(1f, quaternion.x)
+        assertEquals(2f, quaternion.y)
+        assertEquals(3f, quaternion.z)
+        assertEquals(4f, quaternion.w)
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            quaternion[-1] = 1f
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            quaternion[4] = 1f
+        }
     }
 
     @Test

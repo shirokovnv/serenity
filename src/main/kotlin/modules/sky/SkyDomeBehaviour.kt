@@ -12,6 +12,7 @@ import graphics.assets.surface.bind
 import graphics.assets.texture.Texture2d
 import modules.light.AtmosphereConstantsSsbo
 import platform.services.filesystem.ImageLoader
+import kotlin.math.min
 
 class SkyDomeBehaviour(
     private val params: SkyDomeParams = SkyDomeParams(),
@@ -73,10 +74,11 @@ class SkyDomeBehaviour(
     }
 
     override fun update(deltaTime: Float) {
-        rotationAngle += params.rotationSpeed
+
+        rotationAngle += params.rotationSpeed * min(deltaTime, 0.00001f)
         owner()!!.getComponent<Transform>()!!.setTranslation(camera.position() - Vector3(0f, params.yOffset, 0f))
 
-        material.cloudAnimationOffset.plusAssign(Vector2(deltaTime * params.rotationSpeed, 0f))
+        material.cloudAnimationOffset.plusAssign(Vector2(rotationAngle, 0f))
         material.worldViewProjection = worldViewProjection
 
         if (enablePostProcessing) {

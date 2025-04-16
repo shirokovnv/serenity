@@ -9,6 +9,7 @@ import core.scene.camera.Camera
 import core.scene.camera.CameraController
 import core.scene.camera.OrthographicCamera
 import core.scene.camera.PerspectiveCamera
+import graphics.particles.ParticleBehaviour
 import graphics.rendering.context.RenderContextController
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
@@ -152,6 +153,12 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)
+
+        // particles
+        val particle = Object()
+        particle.getComponent<Transform>()!!.setTranslation(Vector3(150f))
+        particle.addComponent(ParticleBehaviour())
+        scene.attachToRoot(particle)
 
         // TODO: move to specific object
         val terrainNavMesh = Object()

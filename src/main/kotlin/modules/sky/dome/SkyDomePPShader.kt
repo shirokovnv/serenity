@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 import core.management.Resources
 import graphics.assets.surface.BaseShader
@@ -12,7 +12,7 @@ class SkyDomePPShader: BaseShader<SkyDomePPShader, SkyDomePPMaterial>() {
 
         val atmosphereInc = fileLoader.loadAsString("shaders/include/Atmosphere.glsl")!!
         val vertexSource = preprocessShader(
-            fileLoader.loadAsString("shaders/sky/SkyDomePP_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/dome/SkyDomePP_VS.glsl")!!,
             mapOf("Atmosphere.glsl" to atmosphereInc)
         )
 
@@ -22,7 +22,7 @@ class SkyDomePPShader: BaseShader<SkyDomePPShader, SkyDomePPMaterial>() {
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/sky/SkyDomePP_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/sky/dome/SkyDomePP_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

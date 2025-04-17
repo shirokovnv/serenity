@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 import core.math.Matrix4
 import graphics.assets.surface.BaseMaterial

@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 data class SkyDomeParams(
     val numRows: Int = 64,

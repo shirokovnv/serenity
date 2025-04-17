@@ -14,15 +14,14 @@ import graphics.rendering.context.RenderContextController
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
 import modules.fauna.Butterfly
-import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare
-import modules.water.ocean.Ocean
+import modules.sky.box.SkyBox
 import modules.water.ocean.OceanParams
-import modules.sky.SkyDome
-import modules.sky.SkyDomeParams
+import modules.sky.dome.SkyDome
+import modules.sky.dome.SkyDomeParams
 import modules.terrain.heightmap.*
 import modules.terrain.navigation.TerrainAgentController
 import modules.terrain.tiled.TiledTerrain
@@ -150,6 +149,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         // SkyDome
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
+        //scene.attachToRoot(SkyBox())
 
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)

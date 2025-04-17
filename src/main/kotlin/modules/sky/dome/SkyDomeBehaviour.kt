@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 import core.ecs.Behaviour
 import core.management.Resources

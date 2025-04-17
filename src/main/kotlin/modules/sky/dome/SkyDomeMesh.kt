@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 import core.math.Vector2
 import core.math.Vector3

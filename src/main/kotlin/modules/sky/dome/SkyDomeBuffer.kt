@@ -1,4 +1,4 @@
-package modules.sky
+package modules.sky.dome
 
 import graphics.assets.Asset
 import graphics.rendering.Drawable
@@ -31,7 +31,7 @@ class SkyDomeBuffer(private val skyDomeMesh: SkyDomeMesh): Asset, Drawable {
     }
 
     override fun draw() {
-        val cacheDepthFuncMode = getCurrentDepthFunc()
+        val cachedDepthFuncMode = getCurrentDepthFunc()
         glDepthFunc(GL_LEQUAL)
 
         glBindVertexArray(vaoId)
@@ -44,7 +44,7 @@ class SkyDomeBuffer(private val skyDomeMesh: SkyDomeMesh): Asset, Drawable {
         glDisableVertexAttribArray(1)
         glBindVertexArray(0)
 
-        glDepthFunc(cacheDepthFuncMode)
+        glDepthFunc(cachedDepthFuncMode)
     }
 
     override fun getId(): Int {

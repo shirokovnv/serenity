@@ -21,6 +21,7 @@ import graphics.model.ModelShader
 import graphics.rendering.Colors
 import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
+import graphics.rendering.gizmos.MeshDrawer
 import graphics.rendering.passes.ReflectionPass
 import graphics.rendering.passes.RefractionPass
 import graphics.rendering.passes.RenderPass
@@ -43,6 +44,8 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
     private lateinit var renderer: ModelRenderer
     private lateinit var ppRenderer: TreeSetPPRenderer
     private lateinit var frustum: Frustum
+
+    private val meshVertices = mutableListOf<Vector3>()
 
     private val viewProjectionProvider: Matrix4
         get() = Resources.get<Camera>()!!.viewProjection
@@ -161,6 +164,14 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             (owner() as Object).addComponent(ppRenderer)
         }
 
+        (owner() as Object).addComponent(
+            MeshDrawer(
+                Resources.get<Camera>()!!,
+                { meshVertices },
+                Colors.Yellow,
+            )
+        )
+
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         frustum = Frustum(Resources.get<Camera>()!! as PerspectiveCamera)
@@ -194,6 +205,7 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         frustum.recalculateSearchVolume()
+        meshVertices.clear()
 
         (owner() as Object)
             .getChildren()
@@ -206,6 +218,28 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : Behav
             }
             .forEach { treeInstance ->
                 treeInstance.getComponent<BoxAABBDrawer>()?.draw()
+                collectMeshVertices(treeInstance)
             }
+
+        owner()!!.getComponent<MeshDrawer>()!!.draw()
+    }
+
+    private fun collectMeshVertices(instance: TreeInstance) {
+        val model = instance.getTreeModel()
+        val worldMatrix = model.getInstance(instance.getInstanceId())
+
+        model.getModelData().values.forEach { modelData ->
+            for (i in modelData.indices) {
+                val offset = i * 3
+
+                val originalVertex = Vector3(
+                    modelData.vertices[offset],
+                    modelData.vertices[offset + 1],
+                    modelData.vertices[offset + 2]
+                )
+                val worldVertex = (worldMatrix * Quaternion(originalVertex, 1.0f)).xyz()
+                meshVertices.add(worldVertex)
+            }
+        }
     }
 }

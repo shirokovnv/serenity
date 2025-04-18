@@ -22,16 +22,8 @@ class SkyBoxBehaviour : Behaviour(), Renderer {
     private val camera: Camera
         get() = Resources.get<Camera>()!!
 
-    private val worldViewProjection: Matrix4
-        get() {
-            val view = camera.view
-
-            view[0, 3] = 0.0f
-            view[1, 3] = 0.0f
-            view[2, 3] = 0.0f
-
-            return camera.projection * view * (owner()!! as Object).worldMatrix()
-        }
+    private val world: Matrix4
+        get() = (owner()!! as Object).worldMatrix()
 
     override fun create() {
         val imageLoader = Resources.get<ImageLoader>()!!
@@ -57,7 +49,9 @@ class SkyBoxBehaviour : Behaviour(), Renderer {
     }
 
     override fun update(deltaTime: Float) {
-        material.worldViewProjection = worldViewProjection
+        material.world = world
+        material.view = camera.view
+        material.projection = camera.projection
     }
 
     override fun destroy() {

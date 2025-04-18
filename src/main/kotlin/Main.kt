@@ -149,7 +149,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         // SkyDome
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
-        //scene.attachToRoot(SkyBox())
+//        scene.attachToRoot(SkyBox())
 
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)

@@ -22,12 +22,16 @@ class SkyBoxShader : BaseShader<SkyBoxShader, SkyBoxMaterial>() {
 
         linkAndValidate()
 
-        addUniform("u_WorldViewProjection")
+        addUniform("u_World")
+        addUniform("u_View")
+        addUniform("u_Projection")
         addUniform("u_CubemapTexture")
     }
 
     override fun updateUniforms() {
-        setUniform("u_WorldViewProjection", shaderMaterial!!.worldViewProjection)
+        setUniform("u_World", shaderMaterial!!.world)
+        setUniform("u_View", shaderMaterial!!.view)
+        setUniform("u_Projection", shaderMaterial!!.projection)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
         shaderMaterial!!.cubemapTexture.bind()

@@ -14,6 +14,7 @@ import graphics.rendering.context.RenderContextController
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
 import modules.fauna.Butterfly
+import modules.flora.grass.Grass
 import modules.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
@@ -111,8 +112,8 @@ class App(settings: ApplicationSettings) : Application(settings) {
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(trees)
 
-        //val grass = Grass()
-        //scene.attachToRoot(grass)
+        // Grass
+        // scene.attachToRoot(Grass())
 
         val butterfly = Butterfly()
         butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))

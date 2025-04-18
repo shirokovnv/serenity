@@ -52,7 +52,7 @@ class GrassBehaviour : Behaviour(), Renderer {
         shader bind material
         shader.setup()
 
-        grassPatchParams = GrassPatchParams(0.08f, 3.0f, 2, 100.0f)
+        grassPatchParams = GrassPatchParams(0.08f, 3.0f, 5, 100.0f)
         grassGenerator = GrassGenerator()
         grassGenerator.generateInstances(grassModel, grassPatchParams.spacing)
         grassModel.createBuffers()

@@ -14,11 +14,12 @@ import core.scene.raytracing.RayIntersectionDetector
 import core.scene.volumes.BoxAABB
 import core.scene.volumes.BoxAABBHierarchy
 import graphics.model.Model
+import modules.terrain.objects.BaseInstance
 
 class TreeInstance(
-    private val treeModel: Model,
-    private val instanceId: Int
-) : Object(), Disposable, NavMeshObstacle, RayIntersectable {
+    treeModel: Model,
+    instanceId: Int
+) : BaseInstance(treeModel, instanceId), Disposable, NavMeshObstacle, RayIntersectable {
 
     override val objectRef: Object
         get() = this
@@ -40,7 +41,7 @@ class TreeInstance(
 
     private fun onPickingTarget(event: PickingTargetEvent, sender: Any) {
         if (event.target == this) {
-            treeModel.updateInstance(transform().matrix(), instanceId)
+            model.updateInstance(transform().matrix(), instanceId)
         }
     }
 
@@ -53,9 +54,9 @@ class TreeInstance(
     }
 
     override fun intersectsWith(origin: Vector3, direction: Vector3): Vector3? {
-        val worldMatrix = treeModel.getInstance(instanceId)
+        val worldMatrix = model.getInstance(instanceId)
         val triangleVertices = mutableListOf<Vector3>()
-        treeModel.getModelData().values.forEach { modelData ->
+        model.getModelData().values.forEach { modelData ->
             for (i in modelData.indices) {
                 val offset = i * 3
                 val originalVertex = Vector3(
@@ -70,10 +71,10 @@ class TreeInstance(
         }
 
         val intersection = RayIntersectionDetector.rayIntersects(
-                origin,
-                direction,
-                triangleVertices
-            )
+            origin,
+            direction,
+            triangleVertices
+        )
 
         if (intersection != null) {
             return (intersection.first + intersection.second + intersection.third) / 3.0f
@@ -81,7 +82,4 @@ class TreeInstance(
 
         return null
     }
-
-    fun getTreeModel(): Model = treeModel
-    fun getInstanceId(): Int = instanceId
 }

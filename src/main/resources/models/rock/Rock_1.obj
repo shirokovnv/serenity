@@ -1,6 +1,6 @@
 # Blender v2.78 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib rock01.mtl
+mtllib Rock_1.mtl
 o Icosphere
 v 0.780827 0.496388 1.082340
 v 0.706642 0.358258 0.604981

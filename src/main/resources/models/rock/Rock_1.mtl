@@ -1,4 +1,4 @@
-# Blender MTL File: 'None'
+# Blender MTL File: 'Rock_1.blend'
 # Material Count: 1
 
 newmtl Material.001
@@ -8,5 +8,5 @@ Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
 d 1
 illum 0.6
-map_Kd rock01_DIF.jpg
-map_bump rock01_NRM.jpg
+map_Kd Rock_1.jpg
+map_Kn Rock_1_Normal.jpg

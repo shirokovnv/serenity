@@ -32,6 +32,7 @@ class ObjLoader(private val fileLoader: FileLoader, private val imageLoader: Ima
                         texToken.texture = Texture2d(image)
                     } catch (_: IOException) {
                         // NO TEXTURE LOADED
+                        println("Error loading texture: ${texToken.name}")
                     }
                 }
             }

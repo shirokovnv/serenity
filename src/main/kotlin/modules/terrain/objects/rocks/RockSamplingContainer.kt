@@ -1,10 +1,9 @@
-package modules.terrain.navigation
+package modules.terrain.objects.rocks
 
 import core.math.Vector2
 import modules.terrain.sampling.BaseSamplingContainer
-import modules.terrain.sampling.SamplingContainerInterface
 
-class TerrainAgentSamplingContainer(
+class RockSamplingContainer(
     override var points: List<Vector2>,
     override var innerRadius: Float,
     override var outerRadius: Float

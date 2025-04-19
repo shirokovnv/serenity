@@ -1,4 +1,4 @@
-package modules.terrain.objects.flora.trees
+package modules.terrain.objects.rocks
 
 import core.events.Events
 import core.management.Resources
@@ -27,20 +27,19 @@ import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.objects.BaseBehaviour
 import modules.terrain.objects.ObjectProviders
+import modules.terrain.objects.flora.trees.TreeSamplingContainer
 import modules.terrain.sampling.PoissonDiscSampler
 import modules.terrain.sampling.PoissonDiscSamplerParams
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
 
-class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseBehaviour() {
-    private lateinit var material: ModelMaterial
-    private lateinit var ppMaterial: TreeSetPPMaterial
-    private lateinit var shader: ModelShader
-    private lateinit var ppShader: TreeSetPPShader
+class RockSetBehaviour : BaseBehaviour() {
+
     private lateinit var models: MutableList<Model>
+    private lateinit var material: ModelMaterial
+    private lateinit var shader: ModelShader
     private lateinit var renderer: ModelRenderer
-    private lateinit var ppRenderer: TreeSetPPRenderer
     override lateinit var frustum: Frustum
 
     private val viewProjectionProvider: Matrix4
@@ -55,44 +54,38 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseB
     override fun create() {
         val objLoader = Resources.get<ObjLoader>()!!
 
-        val sampler = PoissonDiscSampler()
-        val heightmap = Resources.get<Heightmap>()!!
-        val sampleRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
-
-        models = mutableListOf()
         val modelFiles = mapOf(
-            "models/tree/PalmTree_1.obj" to "models/tree/PalmTree_1.mtl",
-            "models/tree/PalmTree_2.obj" to "models/tree/PalmTree_2.mtl",
-
-//            "models/tree/NormalTree_1.obj" to "models/tree/NormalTree_1.mtl",
-//            "models/tree/NormalTree_2.obj" to "models/tree/NormalTree_2.mtl",
-//
-//            "models/tree/BirchTree_1.obj" to "models/tree/BirchTree_1.mtl",
-//            "models/tree/BirchTree_2.obj" to "models/tree/BirchTree_2.mtl",
-//
-//            "models/tree/MapleTree_1.obj" to "models/tree/MapleTree_1.mtl",
-//            "models/tree/MapleTree_2.obj" to "models/tree/MapleTree_2.mtl",
-//
-//            "models/tree/PineTree_1.obj" to "models/tree/PineTree_1.mtl",
-//            "models/tree/PineTree_2.obj" to "models/tree/PineTree_2.mtl",
+            "models/rock/Rock_1.obj" to "models/rock/Rock_1.mtl",
+            "models/rock/Rock_2.obj" to "models/rock/Rock_2.mtl",
         )
 
+        models = mutableListOf()
         modelFiles.forEach { (obj, mtl) ->
             val model = objLoader.load(obj, mtl)
             models.add(model)
         }
 
-        val samplingParams = PoissonDiscSamplerParams(75f, sampleRegionSize, 30)
-        val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 0.9f, 0.3f)
+        val sampler = PoissonDiscSampler()
+        val heightmap = Resources.get<Heightmap>()!!
+        val sampleRegionSize = Vector2(heightmap.worldScale().x, heightmap.worldScale().z)
+        val samplingParams = PoissonDiscSamplerParams(50f, sampleRegionSize, 30)
+        val validator = HeightAndSlopeBasedValidator(heightmap, 0.2f, 1.0f, 0.4f)
 
-        val points = sampler.generatePoints(
+        val initialPoints = sampler.generatePoints(
             samplingParams,
             validator
         )
-        val treeSamplingContainer = TreeSamplingContainer(points, samplingParams.radius / 2, samplingParams.radius)
-        Resources.put<TreeSamplingContainer>(treeSamplingContainer)
+        val samplingContainer = RockSamplingContainer(initialPoints, samplingParams.radius / 2, samplingParams.radius)
 
-        println("NUM TREE SAMPLING POINTS: ${points.size}")
+        // TODO: ensure tree set initialized first
+        samplingContainer.reducePointsByObstacles(
+            Resources.get<TreeSamplingContainer>()!!
+        )
+        Resources.put<RockSamplingContainer>(samplingContainer)
+
+        val points = samplingContainer.points
+
+        println("NUM ROCK SAMPLING POINTS: ${initialPoints.size}")
 
         for (p in points) {
             val transform = Transform()
@@ -102,25 +95,25 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseB
             val angle = Random.nextFloat() * 2 * PI.toFloat()
             val rotation = Vector3(0f, angle, 0f)
 
-            transform.set(rotation, Vector3(10f), position)
+            transform.set(rotation, Vector3(5f), position)
 
             val randomModel = models.random()
             val instanceId = randomModel.addInstance(transform.matrix())
 
-            val treeInstance = TreeInstance(randomModel, instanceId)
-            treeInstance.transform().set(
+            val rockInstance = RockInstance(randomModel, instanceId)
+            rockInstance.transform().set(
                 transform.rotation(),
                 transform.scale(),
                 transform.translation()
             )
-            treeInstance.addComponent(BoxAABBDrawer(Colors.Green))
-            (owner() as Object).addChild(treeInstance)
+            rockInstance.addComponent(BoxAABBDrawer(Colors.Cyan))
+            (owner() as Object).addChild(rockInstance)
 
             randomModel.getModelData().values.forEach { modelData ->
                 val bounds = BoxAABBFactory.fromVertices(modelData.vertices, 3, modelData.indices)
-                treeInstance.getComponent<BoxAABBHierarchy>()!!.add(bounds)
+                rockInstance.getComponent<BoxAABBHierarchy>()!!.add(bounds)
             }
-            treeInstance.recalculateBounds()
+            rockInstance.recalculateBounds()
         }
 
         models.forEach {
@@ -145,33 +138,23 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseB
 
         (owner() as Object).addComponent(renderer)
 
-        if (enablePostProcessing) {
-            ppMaterial = TreeSetPPMaterial(material)
-            ppShader = TreeSetPPShader()
-            ppShader bind ppMaterial
-            ppShader.setup()
-
-            ppRenderer = TreeSetPPRenderer(models, ppMaterial, ppShader) { viewProjectionProvider }
-
-            (owner() as Object).addComponent(ppRenderer)
-        }
-
         (owner() as Object).addComponent(
             MeshDrawer(
                 Resources.get<Camera>()!!,
                 { meshVertices },
-                Colors.Yellow,
+                Colors.Magenta,
             )
         )
 
-        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
-
         frustum = Frustum(Resources.get<Camera>()!! as PerspectiveCamera)
 
-        println("PALM RENDER BEHAVIOUR INITIALIZED")
+        Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
+
+        println("ROCK RENDER BEHAVIOUR INITIALIZED")
     }
 
     override fun update(deltaTime: Float) {
+
     }
 
     override fun destroy() {
@@ -179,16 +162,14 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseB
 
         (owner() as Object)
             .getChildren()
-            .filterIsInstance<TreeInstance>()
-            .forEach { treeInstance ->
-                treeInstance.getComponent<BoxAABBDrawer>()?.dispose()
-                treeInstance.dispose()
+            .filterIsInstance<RockInstance>()
+            .forEach { rockInstance ->
+                rockInstance.getComponent<BoxAABBDrawer>()?.dispose()
+                rockInstance.dispose()
             }
 
         shader.destroy()
-        if (enablePostProcessing) {
-            ppShader.destroy()
-        }
+
         models.forEach { model ->
             model.destroyBuffers()
             model.destroyTextures()

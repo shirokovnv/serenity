@@ -25,6 +25,7 @@ import modules.sky.dome.SkyDome
 import modules.sky.dome.SkyDomeParams
 import modules.terrain.heightmap.*
 import modules.terrain.navigation.TerrainAgentController
+import modules.terrain.objects.rocks.RockSet
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import modules.water.plane.WaterPlane
@@ -111,6 +112,10 @@ class App(settings: ApplicationSettings) : Application(settings) {
         val trees = TreeSet(false)
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(trees)
+
+        val rocks = RockSet()
+        trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
+        scene.attachToRoot(rocks)
 
         // Grass
         // scene.attachToRoot(Grass())

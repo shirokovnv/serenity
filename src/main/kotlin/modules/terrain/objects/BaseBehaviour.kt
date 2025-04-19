@@ -43,8 +43,8 @@ abstract class BaseBehaviour : Behaviour() {
     }
 
     protected fun collectMeshVertices(instance: BaseInstance) {
-        val model = instance.model()
-        val worldMatrix = model.getInstance(instance.instanceId())
+        val model = instance.model
+        val worldMatrix = model.getInstance(instance.instanceId)
 
         model.getModelData().values.forEach { modelData ->
             for (i in modelData.indices) {

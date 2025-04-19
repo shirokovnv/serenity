@@ -1,18 +1,17 @@
 package modules.terrain.objects.rocks
 
-import core.management.Disposable
 import core.scene.Object
 import core.scene.Transform
 import core.scene.navigation.obstacles.NavMeshObstacle
 import core.scene.volumes.BoxAABB
 import core.scene.volumes.BoxAABBHierarchy
 import graphics.model.Model
-import modules.terrain.objects.BaseInstance
+import modules.terrain.objects.BasePickableInstance
 
 class RockInstance(
-    rockModel: Model,
-    instanceId: Int
-) : BaseInstance(rockModel, instanceId), NavMeshObstacle, Disposable {
+    override val model: Model,
+    override val instanceId: Int
+) : BasePickableInstance(), NavMeshObstacle {
     override val objectRef: Object
         get() = this
 
@@ -29,8 +28,5 @@ class RockInstance(
 
     override fun getObstacleBounds(): BoxAABB {
         return getComponent<BoxAABBHierarchy>()?.minInnerBounds() ?: bounds()
-    }
-
-    override fun dispose() {
     }
 }

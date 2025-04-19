@@ -98,12 +98,14 @@ abstract class BaseShader<Self : BaseShader<Self, T>, T : BaseMaterial<T, Self>>
         glAttachShader(programId, shader)
     }
 
-    fun linkAndValidate() {
+    fun linkAndValidate(beforeValidationCallback: (() -> Unit)? = null) {
         glLinkProgram(programId)
 
         if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
             throw IllegalStateException("Unable to link program: ${glGetProgramInfoLog(programId, 1024)}")
         }
+
+        beforeValidationCallback?.invoke()
 
         glValidateProgram(programId)
 

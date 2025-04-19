@@ -6,6 +6,7 @@ import core.math.Quaternion
 import core.scene.Object
 import graphics.rendering.Renderer
 import graphics.rendering.passes.*
+import org.lwjgl.opengl.GL43
 
 class ModelRenderer(
     private val models: List<Model>,
@@ -15,10 +16,15 @@ class ModelRenderer(
     private val viewProjectionProvider: (() -> Matrix4)?,
     private val orthoProjectionProvider: (() -> Matrix4)?,
     private val lightViewProvider: (() -> Matrix4)?
-): BaseComponent(), Renderer {
+) : BaseComponent(), Renderer {
 
     companion object {
-        private val supportedPasses = listOf(NormalPass, ShadowPass, ReflectionPass, RefractionPass)
+        private val supportedPasses = listOf(
+            NormalPass,
+            ShadowPass,
+            ReflectionPass,
+            RefractionPass
+        )
     }
 
     private val viewProjection: Matrix4
@@ -42,6 +48,11 @@ class ModelRenderer(
     override fun render(pass: RenderPass) {
         material.clipPlane = clipPlanes[pass] ?: Quaternion(0f, -1f, 0f, 10000f)
 
+        if (material.isTransparent()) {
+            GL43.glEnable(GL43.GL_BLEND)
+            GL43.glBlendFunc(GL43.GL_SRC_ALPHA, GL43.GL_ONE_MINUS_SRC_ALPHA)
+        }
+
         shader.bind()
         models.forEach { model ->
             val mtlNames = model.getMaterialNames()
@@ -49,7 +60,7 @@ class ModelRenderer(
                 material.mtlData = model.getMtlDataByName(mtlName)
 
                 material.worldMatrix = worldMatrix
-                material.worldViewProjection = when(pass) {
+                material.worldViewProjection = when (pass) {
                     ShadowPass -> worldLightViewProjection
                     else -> worldViewProjection
                 }
@@ -58,6 +69,10 @@ class ModelRenderer(
                 shader.updateUniforms()
                 model.drawByMaterial(mtlName)
             }
+        }
+
+        if (material.isTransparent()) {
+            GL43.glDisable(GL43.GL_BLEND)
         }
 
         shader.unbind()

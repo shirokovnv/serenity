@@ -35,14 +35,19 @@ class Transform : BaseComponent() {
     }
 
     fun set(rotation: Vector3, scale: Vector3, translation: Vector3) {
-        this.rotation = rotation
-        this.scale = scale
-        this.translation = translation
-        isDirty = true
-    }
+        this.rotation.x = rotation.x
+        this.rotation.y = rotation.y
+        this.rotation.z = rotation.z
 
-    fun set(transform: Transform) {
-        set(transform.rotation(), transform.scale(), transform.translation())
+        this.scale.x = scale.x
+        this.scale.y = scale.y
+        this.scale.z = scale.z
+
+        this.translation.x = translation.x
+        this.translation.y = translation.y
+        this.translation.z = translation.z
+
+        isDirty = true
     }
 
     fun rotateAroundAxis(angle: Float, axis: Vector3) {

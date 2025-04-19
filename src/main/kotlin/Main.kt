@@ -13,18 +13,19 @@ import graphics.particles.ParticleBehaviour
 import graphics.rendering.context.RenderContextController
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
-import modules.fauna.Butterfly
-import modules.flora.grass.Grass
-import modules.flora.trees.TreeSet
+import modules.terrain.objects.fauna.Butterfly
+import modules.terrain.objects.flora.grass.Grass
+import modules.terrain.objects.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare
-import modules.water.ocean.Ocean
+import modules.sky.box.SkyBox
 import modules.water.ocean.OceanParams
-import modules.sky.SkyDome
-import modules.sky.SkyDomeParams
+import modules.sky.dome.SkyDome
+import modules.sky.dome.SkyDomeParams
 import modules.terrain.heightmap.*
 import modules.terrain.navigation.TerrainAgentController
+import modules.terrain.objects.rocks.RockSet
 import modules.terrain.tiled.TiledTerrain
 import modules.terrain.tiled.TiledTerrainConfig
 import modules.water.plane.WaterPlane
@@ -112,8 +113,12 @@ class App(settings: ApplicationSettings) : Application(settings) {
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(trees)
 
-        //val grass = Grass()
-        //scene.attachToRoot(grass)
+        val rocks = RockSet()
+        trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
+        scene.attachToRoot(rocks)
+
+        // Grass
+        // scene.attachToRoot(Grass())
 
         val butterfly = Butterfly()
         butterfly.getComponent<Transform>()!!.setTranslation(Vector3(50f, 100f, 50f))
@@ -150,6 +155,7 @@ class App(settings: ApplicationSettings) : Application(settings) {
 
         // SkyDome
         scene.attachToRoot(SkyDome(SkyDomeParams(), false))
+//        scene.attachToRoot(SkyBox())
 
         val lensFlare = LensFlare()
         scene.attachToRoot(lensFlare)

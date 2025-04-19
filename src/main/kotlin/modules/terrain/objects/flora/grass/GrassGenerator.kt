@@ -1,4 +1,4 @@
-package modules.flora.grass
+package modules.terrain.objects.flora.grass
 
 import core.math.Vector2
 import core.math.Vector3

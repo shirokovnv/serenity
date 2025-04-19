@@ -1,4 +1,4 @@
-package modules.flora.grass
+package modules.terrain.objects.flora.grass
 
 import core.scene.Object
 

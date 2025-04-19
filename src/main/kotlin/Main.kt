@@ -13,9 +13,9 @@ import graphics.particles.ParticleBehaviour
 import graphics.rendering.context.RenderContextController
 import graphics.tools.MonitoringBehaviour
 import graphics.tools.PickingBehaviour
-import modules.fauna.Butterfly
-import modules.flora.grass.Grass
-import modules.flora.trees.TreeSet
+import modules.terrain.objects.fauna.Butterfly
+import modules.terrain.objects.flora.grass.Grass
+import modules.terrain.objects.flora.trees.TreeSet
 import modules.light.AtmosphereController
 import modules.light.SunLightController
 import modules.light.flare.LensFlare

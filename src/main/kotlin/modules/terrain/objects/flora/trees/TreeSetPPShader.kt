@@ -1,4 +1,4 @@
-package modules.flora.trees
+package modules.terrain.objects.flora.trees
 
 import core.management.Resources
 import graphics.assets.surface.BaseShader
@@ -12,12 +12,12 @@ class TreeSetPPShader: BaseShader<TreeSetPPShader, TreeSetPPMaterial>() {
         val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.loadAsString("shaders/flora/trees/TreesPP_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/terrain/flora/trees/TreesPP_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/flora/trees/TreesPP_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/terrain/flora/trees/TreesPP_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

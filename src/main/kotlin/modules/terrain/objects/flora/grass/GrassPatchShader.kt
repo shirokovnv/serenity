@@ -1,4 +1,4 @@
-package modules.flora.grass
+package modules.terrain.objects.flora.grass
 
 import core.management.Resources
 import core.scene.camera.Camera
@@ -14,12 +14,12 @@ class GrassPatchShader: BaseShader<GrassPatchShader, GrassPatchMaterial>() {
         val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.loadAsString("shaders/flora/grass/GrassPatch_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/terrain/flora/grass/GrassPatch_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/flora/grass/GrassPatch_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/terrain/flora/grass/GrassPatch_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

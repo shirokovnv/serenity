@@ -1,4 +1,4 @@
-package modules.flora.grass
+package modules.terrain.objects.flora.grass
 
 import core.math.Rect3d
 import core.math.Vector3

@@ -1,4 +1,4 @@
-package modules.flora.trees
+package modules.terrain.objects.flora.trees
 
 import core.math.Vector2
 import modules.terrain.sampling.SamplingContainerInterface

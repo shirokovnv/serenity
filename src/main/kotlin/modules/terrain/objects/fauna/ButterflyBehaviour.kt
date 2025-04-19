@@ -1,4 +1,4 @@
-package modules.fauna
+package modules.terrain.objects.fauna
 
 import core.management.Resources
 import core.math.Matrix4

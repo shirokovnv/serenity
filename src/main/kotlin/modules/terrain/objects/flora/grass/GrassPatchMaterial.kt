@@ -1,4 +1,4 @@
-package modules.flora.grass
+package modules.terrain.objects.flora.grass
 
 import core.math.Matrix4
 import graphics.assets.surface.BaseMaterial

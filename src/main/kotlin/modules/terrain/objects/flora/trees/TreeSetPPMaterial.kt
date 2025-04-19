@@ -1,4 +1,4 @@
-package modules.flora.trees
+package modules.terrain.objects.flora.trees
 
 import graphics.assets.surface.BaseMaterial
 import graphics.model.ModelMaterial

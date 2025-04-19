@@ -1,4 +1,4 @@
-package modules.flora.trees
+package modules.terrain.objects.flora.trees
 
 import core.ecs.Behaviour
 import core.events.Events

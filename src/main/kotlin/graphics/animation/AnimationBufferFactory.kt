@@ -21,10 +21,11 @@ object AnimationBufferFactory {
         referenceCounters[model.name()]?.coerceAtLeast(0)
 
         if (referenceCounters[model.name()] == 0) {
-            buffers[model]?.forEach {
-                it.value.destroy()
+            buffers.remove(model)?.let {
+                it.values.forEach { buffer ->
+                    buffer.destroy()
+                }
             }
-            buffers.remove(model)
         }
     }
 }

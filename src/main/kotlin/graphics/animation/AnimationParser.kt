@@ -19,6 +19,7 @@ private const val maxNumBones = 200
 
 class AnimationParser {
     fun parse(
+        name: String,
         buffer: ByteBuffer,
         numMeshes: Int = maxNumMeshes,
         numAnimations: Int = maxNumAnimations
@@ -47,6 +48,7 @@ class AnimationParser {
         aiReleaseImport(scene)
 
         return AnimationModel(
+            name,
             root,
             globalInverseTransform,
             animations,

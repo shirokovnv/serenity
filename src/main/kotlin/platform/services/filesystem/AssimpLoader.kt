@@ -10,6 +10,6 @@ class AssimpLoader(
     fun load(modelResourceName: String): AnimationModel {
         val modelByteBuffer = fileLoader.loadAsBytes(modelResourceName)!!
 
-        return animationParser.parse(modelByteBuffer)
+        return animationParser.parse(modelResourceName, modelByteBuffer)
     }
 }

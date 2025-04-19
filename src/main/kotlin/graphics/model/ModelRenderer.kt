@@ -6,6 +6,7 @@ import core.math.Quaternion
 import core.scene.Object
 import graphics.rendering.Renderer
 import graphics.rendering.passes.*
+import org.lwjgl.opengl.GL43
 
 class ModelRenderer(
     private val models: List<Model>,
@@ -47,6 +48,11 @@ class ModelRenderer(
     override fun render(pass: RenderPass) {
         material.clipPlane = clipPlanes[pass] ?: Quaternion(0f, -1f, 0f, 10000f)
 
+        if (material.isTransparent()) {
+            GL43.glEnable(GL43.GL_BLEND)
+            GL43.glBlendFunc(GL43.GL_SRC_ALPHA, GL43.GL_ONE_MINUS_SRC_ALPHA)
+        }
+
         shader.bind()
         models.forEach { model ->
             val mtlNames = model.getMaterialNames()
@@ -63,6 +69,10 @@ class ModelRenderer(
                 shader.updateUniforms()
                 model.drawByMaterial(mtlName)
             }
+        }
+
+        if (material.isTransparent()) {
+            GL43.glDisable(GL43.GL_BLEND)
         }
 
         shader.unbind()

@@ -14,6 +14,7 @@ import core.scene.camera.PerspectiveCamera
 import core.scene.volumes.BoxAABBFactory
 import core.scene.volumes.BoxAABBHierarchy
 import graphics.assets.surface.bind
+import graphics.assets.texture.CubemapTexture
 import graphics.model.Model
 import graphics.model.ModelMaterial
 import graphics.model.ModelRenderer
@@ -30,6 +31,7 @@ import modules.terrain.objects.ObjectProviders
 import modules.terrain.objects.flora.trees.TreeSamplingContainer
 import modules.terrain.sampling.PoissonDiscSampler
 import modules.terrain.sampling.PoissonDiscSamplerParams
+import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
@@ -53,6 +55,7 @@ class RockSetBehaviour : BaseBehaviour() {
 
     override fun create() {
         val objLoader = Resources.get<ObjLoader>()!!
+        val imageLoader = Resources.get<ImageLoader>()!!
 
         val modelFiles = mapOf(
             "models/rock/Rock_1.obj" to "models/rock/Rock_1.mtl",
@@ -147,6 +150,7 @@ class RockSetBehaviour : BaseBehaviour() {
         )
 
         frustum = Frustum(Resources.get<Camera>()!! as PerspectiveCamera)
+        material.opacity = 1.0f
 
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 

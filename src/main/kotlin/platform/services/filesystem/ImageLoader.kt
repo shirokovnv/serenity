@@ -2,6 +2,7 @@ package platform.services.filesystem
 
 import graphics.assets.texture.CubemapTexture
 import graphics.assets.texture.ImageData
+import graphics.assets.texture.cubemapFaceTypes
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL43
 import org.lwjgl.stb.STBImage
@@ -11,18 +12,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 class ImageLoader {
-
-    companion object {
-        private val cubemapFaceTypes = arrayOf(
-            GL43.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-            GL43.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-            GL43.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-            GL43.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-            GL43.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-            GL43.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-        )
-    }
-
     fun loadImage(fileName: String): ImageData {
         val imageBuffer: ByteBuffer = try {
             ioResourceToByteBuffer(fileName)

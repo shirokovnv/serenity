@@ -6,7 +6,6 @@ import core.math.Vector3
 import graphics.assets.surface.BaseMaterial
 
 class ModelMaterial : BaseMaterial<ModelMaterial, ModelShader>() {
-    lateinit var cameraPosition: Vector3
     lateinit var worldMatrix: Matrix4
     lateinit var worldViewProjection: Matrix4
     lateinit var clipPlane: Quaternion

@@ -31,7 +31,6 @@ import modules.terrain.objects.ObjectProviders
 import modules.terrain.objects.flora.trees.TreeSamplingContainer
 import modules.terrain.sampling.PoissonDiscSampler
 import modules.terrain.sampling.PoissonDiscSamplerParams
-import platform.services.filesystem.ImageLoader
 import platform.services.filesystem.ObjLoader
 import kotlin.math.PI
 import kotlin.random.Random
@@ -55,7 +54,6 @@ class RockSetBehaviour : BaseBehaviour() {
 
     override fun create() {
         val objLoader = Resources.get<ObjLoader>()!!
-        val imageLoader = Resources.get<ImageLoader>()!!
 
         val modelFiles = mapOf(
             "models/rock/Rock_1.obj" to "models/rock/Rock_1.mtl",
@@ -171,6 +169,8 @@ class RockSetBehaviour : BaseBehaviour() {
                 rockInstance.getComponent<BoxAABBDrawer>()?.dispose()
                 rockInstance.dispose()
             }
+
+        (owner() as Object).getComponent<MeshDrawer>()?.dispose()
 
         shader.destroy()
 

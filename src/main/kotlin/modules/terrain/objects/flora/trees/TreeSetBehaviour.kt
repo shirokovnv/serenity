@@ -185,6 +185,8 @@ class TreeSetBehaviour(private val enablePostProcessing: Boolean = true) : BaseB
                 treeInstance.dispose()
             }
 
+        (owner() as Object).getComponent<MeshDrawer>()?.dispose()
+
         shader.destroy()
         if (enablePostProcessing) {
             ppShader.destroy()

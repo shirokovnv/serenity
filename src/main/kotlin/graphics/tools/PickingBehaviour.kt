@@ -4,12 +4,14 @@ import core.ecs.Behaviour
 import core.events.Events
 import core.management.Resources
 import core.math.Quaternion
+import core.math.Vector3
 import core.scene.Object
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.PerspectiveCamera
-import core.scene.picking.PickingTargetEvent
 import core.scene.picking.PickingSelector
+import core.scene.picking.PickingTargetEvent
+import core.scene.raytracing.RayIntersectable
 import core.scene.raytracing.RayTracer
 import core.scene.volumes.BoxAABB
 import org.lwjgl.glfw.GLFW
@@ -23,7 +25,7 @@ class PickingBehaviour : Behaviour() {
     private val isDraggingPhase: Boolean
         get() = mouseInput.isMouseButtonHolding(GLFW.GLFW_MOUSE_BUTTON_1)
 
-    private val pickings = mutableListOf<BoxAABB>()
+    private val pickings = mutableMapOf<BoxAABB, Vector3>()
 
     private val mouseInput: MouseInput
         get() = Resources.get<MouseInput>()!!
@@ -45,8 +47,9 @@ class PickingBehaviour : Behaviour() {
 
             val rayView = rayTracer.castRayInViewSpace(mouseX, mouseY)
 
-            val bounds = pickings.first()
+            val bounds = pickings.keys.first()
             val transform = bounds.owner()!!.getComponent<Transform>()!!
+
             val objViewSpacePosition = camera.view * Quaternion(transform.translation(), 1.0f)
             val viewSpaceIntersect = Quaternion(rayView * -objViewSpacePosition.z, 1.0f)
 
@@ -70,7 +73,18 @@ class PickingBehaviour : Behaviour() {
             val mouseY = mouseInput.lastY().toFloat()
 
             val ray = rayTracer.castRayInWorldSpace(mouseX, mouseY)
-            pickings.addAll(PickingSelector.selectInRange(camera.position(), ray, rayLength))
+            val query = PickingSelector.selectInRange(camera.position(), ray, rayLength)
+
+            query.forEach { bounds ->
+                val owner = (bounds.owner()!! as Object)
+
+                if (owner is RayIntersectable) {
+                    val intersection = owner.intersectsWith(camera.position(), ray)
+                    if (intersection != null) {
+                        pickings[bounds] = intersection
+                    }
+                }
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import graphics.assets.texture.Texture2d
 import graphics.rendering.Drawable
 
 class AnimationModel(
+    private val name: String,
     private val root: Node,
     private val globalInverseTransform: Matrix4,
     private val animations: List<Animation>,
@@ -21,20 +22,14 @@ class AnimationModel(
     private var currentMesh: Mesh? = null
 
     private var diffuseTexture: Texture2d? = null
-    private var buffers = mutableMapOf<String, AnimationBuffer>()
+    private var buffers = AnimationBufferFactory.getOrCreateBuffer(this)
 
     companion object {
         private val identity = Matrix4().identity()
     }
 
-    init {
-        meshes.forEach { mesh ->
-            buffers[mesh.name] = AnimationBuffer(mesh.vertices, mesh.indices)
-        }
-    }
-
     override fun dispose() {
-        buffers.values.forEach { it.destroy() }
+        AnimationBufferFactory.disposeBuffer(this)
     }
 
     override fun draw() {
@@ -44,6 +39,8 @@ class AnimationModel(
     fun drawCurrent() {
         buffers[currentMesh?.name]?.draw()
     }
+
+    fun name(): String = name
 
     fun diffuseTexture(): Texture2d? = diffuseTexture
 

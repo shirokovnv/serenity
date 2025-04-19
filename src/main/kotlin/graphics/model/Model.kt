@@ -60,6 +60,10 @@ class Model(private val modelData: MutableMap<String, ModelData>) :
         return instanceMatrices.toMutableList()
     }
 
+    fun getInstance(index: Int): Matrix4 {
+        return instanceMatrices[index]
+    }
+
     fun getMaterialNames(): List<String> {
         return modelData.keys.toMutableList()
     }

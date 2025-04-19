@@ -17,6 +17,7 @@ uniform bool isAmbientMapUsed;
 uniform bool isDiffuseMapUsed;
 uniform bool isNormalMapUsed;
 uniform bool isSpecularMapUsed;
+uniform float opacity = 1.0;
 uniform float alphaThreshold;
 uniform bool isShadowPass = false;
 
@@ -58,6 +59,10 @@ void main() {
     }
 
     vec4 finalColor = ambientColor + diffuseColor;
+    if (opacity < 1.0) {
+        finalColor.a = opacity;
+    }
+
     if (finalColor.a < alphaThreshold) {
         discard;
     }

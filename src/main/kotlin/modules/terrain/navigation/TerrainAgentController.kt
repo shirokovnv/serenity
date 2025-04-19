@@ -27,15 +27,16 @@ import graphics.rendering.gizmos.RayDrawer
 import graphics.rendering.gizmos.SphereDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
-import modules.fauna.AnimalBehaviour
-import modules.fauna.AnimalMaterial
-import modules.fauna.AnimalShader
-import modules.flora.trees.TreeSamplingContainer
+import modules.terrain.objects.fauna.AnimalBehaviour
+import modules.terrain.objects.fauna.AnimalMaterial
+import modules.terrain.objects.fauna.AnimalShader
+import modules.terrain.objects.flora.trees.TreeSamplingContainer
 import modules.terrain.heightmap.HeightAndSlopeBasedValidator
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.sampling.PoissonDiscSampler
 import modules.terrain.sampling.PoissonDiscSamplerParams
 import modules.terrain.heightmap.binarySearch
+import modules.terrain.objects.rocks.RockSamplingContainer
 import org.lwjgl.glfw.GLFW
 import platform.services.input.MouseButtonPressedEvent
 import platform.services.input.MouseInput
@@ -137,8 +138,13 @@ class TerrainAgentController(
         )
         val samplingContainer = TerrainAgentSamplingContainer(initialPositions, samplingParams.radius / 2, samplingParams.radius)
         println("NUM POINTS: ${initialPositions.size}")
+
+        // TODO: ensure tree set and rock set initialized first
         samplingContainer.reducePointsByObstacles(
             Resources.get<TreeSamplingContainer>()!!,
+        )
+        samplingContainer.reducePointsByObstacles(
+            Resources.get<RockSamplingContainer>()!!
         )
         val positions = samplingContainer.points
 

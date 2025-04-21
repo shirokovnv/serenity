@@ -19,12 +19,10 @@ void main() {
     vec3 edge1 = v1 - v0;
     vec3 edge2 = v2 - v0;
 
-    vec3 normal = normalize(cross(edge1, edge2));
-
-    g_Normal = normal;
+    g_Normal = normalize(cross(edge1, edge2));
 
     vec3 center = (v0 + v1 + v2) / 3.0;
-    vec3 normalEnd = center + normal * u_NormalLength;
+    vec3 normalEnd = center + g_Normal * u_NormalLength;
 
     // Line
     gl_Position = u_ViewProjection * vec4(center, 1.0);
@@ -36,13 +34,13 @@ void main() {
     // Arrowhead
     vec3 arrowBase = normalEnd;
     float arrowRealLength = u_NormalLength * u_ArrowLengthRatio; // Arrow length relative to normal length
-    vec3 arrowTip = normalEnd + normal * arrowRealLength;
+    vec3 arrowTip = normalEnd + g_Normal * arrowRealLength;
 
     // Choose a vector that's not parallel to the normal
-    vec3 arbitraryVector = abs(normal.x) > 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 arbitraryVector = abs(g_Normal.x) > 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
 
     // Calculate two vectors perpendicular to the normal (Arrow sides)
-    vec3 arrowSide1 = normalize(cross(normal, arbitraryVector)) * u_ArrowSize;
+    vec3 arrowSide1 = normalize(cross(g_Normal, arbitraryVector)) * u_ArrowSize;
     vec3 arrowSide2 = -arrowSide1;
 
     // Arrow sides must be at the same point as arrowBase. To draw arrow, use line_strip

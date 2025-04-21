@@ -15,9 +15,11 @@ class MarchingCubesBuffer : Asset, Drawable {
 
     private var vaoId: Int = 0
     private var vboId: Int = 0
+    private var vboNormalId: Int = 0
     private var numVertices: Int = 0
 
     private lateinit var vertexInMemoryBuffer: FloatBuffer
+    private lateinit var normalInMemoryBuffer: FloatBuffer
 
     init {
         create()
@@ -28,11 +30,12 @@ class MarchingCubesBuffer : Asset, Drawable {
     }
 
     override fun create() {
-        if (vaoId != 0 || vboId != 0) {
+        if (vaoId != 0 || vboNormalId != 0 || vboId != 0) {
             return
         }
 
         vboId = GL43.glGenBuffers()
+        vboNormalId = GL43.glGenBuffers()
         vaoId = GL43.glGenVertexArrays()
 
         GL43.glBindVertexArray(vaoId)
@@ -43,6 +46,13 @@ class MarchingCubesBuffer : Asset, Drawable {
 
         GL43.glEnableVertexAttribArray(0)
         GL43.glVertexAttribPointer(0, 3, GL43.GL_FLOAT, false, 0, 0)
+
+        normalInMemoryBuffer = initializeEmptyNormalBuffer()
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboNormalId)
+        GL43.glBufferData(GL43.GL_ARRAY_BUFFER, normalInMemoryBuffer, GL43.GL_DYNAMIC_DRAW)
+
+        GL43.glEnableVertexAttribArray(1)
+        GL43.glVertexAttribPointer(1, 3, GL43.GL_FLOAT, false, 0, 0)
 
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, 0)
         GL43.glBindVertexArray(0)
@@ -57,8 +67,13 @@ class MarchingCubesBuffer : Asset, Drawable {
             GL43.glDeleteBuffers(vboId)
         }
 
+        if (vboNormalId != 0) {
+            GL43.glDeleteBuffers(vboNormalId)
+        }
+
         vaoId = 0
         vboId = 0
+        vboNormalId = 0
         numVertices = 0
     }
 
@@ -78,7 +93,8 @@ class MarchingCubesBuffer : Asset, Drawable {
         GL43.glBindVertexArray(0)
     }
 
-    fun uploadData(vertices: List<Vector3>) {
+    fun uploadData(vertices: List<Vector3>, normals: List<Vector3>) {
+        // Upload vertices
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
 
         vertexInMemoryBuffer
@@ -94,6 +110,22 @@ class MarchingCubesBuffer : Asset, Drawable {
         vertexInMemoryBuffer.flip()
 
         GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, vertexInMemoryBuffer)
+
+        // Upload normals
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboNormalId)
+        normalInMemoryBuffer
+            .rewind()
+            .limit(MAX_CAPACITY * VERTEX_SIZE)
+
+        normals.forEach { normal ->
+            normalInMemoryBuffer.put(normal.x)
+            normalInMemoryBuffer.put(normal.y)
+            normalInMemoryBuffer.put(normal.z)
+        }
+        normalInMemoryBuffer.flip()
+
+        GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, normalInMemoryBuffer)
+
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, 0)
     }
 
@@ -105,5 +137,15 @@ class MarchingCubesBuffer : Asset, Drawable {
         vertexData.flip()
 
         return vertexData
+    }
+
+    private fun initializeEmptyNormalBuffer(): FloatBuffer {
+        val normalData = BufferUtils.createFloatBuffer(MAX_CAPACITY * VERTEX_SIZE)
+        for (i in 0..<normalData.capacity()) {
+            normalData.put(0f)
+        }
+        normalData.flip()
+
+        return normalData
     }
 }

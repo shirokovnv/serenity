@@ -4,8 +4,6 @@ import core.math.Vector3
 import core.scene.voxelization.VoxelGrid
 import kotlin.math.abs
 
-private const val fl = 0.00001f
-
 class MarchingCubesGenerator(
     private val voxelGrid: VoxelGrid,
     private val isoLevel: Float
@@ -15,6 +13,13 @@ class MarchingCubesGenerator(
     }
 
     fun generateMesh(): MarchingCubesMeshData {
+        val vertices = calculateVertices()
+        val normals = calculateNormals(vertices)
+
+        return MarchingCubesMeshData(vertices, normals)
+    }
+
+    private fun calculateVertices(): List<Vector3> {
         val vertices = mutableListOf<Vector3>()
 
         for (x in 0..<voxelGrid.resolution - 1) {
@@ -25,7 +30,101 @@ class MarchingCubesGenerator(
             }
         }
 
-        return MarchingCubesMeshData(vertices)
+        return vertices
+    }
+
+    private fun calculateNormals(vertices: List<Vector3>): List<Vector3> {
+        val normals = mutableListOf<Vector3>()
+
+        vertices.forEach { position ->
+            val normal = calculateNormal(position, voxelGrid)
+            normals.add(normal)
+        }
+
+        return normals
+    }
+
+    private fun calculateNormal(position: Vector3, voxelGrid: VoxelGrid): Vector3 {
+        val uvw = Vector3(
+            position.x / voxelGrid.resolution.toFloat(),
+            position.y / voxelGrid.resolution.toFloat(),
+            position.z / voxelGrid.resolution.toFloat(),
+        )
+
+        val d = 1.0f / voxelGrid.resolution.toFloat()
+
+        val grad = Vector3(
+            sampleDensity(Vector3(uvw) + Vector3(d, 0f, 0f), voxelGrid) - sampleDensity(
+                Vector3(uvw) + Vector3(
+                    -d,
+                    0f,
+                    0f
+                ), voxelGrid
+            ),
+            sampleDensity(Vector3(uvw) + Vector3(0f, d, 0f), voxelGrid) - sampleDensity(
+                Vector3(uvw) + Vector3(
+                    0f,
+                    -d,
+                    0f
+                ), voxelGrid
+            ),
+            sampleDensity(Vector3(uvw) + Vector3(0f, 0f, d), voxelGrid) - sampleDensity(
+                Vector3(uvw) + Vector3(
+                    0f,
+                    0f,
+                    -d
+                ), voxelGrid
+            )
+        )
+
+        return Vector3(grad).normalize() * -1f
+    }
+
+    private fun sampleDensity(uvw: Vector3, voxelGrid: VoxelGrid): Float {
+        val x = uvw.x
+        val y = uvw.y
+        val z = uvw.z
+
+        if (x < 0f || x > 1f || y < 0f || y > 1f || z < 0f || z > 1f) return 0f
+
+        val sizeX = voxelGrid.resolution - 1
+        val sizeY = voxelGrid.resolution - 1
+        val sizeZ = voxelGrid.resolution - 1
+
+        val fx = x * sizeX
+        val fy = y * sizeY
+        val fz = z * sizeZ
+
+        val x0 = kotlin.math.floor(fx).toInt().coerceIn(0, sizeX)
+        val y0 = kotlin.math.floor(fy).toInt().coerceIn(0, sizeY)
+        val z0 = kotlin.math.floor(fz).toInt().coerceIn(0, sizeZ)
+
+        val x1 = kotlin.math.ceil(fx).toInt().coerceIn(0, sizeX)
+        val y1 = kotlin.math.ceil(fy).toInt().coerceIn(0, sizeY)
+        val z1 = kotlin.math.ceil(fz).toInt().coerceIn(0, sizeZ)
+
+        val rx = fx - x0
+        val ry = fy - y0
+        val rz = fz - z0
+
+        val c000 = voxelGrid.read(x0, y0, z0)
+        val c100 = voxelGrid.read(x1, y0, z0)
+        val c010 = voxelGrid.read(x0, y1, z0)
+        val c110 = voxelGrid.read(x1, y1, z0)
+        val c001 = voxelGrid.read(x0, y0, z1)
+        val c101 = voxelGrid.read(x1, y0, z1)
+        val c011 = voxelGrid.read(x0, y1, z1)
+        val c111 = voxelGrid.read(x1, y1, z1)
+
+        val c00 = c000 * (1 - rx) + c100 * rx
+        val c01 = c010 * (1 - rx) + c110 * rx
+        val c10 = c001 * (1 - rx) + c101 * rx
+        val c11 = c011 * (1 - rx) + c111 * rx
+
+        val c0 = c00 * (1 - ry) + c01 * ry
+        val c1 = c10 * (1 - ry) + c11 * ry
+
+        return c0 * (1 - rz) + c1 * rz
     }
 
     private fun marchCube(x: Int, y: Int, z: Int, voxelGrid: VoxelGrid, vertices: MutableList<Vector3>) {
@@ -142,27 +241,5 @@ class MarchingCubesGenerator(
             a.y + t * (b.y - a.y),
             a.z + t * (b.z - a.z)
         )
-    }
-
-    private fun compareVectors(a: Vector3, b: Vector3): Boolean {
-        if (a.x < b.x) {
-            return true
-        } else if (a.x > b.x){
-            return false
-        }
-
-        if (a.y < b.y) {
-            return true
-        } else if (a.y > b.y){
-            return false
-        }
-
-        if (a.z < b.z) {
-            return true
-        } else if (a.z > b.z){
-            return false
-        }
-
-        return false
     }
 }

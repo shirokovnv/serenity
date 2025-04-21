@@ -69,7 +69,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         val mesh = rebuildMesh()
 
         buffer = MarchingCubesBuffer()
-        buffer.uploadData(mesh.vertices)
+        buffer.uploadData(mesh.vertices, mesh.normals)
         material = MarchingCubesMaterial()
         shader = MarchingCubesShader()
         shader bind material
@@ -138,7 +138,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
         val mesh = rebuildMesh()
 
-        buffer.uploadData(mesh.vertices)
+        buffer.uploadData(mesh.vertices, mesh.normals)
 
         (owner() as Object).recalculateBounds()
     }

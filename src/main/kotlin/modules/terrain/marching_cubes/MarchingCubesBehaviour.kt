@@ -102,6 +102,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         material.viewProjection = camera.viewProjection
         material.lightDirection = sunLightManager.sunVector()
         material.lightColor = sunLightManager.sunColor()
+        material.lightIntensity = sunLightManager.sunIntensity()
         material.colorOne = extraParams.colorOne
         material.colorTwo = extraParams.colorTwo
 

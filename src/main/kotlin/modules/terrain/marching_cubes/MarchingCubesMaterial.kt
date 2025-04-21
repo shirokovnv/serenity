@@ -9,6 +9,7 @@ class MarchingCubesMaterial : BaseMaterial<MarchingCubesMaterial, MarchingCubesS
     lateinit var viewProjection: Matrix4
     lateinit var lightDirection: Vector3
     lateinit var lightColor: Vector3
+    var lightIntensity: Float = 1.0f
     lateinit var colorOne: Vector3
     lateinit var colorTwo: Vector3
 

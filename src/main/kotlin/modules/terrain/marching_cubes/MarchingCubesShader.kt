@@ -30,6 +30,7 @@ class MarchingCubesShader : BaseShader<MarchingCubesShader, MarchingCubesMateria
         addUniform("u_ViewProjection")
         addUniform("u_LightDirection")
         addUniform("u_LightColor")
+        addUniform("u_LightIntensity")
         addUniform("u_ColorOne")
         addUniform("u_ColorTwo")
         addUniform("u_AmbientStrength")
@@ -42,6 +43,7 @@ class MarchingCubesShader : BaseShader<MarchingCubesShader, MarchingCubesMateria
 
         setUniform("u_LightDirection", shaderMaterial!!.lightDirection)
         setUniform("u_LightColor", shaderMaterial!!.lightColor)
+        setUniformf("u_LightIntensity", shaderMaterial!!.lightIntensity)
         setUniform("u_ColorOne", shaderMaterial!!.colorOne)
         setUniform("u_ColorTwo", shaderMaterial!!.colorTwo)
         setUniformf("u_AmbientStrength", shaderMaterial!!.ambientStrength)

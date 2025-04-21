@@ -17,6 +17,7 @@ import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.light.SunLightManager
+import modules.terrain.marching_cubes.visuals.NormalVisualizer
 
 class MarchingCubesBehaviour : Behaviour(), Renderer {
 
@@ -68,7 +69,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         val mesh = rebuildMesh()
 
         buffer = MarchingCubesBuffer()
-        buffer.uploadData(mesh)
+        buffer.uploadData(mesh.vertices)
         material = MarchingCubesMaterial()
         shader = MarchingCubesShader()
         shader bind material
@@ -76,6 +77,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
         owner()?.addComponent(MarchingCubesGui(gridParams, noiseParams, extraParams))
         owner()?.addComponent(BoxAABBDrawer(Colors.LightGray))
+        owner()?.addComponent(NormalVisualizer(buffer, { world }, { camera.viewProjection }))
         (owner() as Object).recalculateBounds()
 
         Events.subscribe<MarchingCubesChangedEvent, Any>(::onChanged)
@@ -92,6 +94,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         owner()?.getComponent<BoxAABBDrawer>()?.dispose()
+        owner()?.getComponent<NormalVisualizer>()?.dispose()
 
         shader.destroy()
         buffer.destroy()
@@ -118,6 +121,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         owner()?.getComponent<BoxAABBDrawer>()?.draw()
+        owner()?.getComponent<NormalVisualizer>()?.draw()
     }
 
     private fun onChanged(event: MarchingCubesChangedEvent, sender: Any) {
@@ -133,12 +137,13 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         )
 
         val mesh = rebuildMesh()
-        buffer.uploadData(mesh)
+
+        buffer.uploadData(mesh.vertices)
 
         (owner() as Object).recalculateBounds()
     }
 
-    private fun rebuildMesh(): List<Vector3> {
+    private fun rebuildMesh(): MarchingCubesMeshData {
         val scalarField = ScalarField(gridParams.resolution, ::densityProvider)
         val voxelGrid = scalarField.generate()
         val generator = MarchingCubesGenerator(voxelGrid, gridParams.isoLevel)

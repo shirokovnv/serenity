@@ -7,7 +7,7 @@ class MarchingCubesGenerator(
     private val voxelGrid: VoxelGrid,
     private val isoLevel: Float
 ) {
-    fun generateMesh(): MutableList<Vector3> {
+    fun generateMesh(): MarchingCubesMeshData {
         val vertices = mutableListOf<Vector3>()
 
         for (x in 0..<voxelGrid.resolution - 1) {
@@ -18,7 +18,7 @@ class MarchingCubesGenerator(
             }
         }
 
-        return vertices
+        return MarchingCubesMeshData(vertices)
     }
 
     private fun marchCube(x: Int, y: Int, z: Int, voxelGrid: VoxelGrid, vertices: MutableList<Vector3>) {
@@ -104,7 +104,6 @@ class MarchingCubesGenerator(
     }
 
     private fun calculateInterpolation(a: Vector3, b: Vector3, voxelGrid: VoxelGrid): Vector3 {
-
         // Get the values at point A and point B, checking if the read is valid.
         val valA = if (isWithinBounds(a.x.toInt(), a.y.toInt(), a.z.toInt(), voxelGrid)) {
             voxelGrid.read(a.x.toInt(), a.y.toInt(), a.z.toInt())

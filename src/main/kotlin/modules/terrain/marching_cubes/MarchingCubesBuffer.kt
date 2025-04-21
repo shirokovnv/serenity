@@ -10,7 +10,7 @@ import java.nio.FloatBuffer
 class MarchingCubesBuffer : Asset, Drawable {
     companion object {
         private const val MAX_CAPACITY = 1_000_000
-        private const val STRIDE = 3 * Float.SIZE_BYTES
+        private const val VERTEX_SIZE = 3 * Float.SIZE_BYTES
     }
 
     private var vaoId: Int = 0
@@ -35,15 +35,14 @@ class MarchingCubesBuffer : Asset, Drawable {
         vboId = GL43.glGenBuffers()
         vaoId = GL43.glGenVertexArrays()
 
-        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
         GL43.glBindVertexArray(vaoId)
 
         vertexInMemoryBuffer = initializeEmptyVertexBuffer()
-
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
         GL43.glBufferData(GL43.GL_ARRAY_BUFFER, vertexInMemoryBuffer, GL43.GL_DYNAMIC_DRAW)
 
         GL43.glEnableVertexAttribArray(0)
-        GL43.glVertexAttribPointer(0, 3, GL43.GL_FLOAT, false, STRIDE, 0)
+        GL43.glVertexAttribPointer(0, 3, GL43.GL_FLOAT, false, 0, 0)
 
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, 0)
         GL43.glBindVertexArray(0)
@@ -84,10 +83,9 @@ class MarchingCubesBuffer : Asset, Drawable {
 
         vertexInMemoryBuffer
             .rewind()
-            .limit(MAX_CAPACITY * STRIDE)
+            .limit(MAX_CAPACITY * VERTEX_SIZE)
 
         numVertices = vertices.count()
-
         vertices.forEach { vertex ->
             vertexInMemoryBuffer.put(vertex.x)
             vertexInMemoryBuffer.put(vertex.y)
@@ -100,7 +98,7 @@ class MarchingCubesBuffer : Asset, Drawable {
     }
 
     private fun initializeEmptyVertexBuffer(): FloatBuffer {
-        val vertexData = BufferUtils.createFloatBuffer(MAX_CAPACITY * STRIDE)
+        val vertexData = BufferUtils.createFloatBuffer(MAX_CAPACITY * VERTEX_SIZE)
         for (i in 0..<vertexData.capacity()) {
             vertexData.put(0f)
         }

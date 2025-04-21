@@ -114,6 +114,10 @@ class MarchingCubesGui(
             )
         }
 
+        ImGui.separator()
+
+        ImGui.text("Color")
+
         changed = changed || ImGui.colorEdit3("Color One", colorOne)
         changed = changed || ImGui.colorEdit3("Color Two", colorTwo)
 

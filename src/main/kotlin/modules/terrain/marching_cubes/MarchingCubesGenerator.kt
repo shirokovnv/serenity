@@ -2,11 +2,18 @@ package modules.terrain.marching_cubes
 
 import core.math.Vector3
 import core.scene.voxelization.VoxelGrid
+import kotlin.math.abs
+
+private const val fl = 0.00001f
 
 class MarchingCubesGenerator(
     private val voxelGrid: VoxelGrid,
     private val isoLevel: Float
 ) {
+    companion object {
+        private const val EPSILON = 0.00001f
+    }
+
     fun generateMesh(): MarchingCubesMeshData {
         val vertices = mutableListOf<Vector3>()
 
@@ -117,11 +124,45 @@ class MarchingCubesGenerator(
             return b // Return "b" if out of bounds. Consider a better fallback strategy.
         }
 
+        if (abs(isoLevel - valA) < EPSILON) {
+            return a
+        }
+
+        if (abs(isoLevel - valB) < EPSILON) {
+            return b
+        }
+
+        if (abs(valA - valB) < EPSILON) {
+            return a
+        }
+
         val t = (isoLevel - valA) / (valB - valA)
         return Vector3(
             a.x + t * (b.x - a.x),
             a.y + t * (b.y - a.y),
             a.z + t * (b.z - a.z)
         )
+    }
+
+    private fun compareVectors(a: Vector3, b: Vector3): Boolean {
+        if (a.x < b.x) {
+            return true
+        } else if (a.x > b.x){
+            return false
+        }
+
+        if (a.y < b.y) {
+            return true
+        } else if (a.y > b.y){
+            return false
+        }
+
+        if (a.z < b.z) {
+            return true
+        } else if (a.z > b.z){
+            return false
+        }
+
+        return false
     }
 }

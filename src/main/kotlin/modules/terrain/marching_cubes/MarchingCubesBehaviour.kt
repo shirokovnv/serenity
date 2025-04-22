@@ -81,12 +81,12 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
         mesh.cleanUp()
 
+        rescaleMesh()
+
         owner()?.addComponent(MarchingCubesGui(gridParams, noiseParams, extraParams))
         owner()?.addComponent(BoxAABBDrawer(Colors.LightGray))
         owner()?.addComponent(NormalDrawer(buffer, { world }, { camera.viewProjection }))
         (owner() as Object).recalculateBounds()
-
-        rescaleMesh()
 
         Events.subscribe<MarchingCubesChangedEvent, Any>(::onChanged)
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)

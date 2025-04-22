@@ -1,10 +1,10 @@
-package modules.terrain.marching_cubes.visuals
+package graphics.rendering.gizmos
 
 import core.math.Matrix4
 import core.math.Vector3
 import graphics.assets.surface.BaseMaterial
 
-class NormalVisualizerMaterial : BaseMaterial<NormalVisualizerMaterial, NormalVisualizerShader>() {
+class NormalMaterial : BaseMaterial<NormalMaterial, NormalShader>() {
     lateinit var world: Matrix4
     lateinit var viewProjection: Matrix4
     lateinit var color: Vector3

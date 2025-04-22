@@ -19,7 +19,7 @@ import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.light.SunLightManager
-import modules.terrain.marching_cubes.visuals.NormalVisualizer
+import graphics.rendering.gizmos.NormalDrawer
 
 class MarchingCubesBehaviour : Behaviour(), Renderer {
 
@@ -83,7 +83,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
         owner()?.addComponent(MarchingCubesGui(gridParams, noiseParams, extraParams))
         owner()?.addComponent(BoxAABBDrawer(Colors.LightGray))
-        owner()?.addComponent(NormalVisualizer(buffer, { world }, { camera.viewProjection }))
+        owner()?.addComponent(NormalDrawer(buffer, { world }, { camera.viewProjection }))
         (owner() as Object).recalculateBounds()
 
         rescaleMesh()
@@ -102,7 +102,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
         owner()?.getComponent<BoxAABBDrawer>()?.dispose()
-        owner()?.getComponent<NormalVisualizer>()?.dispose()
+        owner()?.getComponent<NormalDrawer>()?.dispose()
 
         shader.destroy()
         buffer.destroy()
@@ -130,7 +130,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
         owner()?.getComponent<BoxAABBDrawer>()?.draw()
-        owner()?.getComponent<NormalVisualizer>()?.draw()
+        owner()?.getComponent<NormalDrawer>()?.draw()
     }
 
     private fun onChanged(event: MarchingCubesChangedEvent, sender: Any) {

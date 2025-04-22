@@ -1,26 +1,26 @@
-package modules.terrain.marching_cubes.visuals
+package graphics.rendering.gizmos
 
 import core.management.Resources
 import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import platform.services.filesystem.FileLoader
 
-class NormalVisualizerShader : BaseShader<NormalVisualizerShader, NormalVisualizerMaterial>() {
+class NormalShader : BaseShader<NormalShader, NormalMaterial>() {
     override fun setup() {
         val fileLoader = Resources.get<FileLoader>()!!
 
         addShader(
-            fileLoader.loadAsString("shaders/terrain/marching_cubes/visuals/NormalVisualizer_VS.glsl")!!,
+            fileLoader.loadAsString("shaders/gizmos/Normal_VS.glsl")!!,
             ShaderType.VERTEX_SHADER
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/terrain/marching_cubes/visuals/NormalVisualizer_GS.glsl")!!,
+            fileLoader.loadAsString("shaders/gizmos/Normal_GS.glsl")!!,
             ShaderType.GEOMETRY_SHADER
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/terrain/marching_cubes/visuals/NormalVisualizer_FS.glsl")!!,
+            fileLoader.loadAsString("shaders/gizmos/Normal_FS.glsl")!!,
             ShaderType.FRAGMENT_SHADER
         )
 

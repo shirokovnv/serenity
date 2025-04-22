@@ -5,13 +5,14 @@ in vec3 g_Normal;
 in float g_Occlusion;
 out vec4 o_Color;
 
-uniform vec3 u_LightDirection; // Directional light
-uniform vec3 u_LightColor;     // Color of the light
-uniform float u_LightIntensity; // Light intensity
-uniform vec3 u_ColorOne;       // Primary color of the object
-uniform vec3 u_ColorTwo;       // Secondary color of the object
-uniform float u_AmbientStrength; // Strength of the ambient lighting
-uniform float u_DiffuseStrength; // Strength of the diffuse lighting
+uniform vec3 u_LightDirection;
+uniform vec3 u_LightColor;
+uniform float u_LightIntensity;
+uniform vec3 u_ColorOne;
+uniform vec3 u_ColorTwo;
+uniform float u_AmbientStrength;
+uniform float u_AmbientOcclusion;
+uniform float u_DiffuseStrength;
 
 // TODO: separate
 float diffuse(vec3 direction, vec3 normal, float intensity)
@@ -36,7 +37,9 @@ void main() {
     // Setting colors for different angles
     vec3 angleColor = mix(u_ColorOne, u_ColorTwo, angle / (3.14159265359 / 2.0));
 
+    float ambo = clamp(mix(0.5, u_AmbientOcclusion, g_Occlusion), 0.0, 1.0) * 2.1 - 0.1;
+
     // Combine ambient and diffuse lighting components
-    vec3 result = (ambient + diffuse * g_Occlusion) * angleColor;
+    vec3 result = (ambient + diffuse) * angleColor * ambo;
     o_Color = vec4(result, 1.0);
 }

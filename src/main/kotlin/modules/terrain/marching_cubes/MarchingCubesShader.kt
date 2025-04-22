@@ -35,6 +35,7 @@ class MarchingCubesShader : BaseShader<MarchingCubesShader, MarchingCubesMateria
         addUniform("u_ColorTwo")
         addUniform("u_Resolution")
         addUniform("u_AmbientStrength")
+        addUniform("u_AmbientOcclusion")
         addUniform("u_DiffuseStrength")
     }
 
@@ -48,6 +49,7 @@ class MarchingCubesShader : BaseShader<MarchingCubesShader, MarchingCubesMateria
         setUniform("u_ColorTwo", shaderMaterial!!.colorTwo)
         setUniformi("u_Resolution", shaderMaterial!!.resolution)
         setUniformf("u_AmbientStrength", shaderMaterial!!.ambientStrength)
+        setUniformf("u_AmbientOcclusion", shaderMaterial!!.ambientOcclusion)
         setUniformf("u_DiffuseStrength", shaderMaterial!!.diffuseStrength)
     }
 }

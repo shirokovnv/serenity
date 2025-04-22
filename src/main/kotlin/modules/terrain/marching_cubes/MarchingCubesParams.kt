@@ -46,7 +46,8 @@ data class MarchingCubesExtraParams(
     val isWarpingEnabled: Boolean,
     val warpFactor: Int,
     val colorOne: Vector3,
-    val colorTwo: Vector3
+    val colorTwo: Vector3,
+    val ambientOcclusion: Float
 ) {
     companion object {
         const val MIN_TERRACE_HEIGHT = 0.0f
@@ -54,5 +55,8 @@ data class MarchingCubesExtraParams(
 
         const val MIN_WARP_FACTOR = 1
         const val MAX_WARP_FACTOR = 16
+
+        const val MIN_AMBIENT_OCCLUSION = 0.0f
+        const val MAX_AMBIENT_OCCLUSION = 1.0f
     }
 }

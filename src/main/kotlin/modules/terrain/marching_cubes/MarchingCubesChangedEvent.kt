@@ -5,5 +5,6 @@ import core.events.Event
 data class MarchingCubesChangedEvent(
     val gridParams: MarchingCubesGridParams,
     val noiseParams: MarchingCubesNoiseParams,
-    val extraParams: MarchingCubesExtraParams
+    val extraParams: MarchingCubesExtraParams,
+    val meshParamsChanged: Boolean
 ) : Event

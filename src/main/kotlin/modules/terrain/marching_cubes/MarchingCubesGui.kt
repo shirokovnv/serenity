@@ -30,6 +30,8 @@ class MarchingCubesGui(
     private val colorOne = floatArrayOf(extraParams.colorOne.x, extraParams.colorOne.y, extraParams.colorOne.z)
     private val colorTwo = floatArrayOf(extraParams.colorTwo.x, extraParams.colorTwo.y, extraParams.colorTwo.z)
 
+    private val ambientOcclusionRange = FloatArray(1) { extraParams.ambientOcclusion }
+
     override fun guiWindow(): GuiWindow {
         return GuiWindow.GridWindow("Marching Cubes")
     }
@@ -40,14 +42,14 @@ class MarchingCubesGui(
     override fun onRenderGUI() {
         ImGui.text("Grid")
 
-        var changed = ImGui.sliderInt(
+        var meshChanged = ImGui.sliderInt(
             "Resolution",
             resolutionRange,
             MarchingCubesGridParams.MIN_RESOLUTION,
             MarchingCubesGridParams.MAX_RESOLUTION
         )
 
-        changed = changed || ImGui.sliderFloat(
+        meshChanged = meshChanged || ImGui.sliderFloat(
             "ISO Level",
             isoLevelRange,
             MarchingCubesGridParams.MIN_ISO_LEVEL,
@@ -58,44 +60,44 @@ class MarchingCubesGui(
 
         ImGui.text("Noise")
 
-        changed = changed || ImGui.sliderFloat(
+        meshChanged = meshChanged || ImGui.sliderFloat(
             "Frequency",
             frequencyRange,
             MarchingCubesNoiseParams.MIN_FREQUENCY,
             MarchingCubesNoiseParams.MAX_FREQUENCY
         )
 
-        changed = changed || ImGui.sliderFloat(
+        meshChanged = meshChanged || ImGui.sliderFloat(
             "Amplitude",
             amplitudeRange,
             MarchingCubesNoiseParams.MIN_AMPLITUDE,
             MarchingCubesNoiseParams.MAX_AMPLITUDE
         )
 
-        changed = changed || ImGui.sliderFloat(
+        meshChanged = meshChanged || ImGui.sliderFloat(
             "Lacunarity",
             lacunarityRange,
             MarchingCubesNoiseParams.MIN_LACUNARITY,
             MarchingCubesNoiseParams.MAX_LACUNARITY
         )
 
-        changed = changed || ImGui.sliderFloat(
+        meshChanged = meshChanged || ImGui.sliderFloat(
             "Persistence",
             persistenceRange,
             MarchingCubesNoiseParams.MIN_PERSISTENCE,
             MarchingCubesNoiseParams.MAX_PERSISTENCE
         )
 
-        changed = changed || ImGui.sliderInt(
+        meshChanged = meshChanged || ImGui.sliderInt(
             "Octaves", octaveRange,
             MarchingCubesNoiseParams.MIN_OCTAVES,
             MarchingCubesNoiseParams.MAX_OCTAVES
         )
 
-        changed = changed || ImGui.checkbox("Terracing", isTerracingEnabled)
+        meshChanged = meshChanged || ImGui.checkbox("Terracing", isTerracingEnabled)
 
         if (isTerracingEnabled.get()) {
-            changed = changed || ImGui.sliderFloat(
+            meshChanged = meshChanged || ImGui.sliderFloat(
                 "Terrace Height",
                 terraceHeightRange,
                 MarchingCubesExtraParams.MIN_TERRACE_HEIGHT,
@@ -103,10 +105,10 @@ class MarchingCubesGui(
             )
         }
 
-        changed = changed || ImGui.checkbox("Warping", isWarpingEnabled)
+        meshChanged = meshChanged || ImGui.checkbox("Warping", isWarpingEnabled)
 
         if (isWarpingEnabled.get()) {
-            changed = changed || ImGui.sliderInt(
+            meshChanged = meshChanged || ImGui.sliderInt(
                 "Warp factor",
                 warpFactorRange,
                 MarchingCubesExtraParams.MIN_WARP_FACTOR,
@@ -118,10 +120,16 @@ class MarchingCubesGui(
 
         ImGui.text("Color")
 
-        changed = changed || ImGui.colorEdit3("Color One", colorOne)
-        changed = changed || ImGui.colorEdit3("Color Two", colorTwo)
+        var shaderChanged = ImGui.colorEdit3("Color One", colorOne)
+        shaderChanged = shaderChanged || ImGui.colorEdit3("Color Two", colorTwo)
+        shaderChanged = shaderChanged || ImGui.sliderFloat(
+            "Ambient Occlusion",
+            ambientOcclusionRange,
+            MarchingCubesExtraParams.MIN_AMBIENT_OCCLUSION,
+            MarchingCubesExtraParams.MAX_AMBIENT_OCCLUSION
+        )
 
-        if (changed) {
+        if (meshChanged || shaderChanged) {
             Events.publish(
                 MarchingCubesChangedEvent(
                     MarchingCubesGridParams(
@@ -141,8 +149,10 @@ class MarchingCubesGui(
                         isWarpingEnabled.get(),
                         warpFactorRange[0],
                         Vector3(colorOne[0], colorOne[1], colorOne[2]),
-                        Vector3(colorTwo[0], colorTwo[1], colorTwo[2])
-                    )
+                        Vector3(colorTwo[0], colorTwo[1], colorTwo[2]),
+                        ambientOcclusionRange[0]
+                    ),
+                    meshChanged
                 ),
                 this
             )

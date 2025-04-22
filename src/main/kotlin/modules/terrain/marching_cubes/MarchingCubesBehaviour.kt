@@ -16,10 +16,10 @@ import graphics.rendering.Colors
 import graphics.rendering.Renderer
 import graphics.rendering.gizmos.BoxAABBDrawer
 import graphics.rendering.gizmos.DrawGizmosEvent
+import graphics.rendering.gizmos.NormalDrawer
 import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 import modules.light.SunLightManager
-import graphics.rendering.gizmos.NormalDrawer
 
 class MarchingCubesBehaviour : Behaviour(), Renderer {
 
@@ -55,7 +55,8 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         false,
         8,
         Vector3(0.45f, 0.95f, 0.95f),
-        Vector3(0.4f, 0.4f, 0.42f)
+        Vector3(0.4f, 0.4f, 0.42f),
+        0.5f
     )
 
     private var noise = SimplexNoise(
@@ -116,6 +117,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         material.lightIntensity = sunLightManager.sunIntensity()
         material.colorOne = extraParams.colorOne
         material.colorTwo = extraParams.colorTwo
+        material.ambientOcclusion = extraParams.ambientOcclusion
         material.resolution = gridParams.resolution
 
         shader.bind()
@@ -145,11 +147,13 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
             noiseParams.persistence
         )
 
-        val mesh = rebuildMesh()
-        buffer.uploadData(mesh.vertices, mesh.normals, mesh.occlusions)
-        mesh.cleanUp()
+        if (event.meshParamsChanged) {
+            val mesh = rebuildMesh()
+            buffer.uploadData(mesh.vertices, mesh.normals, mesh.occlusions)
+            mesh.cleanUp()
 
-        rescaleMesh()
+            rescaleMesh()
+        }
 
         (owner() as Object).recalculateBounds()
     }

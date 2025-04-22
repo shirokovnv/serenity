@@ -2,6 +2,42 @@ package modules.terrain.marching_cubes
 
 import core.math.Vector3
 
+// 32 rays with a nice poisson distribution on a sphere:
+val rayTable: Array<Vector3> = arrayOf(
+    Vector3(0.286582f, 0.257763f, -0.922729f),
+    Vector3(-0.171812f, -0.888079f, 0.426375f),
+    Vector3(0.440764f, -0.502089f, -0.744066f),
+    Vector3(-0.841007f, -0.428818f, -0.329882f),
+    Vector3(-0.380213f, -0.588038f, -0.713898f),
+    Vector3(-0.055393f, -0.207160f, -0.976738f),
+    Vector3(-0.901510f, -0.077811f, 0.425706f),
+    Vector3(-0.974593f, 0.123830f, -0.186643f),
+    Vector3(0.208042f, -0.524280f, 0.825741f),
+    Vector3(0.258429f, -0.898570f, -0.354663f),
+    Vector3(-0.262118f, 0.574475f, -0.775418f),
+    Vector3(0.735212f, 0.551820f, 0.393646f),
+    Vector3(0.828700f, -0.523923f, -0.196877f),
+    Vector3(0.788742f, 0.005727f, -0.614698f),
+    Vector3(-0.696885f, 0.649338f, -0.304486f),
+    Vector3(-0.625313f, 0.082413f, -0.776010f),
+    Vector3(0.358696f, 0.928723f, 0.093864f),
+    Vector3(0.188264f, 0.628978f, 0.754283f),
+    Vector3(-0.495193f, 0.294596f, 0.817311f),
+    Vector3(0.818889f, 0.508670f, -0.265851f),
+    Vector3(0.027189f, 0.057757f, 0.997960f),
+    Vector3(-0.188421f, 0.961802f, -0.198582f),
+    Vector3(0.995439f, 0.019982f, 0.093282f),
+    Vector3(-0.315254f, -0.925345f, -0.210596f),
+    Vector3(0.411992f, -0.877706f, 0.244733f),
+    Vector3(0.625857f, 0.080059f, 0.775818f),
+    Vector3(-0.243839f, 0.866185f, 0.436194f),
+    Vector3(-0.725464f, -0.643645f, 0.243768f),
+    Vector3(0.766785f, -0.430702f, 0.475959f),
+    Vector3(-0.446376f, -0.391664f, 0.804580f),
+    Vector3(-0.761557f, 0.562508f, 0.321895f),
+    Vector3(0.344460f, 0.753223f, -0.560359f)
+)
+
 val edgeTable = arrayOf(
     intArrayOf(0, 1), intArrayOf(1, 2), intArrayOf(2, 3), intArrayOf(3, 0),
     intArrayOf(4, 5), intArrayOf(5, 6), intArrayOf(6, 7), intArrayOf(7, 4),

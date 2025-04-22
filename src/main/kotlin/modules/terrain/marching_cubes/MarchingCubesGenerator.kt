@@ -15,21 +15,6 @@ class MarchingCubesGenerator(
 ) {
     companion object {
         private const val EPSILON = 0.00001f
-
-        private val raySphericalDistribution = Array(32) { i ->
-            val rnd = Random(i)
-            val u = rnd.nextFloat()
-            val v = rnd.nextFloat()
-
-            val theta = (2.0f * PI.toFloat() * u)
-            val phi = acos((2.0f * v - 1.0f))
-
-            val x = (sin(phi) * cos(theta))
-            val y = (sin(phi) * sin(theta))
-            val z = (cos(phi))
-
-            Vector3(x, y, z).normalize()
-        }
     }
 
     fun generateMesh(): MarchingCubesMeshData {
@@ -120,7 +105,7 @@ class MarchingCubesGenerator(
         var visibility = 0f
         val bigStep = Vector3(voxelGrid.resolution.toFloat() / 4)
         for (rayIndex in 0..31) {
-            val dir = raySphericalDistribution[rayIndex]
+            val dir = rayTable[rayIndex]
 
             var rayVisibility = 1f
 

@@ -54,8 +54,8 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         1.0f,
         false,
         8,
-        Vector3(0.9f, 0.18f, 0.37f),
-        Vector3(0.7f, 0.7f, 0.6f)
+        Vector3(0.45f, 0.95f, 0.95f),
+        Vector3(0.4f, 0.4f, 0.42f)
     )
 
     private var noise = SimplexNoise(

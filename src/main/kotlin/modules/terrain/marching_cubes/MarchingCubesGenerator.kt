@@ -16,8 +16,6 @@ class MarchingCubesGenerator(
     companion object {
         private const val EPSILON = 0.00001f
 
-        private val bigStep = Vector3(5f)
-
         private val raySphericalDistribution = Array(32) { i ->
             val rnd = Random(i)
             val u = rnd.nextFloat()
@@ -73,7 +71,7 @@ class MarchingCubesGenerator(
         IntStream.range(0, vertices.size).parallel().forEach { i ->
             val position = vertices[i]
             val normal = calculateNormal(position, voxelGrid)
-            val occlusion = calculateOcclusion(position) // Используем bigStep
+            val occlusion = calculateOcclusion(position)
 
             normals[i] = normal // Direct assignment is now thread-safe
             occlusions[i] = occlusion
@@ -120,6 +118,7 @@ class MarchingCubesGenerator(
 
     private fun calculateOcclusion(ws: Vector3): Float {
         var visibility = 0f
+        val bigStep = Vector3(voxelGrid.resolution.toFloat() / 4)
         for (rayIndex in 0..31) {
             val dir = raySphericalDistribution[rayIndex]
 
@@ -127,14 +126,24 @@ class MarchingCubesGenerator(
 
             // Short-range samples from density volume:
             for (step in 1..16) {
-                val position = (ws + dir * step.toFloat()) / voxelGrid.resolution.toFloat()
+                var position = (ws + dir * step.toFloat())
+                position.x.coerceIn(0.0f, 100.0f)
+                position.y.coerceIn(0.0f, 100.0f)
+                position.z.coerceIn(0.0f, 100.0f)
+                position = position / voxelGrid.resolution.toFloat()
+
                 val d = sampleDensity(position, voxelGrid)
                 rayVisibility *= (d * 9999f).saturate()
             }
 
             // Long-range samples from density function:
             for (step in 1..4) {
-                val position = (ws + dir * bigStep * step.toFloat()) / voxelGrid.resolution.toFloat()
+                var position = (ws + dir * bigStep * step.toFloat())
+                position.x.coerceIn(0.0f, 100.0f)
+                position.y.coerceIn(0.0f, 100.0f)
+                position.z.coerceIn(0.0f, 100.0f)
+                position = position / voxelGrid.resolution.toFloat()
+
                 val d = densityProvider(position.x, position.y, position.z)
                 rayVisibility *= (d * 9999f).saturate()
             }

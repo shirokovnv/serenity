@@ -5,8 +5,10 @@ import core.events.Events
 import core.management.Resources
 import core.math.Matrix4
 import core.math.Vector3
+import core.math.extensions.saturate
 import core.math.noise.SimplexNoise
 import core.scene.Object
+import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.voxelization.ScalarField
 import graphics.assets.surface.bind
@@ -63,22 +65,28 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         noiseParams.persistence
     )
 
+    private val scale = Vector3(5f, 2f, 5f)
+
     fun getResolution(): Int = gridParams.resolution
 
     override fun create() {
         val mesh = rebuildMesh()
 
         buffer = MarchingCubesBuffer()
-        buffer.uploadData(mesh.vertices, mesh.normals)
+        buffer.uploadData(mesh.vertices, mesh.normals, mesh.occlusions)
         material = MarchingCubesMaterial()
         shader = MarchingCubesShader()
         shader bind material
         shader.setup()
 
+        mesh.cleanUp()
+
         owner()?.addComponent(MarchingCubesGui(gridParams, noiseParams, extraParams))
         owner()?.addComponent(BoxAABBDrawer(Colors.LightGray))
         owner()?.addComponent(NormalVisualizer(buffer, { world }, { camera.viewProjection }))
         (owner() as Object).recalculateBounds()
+
+        rescaleMesh()
 
         Events.subscribe<MarchingCubesChangedEvent, Any>(::onChanged)
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
@@ -108,6 +116,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         material.lightIntensity = sunLightManager.sunIntensity()
         material.colorOne = extraParams.colorOne
         material.colorTwo = extraParams.colorTwo
+        material.resolution = gridParams.resolution
 
         shader.bind()
         shader.updateUniforms()
@@ -137,8 +146,10 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         )
 
         val mesh = rebuildMesh()
+        buffer.uploadData(mesh.vertices, mesh.normals, mesh.occlusions)
+        mesh.cleanUp()
 
-        buffer.uploadData(mesh.vertices, mesh.normals)
+        rescaleMesh()
 
         (owner() as Object).recalculateBounds()
     }
@@ -146,19 +157,25 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
     private fun rebuildMesh(): MarchingCubesMeshData {
         val scalarField = ScalarField(gridParams.resolution, ::densityProvider)
         val voxelGrid = scalarField.generate()
-        val generator = MarchingCubesGenerator(voxelGrid, gridParams.isoLevel)
+        val generator = MarchingCubesGenerator(voxelGrid, gridParams.isoLevel, ::densityProvider)
 
         return generator.generateMesh()
+    }
+
+    private fun rescaleMesh() {
+        val resFactor = MarchingCubesGridParams.MAX_RESOLUTION / gridParams.resolution.toFloat()
+
+        owner()?.getComponent<Transform>()?.setScale(scale * resFactor)
     }
 
     private fun densityProvider(x: Float, y: Float, z: Float): Float {
         val ws = Vector3(x, y, z)
 
         var density = -ws.y
-        density += noise.fractal(noiseParams.octaves, x, y, z)
 
         if (extraParams.isTerracingEnabled) {
-            density += ws.y % extraParams.terraceHeight
+            //density += ws.y % extraParams.terraceHeight
+            density += ((extraParams.terraceHeight - ws.y) * 1f).saturate() * 2.0f
         }
 
         if (extraParams.isWarpingEnabled) {
@@ -166,6 +183,8 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
             val warp = noise.fractal(noiseParams.octaves, wp.x, wp.y, wp.z)
             density += warp * extraParams.warpFactor
         }
+
+        density += noise.fractal(noiseParams.octaves, x, y, z)
 
         return density
     }

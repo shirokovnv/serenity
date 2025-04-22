@@ -1,25 +1,51 @@
 package modules.terrain.marching_cubes
 
 import core.math.Vector3
+import core.math.extensions.saturate
+import core.scene.voxelization.DensityProvider
 import core.scene.voxelization.VoxelGrid
-import kotlin.math.abs
+import java.util.stream.IntStream
+import kotlin.math.*
+import kotlin.random.Random
 
 class MarchingCubesGenerator(
     private val voxelGrid: VoxelGrid,
-    private val isoLevel: Float
+    private val isoLevel: Float,
+    private val densityProvider: DensityProvider
 ) {
     companion object {
         private const val EPSILON = 0.00001f
+
+        private val bigStep = Vector3(5f)
+
+        private val raySphericalDistribution = Array(32) { i ->
+            val rnd = Random(i)
+            val u = rnd.nextFloat()
+            val v = rnd.nextFloat()
+
+            val theta = (2.0f * PI.toFloat() * u)
+            val phi = acos((2.0f * v - 1.0f))
+
+            val x = (sin(phi) * cos(theta))
+            val y = (sin(phi) * sin(theta))
+            val z = (cos(phi))
+
+            Vector3(x, y, z).normalize()
+        }
     }
 
     fun generateMesh(): MarchingCubesMeshData {
         val vertices = calculateVertices()
-        val normals = calculateNormals(vertices)
+        val normalsAndOcclusions = calculateNormalsAndOcclusions(vertices)
 
-        return MarchingCubesMeshData(vertices, normals)
+        return MarchingCubesMeshData(
+            vertices,
+            normalsAndOcclusions.first,
+            normalsAndOcclusions.second
+        )
     }
 
-    private fun calculateVertices(): List<Vector3> {
+    private fun calculateVertices(): MutableList<Vector3> {
         val vertices = mutableListOf<Vector3>()
 
         for (x in 0..<voxelGrid.resolution - 1) {
@@ -33,15 +59,27 @@ class MarchingCubesGenerator(
         return vertices
     }
 
-    private fun calculateNormals(vertices: List<Vector3>): List<Vector3> {
+    private fun calculateNormalsAndOcclusions(vertices: List<Vector3>): Pair<MutableList<Vector3>, MutableList<Float>> {
         val normals = mutableListOf<Vector3>()
+        val occlusions = mutableListOf<Float>()
 
-        vertices.forEach { position ->
-            val normal = calculateNormal(position, voxelGrid)
-            normals.add(normal)
+        // Pre-allocate lists with the correct size for better performance.
+        // This avoids resizing during parallel processing.
+        repeat(vertices.size) {
+            normals.add(Vector3(0f, 0f, 0f)) // Initialize with a default value
+            occlusions.add(0f) // Initialize with a default value
         }
 
-        return normals
+        IntStream.range(0, vertices.size).parallel().forEach { i ->
+            val position = vertices[i]
+            val normal = calculateNormal(position, voxelGrid)
+            val occlusion = calculateOcclusion(position) // Используем bigStep
+
+            normals[i] = normal // Direct assignment is now thread-safe
+            occlusions[i] = occlusion
+        }
+
+        return Pair(normals, occlusions)
     }
 
     private fun calculateNormal(position: Vector3, voxelGrid: VoxelGrid): Vector3 {
@@ -77,7 +115,34 @@ class MarchingCubesGenerator(
             )
         )
 
-        return Vector3(grad).normalize() * -1f
+        return grad.normalize() * -1f
+    }
+
+    private fun calculateOcclusion(ws: Vector3): Float {
+        var visibility = 0f
+        for (rayIndex in 0..31) {
+            val dir = raySphericalDistribution[rayIndex]
+
+            var rayVisibility = 1f
+
+            // Short-range samples from density volume:
+            for (step in 1..16) {
+                val position = (ws + dir * step.toFloat()) / voxelGrid.resolution.toFloat()
+                val d = sampleDensity(position, voxelGrid)
+                rayVisibility *= (d * 9999f).saturate()
+            }
+
+            // Long-range samples from density function:
+            for (step in 1..4) {
+                val position = (ws + dir * bigStep * step.toFloat()) / voxelGrid.resolution.toFloat()
+                val d = densityProvider(position.x, position.y, position.z)
+                rayVisibility *= (d * 9999f).saturate()
+            }
+
+            visibility += rayVisibility
+        }
+
+        return (1f - visibility / 32f)
     }
 
     private fun sampleDensity(uvw: Vector3, voxelGrid: VoxelGrid): Float {
@@ -95,13 +160,13 @@ class MarchingCubesGenerator(
         val fy = y * sizeY
         val fz = z * sizeZ
 
-        val x0 = kotlin.math.floor(fx).toInt().coerceIn(0, sizeX)
-        val y0 = kotlin.math.floor(fy).toInt().coerceIn(0, sizeY)
-        val z0 = kotlin.math.floor(fz).toInt().coerceIn(0, sizeZ)
+        val x0 = floor(fx).toInt().coerceIn(0, sizeX)
+        val y0 = floor(fy).toInt().coerceIn(0, sizeY)
+        val z0 = floor(fz).toInt().coerceIn(0, sizeZ)
 
-        val x1 = kotlin.math.ceil(fx).toInt().coerceIn(0, sizeX)
-        val y1 = kotlin.math.ceil(fy).toInt().coerceIn(0, sizeY)
-        val z1 = kotlin.math.ceil(fz).toInt().coerceIn(0, sizeZ)
+        val x1 = ceil(fx).toInt().coerceIn(0, sizeX)
+        val y1 = ceil(fy).toInt().coerceIn(0, sizeY)
+        val z1 = ceil(fz).toInt().coerceIn(0, sizeZ)
 
         val rx = fx - x0
         val ry = fy - y0

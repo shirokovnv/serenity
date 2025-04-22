@@ -1,6 +1,8 @@
 #version 430 core
 
+in vec3 g_Position;
 in vec3 g_Normal;
+in float g_Occlusion;
 out vec4 o_Color;
 
 uniform vec3 u_LightDirection; // Directional light
@@ -35,6 +37,6 @@ void main() {
     vec3 angleColor = mix(u_ColorOne, u_ColorTwo, angle / (3.14159265359 / 2.0));
 
     // Combine ambient and diffuse lighting components
-    vec3 result = (ambient + diffuse) * angleColor;
+    vec3 result = (ambient + diffuse * g_Occlusion) * angleColor;
     o_Color = vec4(result, 1.0);
 }

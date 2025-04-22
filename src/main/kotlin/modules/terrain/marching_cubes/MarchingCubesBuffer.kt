@@ -16,10 +16,12 @@ class MarchingCubesBuffer : Asset, Drawable {
     private var vaoId: Int = 0
     private var vboId: Int = 0
     private var vboNormalId: Int = 0
+    private var vboOcclusionId: Int = 0
     private var numVertices: Int = 0
 
     private lateinit var vertexInMemoryBuffer: FloatBuffer
     private lateinit var normalInMemoryBuffer: FloatBuffer
+    private lateinit var occlusionInMemoryBuffer: FloatBuffer
 
     init {
         create()
@@ -30,12 +32,13 @@ class MarchingCubesBuffer : Asset, Drawable {
     }
 
     override fun create() {
-        if (vaoId != 0 || vboNormalId != 0 || vboId != 0) {
+        if (vaoId != 0 || vboNormalId != 0 || vboOcclusionId != 0 || vboId != 0) {
             return
         }
 
         vboId = GL43.glGenBuffers()
         vboNormalId = GL43.glGenBuffers()
+        vboOcclusionId = GL43.glGenBuffers()
         vaoId = GL43.glGenVertexArrays()
 
         GL43.glBindVertexArray(vaoId)
@@ -54,6 +57,13 @@ class MarchingCubesBuffer : Asset, Drawable {
         GL43.glEnableVertexAttribArray(1)
         GL43.glVertexAttribPointer(1, 3, GL43.GL_FLOAT, false, 0, 0)
 
+        occlusionInMemoryBuffer = initializeEmptyOcclusionBuffer()
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboOcclusionId)
+        GL43.glBufferData(GL43.GL_ARRAY_BUFFER, occlusionInMemoryBuffer, GL43.GL_DYNAMIC_DRAW)
+
+        GL43.glEnableVertexAttribArray(2)
+        GL43.glVertexAttribPointer(2, 1, GL43.GL_FLOAT, false, 0, 0)
+
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, 0)
         GL43.glBindVertexArray(0)
     }
@@ -71,9 +81,14 @@ class MarchingCubesBuffer : Asset, Drawable {
             GL43.glDeleteBuffers(vboNormalId)
         }
 
+        if (vboOcclusionId != 0) {
+            GL43.glDeleteBuffers(vboOcclusionId)
+        }
+
         vaoId = 0
         vboId = 0
         vboNormalId = 0
+        vboOcclusionId = 0
         numVertices = 0
     }
 
@@ -93,38 +108,50 @@ class MarchingCubesBuffer : Asset, Drawable {
         GL43.glBindVertexArray(0)
     }
 
-    fun uploadData(vertices: List<Vector3>, normals: List<Vector3>) {
-        // Upload vertices
-        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
+    fun uploadData(vertices: List<Vector3>, normals: List<Vector3>, occlusions: List<Float>) {
+        require(vertices.size == normals.size && normals.size == occlusions.size)
+
+        numVertices = vertices.count()
 
         vertexInMemoryBuffer
             .rewind()
             .limit(MAX_CAPACITY * VERTEX_SIZE)
 
-        numVertices = vertices.count()
-        vertices.forEach { vertex ->
-            vertexInMemoryBuffer.put(vertex.x)
-            vertexInMemoryBuffer.put(vertex.y)
-            vertexInMemoryBuffer.put(vertex.z)
-        }
-        vertexInMemoryBuffer.flip()
-
-        GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, vertexInMemoryBuffer)
-
-        // Upload normals
-        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboNormalId)
         normalInMemoryBuffer
             .rewind()
             .limit(MAX_CAPACITY * VERTEX_SIZE)
 
-        normals.forEach { normal ->
-            normalInMemoryBuffer.put(normal.x)
-            normalInMemoryBuffer.put(normal.y)
-            normalInMemoryBuffer.put(normal.z)
-        }
-        normalInMemoryBuffer.flip()
+        occlusionInMemoryBuffer
+            .rewind()
+            .limit(MAX_CAPACITY * 3)
 
+        for (i in 0..<numVertices) {
+            vertexInMemoryBuffer.put(vertices[i].x)
+            vertexInMemoryBuffer.put(vertices[i].y)
+            vertexInMemoryBuffer.put(vertices[i].z)
+
+            normalInMemoryBuffer.put(normals[i].x)
+            normalInMemoryBuffer.put(normals[i].y)
+            normalInMemoryBuffer.put(normals[i].z)
+
+            occlusionInMemoryBuffer.put(occlusions[i])
+        }
+
+        vertexInMemoryBuffer.flip()
+        normalInMemoryBuffer.flip()
+        occlusionInMemoryBuffer.flip()
+
+        // Upload vertices
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboId)
+        GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, vertexInMemoryBuffer)
+
+        // Upload normals
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboNormalId)
         GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, normalInMemoryBuffer)
+
+        // Upload occlusions
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vboOcclusionId)
+        GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, occlusionInMemoryBuffer)
 
         GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, 0)
     }
@@ -147,5 +174,15 @@ class MarchingCubesBuffer : Asset, Drawable {
         normalData.flip()
 
         return normalData
+    }
+
+    private fun initializeEmptyOcclusionBuffer(): FloatBuffer {
+        val occlusionData = BufferUtils.createFloatBuffer(MAX_CAPACITY * 3)
+        for (i in 0..<occlusionData.capacity()) {
+            occlusionData.put(0f)
+        }
+        occlusionData.flip()
+
+        return occlusionData
     }
 }

@@ -54,6 +54,9 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         1.0f,
         false,
         8,
+        false,
+        0.5f,
+        5f,
         Vector3(0.45f, 0.95f, 0.95f),
         Vector3(0.4f, 0.4f, 0.42f),
         0.5f
@@ -177,6 +180,8 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
 
         var density = -ws.y
 
+        density += noise.fractal(noiseParams.octaves, x, y, z)
+
         if (extraParams.isTerracingEnabled) {
             //density += ws.y % extraParams.terraceHeight
             density += ((extraParams.terraceHeight - ws.y) * 1f).saturate() * 2.0f
@@ -188,7 +193,10 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
             density += warp * extraParams.warpFactor
         }
 
-        density += noise.fractal(noiseParams.octaves, x, y, z)
+        if (extraParams.isPlanetizingEnabled) {
+            val center = Vector3(0.5f)
+            density += extraParams.planetRadius - (center - ws).length() * extraParams.planetStrength
+        }
 
         return density
     }

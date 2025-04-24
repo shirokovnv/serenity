@@ -45,6 +45,9 @@ data class MarchingCubesExtraParams(
     val terraceHeight: Float,
     val isWarpingEnabled: Boolean,
     val warpFactor: Int,
+    val isPlanetizingEnabled: Boolean,
+    val planetRadius: Float,
+    val planetStrength: Float,
     val colorOne: Vector3,
     val colorTwo: Vector3,
     val ambientOcclusion: Float
@@ -55,6 +58,12 @@ data class MarchingCubesExtraParams(
 
         const val MIN_WARP_FACTOR = 1
         const val MAX_WARP_FACTOR = 16
+
+        const val MIN_PLANET_RADIUS = 0.1f
+        const val MAX_PLANET_RADIUS = 5.0f
+
+        const val MIN_PLANET_STRENGTH = 1f
+        const val MAX_PLANET_STRENGTH = 20f
 
         const val MIN_AMBIENT_OCCLUSION = 0.0f
         const val MAX_AMBIENT_OCCLUSION = 1.0f

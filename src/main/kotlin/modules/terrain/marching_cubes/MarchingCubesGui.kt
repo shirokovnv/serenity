@@ -27,6 +27,10 @@ class MarchingCubesGui(
     private val isWarpingEnabled = ImBoolean(extraParams.isWarpingEnabled)
     private val warpFactorRange = IntArray(1) { extraParams.warpFactor }
 
+    private val isPlanetizingEnabled = ImBoolean(extraParams.isPlanetizingEnabled)
+    private val planetRadiusRange = FloatArray(1) { extraParams.planetRadius }
+    private val planetStrengthRange = FloatArray(1) { extraParams.planetStrength }
+
     private val colorOne = floatArrayOf(extraParams.colorOne.x, extraParams.colorOne.y, extraParams.colorOne.z)
     private val colorTwo = floatArrayOf(extraParams.colorTwo.x, extraParams.colorTwo.y, extraParams.colorTwo.z)
 
@@ -116,6 +120,24 @@ class MarchingCubesGui(
             )
         }
 
+        meshChanged = meshChanged || ImGui.checkbox("Planetizing", isPlanetizingEnabled)
+
+        if (isPlanetizingEnabled.get()) {
+            meshChanged = meshChanged || ImGui.sliderFloat(
+                "Planet radius",
+                planetRadiusRange,
+                MarchingCubesExtraParams.MIN_PLANET_RADIUS,
+                MarchingCubesExtraParams.MAX_PLANET_RADIUS
+            )
+
+            meshChanged = meshChanged || ImGui.sliderFloat(
+                "Planet strength",
+                planetStrengthRange,
+                MarchingCubesExtraParams.MIN_PLANET_STRENGTH,
+                MarchingCubesExtraParams.MAX_PLANET_STRENGTH
+            )
+        }
+
         ImGui.separator()
 
         ImGui.text("Color")
@@ -148,6 +170,9 @@ class MarchingCubesGui(
                         terraceHeightRange[0],
                         isWarpingEnabled.get(),
                         warpFactorRange[0],
+                        isPlanetizingEnabled.get(),
+                        planetRadiusRange[0],
+                        planetStrengthRange[0],
                         Vector3(colorOne[0], colorOne[1], colorOne[2]),
                         Vector3(colorTwo[0], colorTwo[1], colorTwo[2]),
                         ambientOcclusionRange[0]

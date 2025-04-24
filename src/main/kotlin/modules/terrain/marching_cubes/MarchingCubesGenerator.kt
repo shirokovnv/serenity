@@ -1,12 +1,14 @@
 package modules.terrain.marching_cubes
 
 import core.math.Vector3
+import core.math.clamp
 import core.math.extensions.saturate
 import core.scene.voxelization.DensityProvider
 import core.scene.voxelization.VoxelGrid
 import java.util.stream.IntStream
-import kotlin.math.*
-import kotlin.random.Random
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class MarchingCubesGenerator(
     private val voxelGrid: VoxelGrid,
@@ -103,7 +105,8 @@ class MarchingCubesGenerator(
 
     private fun calculateOcclusion(ws: Vector3): Float {
         var visibility = 0f
-        val bigStep = Vector3(voxelGrid.resolution.toFloat() / 4)
+        val resolution = voxelGrid.resolution.toFloat()
+        val bigStep = Vector3(resolution / 4)
         for (rayIndex in 0..31) {
             val dir = rayTable[rayIndex]
 
@@ -112,10 +115,8 @@ class MarchingCubesGenerator(
             // Short-range samples from density volume:
             for (step in 1..16) {
                 var position = (ws + dir * step.toFloat())
-                position.x.coerceIn(0.0f, 100.0f)
-                position.y.coerceIn(0.0f, 100.0f)
-                position.z.coerceIn(0.0f, 100.0f)
-                position = position / voxelGrid.resolution.toFloat()
+                position.clamp(0f, resolution)
+                position = position / resolution
 
                 val d = sampleDensity(position, voxelGrid)
                 rayVisibility *= (d * 9999f).saturate()
@@ -124,10 +125,8 @@ class MarchingCubesGenerator(
             // Long-range samples from density function:
             for (step in 1..4) {
                 var position = (ws + dir * bigStep * step.toFloat())
-                position.x.coerceIn(0.0f, 100.0f)
-                position.y.coerceIn(0.0f, 100.0f)
-                position.z.coerceIn(0.0f, 100.0f)
-                position = position / voxelGrid.resolution.toFloat()
+                position.clamp(0f, resolution)
+                position = position / resolution
 
                 val d = densityProvider(position.x, position.y, position.z)
                 rayVisibility *= (d * 9999f).saturate()

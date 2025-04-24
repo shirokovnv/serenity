@@ -118,9 +118,9 @@ class App(settings: ApplicationSettings) : Application(settings) {
         trees.getComponent<Transform>()!!.setScale(Vector3(1f, 1f, 1f))
         scene.attachToRoot(rocks)
 
-        val marchingCubes = MarchingCubes()
-        marchingCubes.getComponent<Transform>()!!.setTranslation(Vector3(-500f, 0f, -500f))
-        scene.attachToRoot(marchingCubes)
+//        val marchingCubes = MarchingCubes()
+//        marchingCubes.getComponent<Transform>()!!.setTranslation(Vector3(-500f, 0f, -500f))
+//        scene.attachToRoot(marchingCubes)
 
         // Grass
         // scene.attachToRoot(Grass())

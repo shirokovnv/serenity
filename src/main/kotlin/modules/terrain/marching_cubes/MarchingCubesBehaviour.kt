@@ -55,7 +55,7 @@ class MarchingCubesBehaviour : Behaviour(), Renderer {
         false,
         8,
         false,
-        0.5f,
+        1.5f,
         5f,
         Vector3(0.45f, 0.95f, 0.95f),
         Vector3(0.4f, 0.4f, 0.42f),

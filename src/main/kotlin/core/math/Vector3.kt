@@ -173,6 +173,14 @@ class Vector3 {
         }
 }
 
+fun Vector3.clamp(minValue: Float, maxValue: Float): Vector3 {
+    x = x.coerceIn(minValue, maxValue)
+    y = y.coerceIn(minValue, maxValue)
+    z = z.coerceIn(minValue, maxValue)
+
+    return this
+}
+
 fun Vector3.truncate(maxLength: Float): Vector3 {
     val length = this.length()
     return if (length > maxLength) {

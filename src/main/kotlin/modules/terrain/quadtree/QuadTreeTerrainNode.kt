@@ -186,29 +186,10 @@ class QuadTreeTerrainNode(
             return
         }
 
-        val swKey = QuadTreeKey(
-            (topLeft.x * config.getXZScale()).toInt(),
-            (topLeft.y * config.getXZScale()).toInt(),
-            level + 1
-        )
-
-        val seKey = QuadTreeKey(
-            ((topLeft.x + halfEdgeLength) * config.getXZScale()).toInt(),
-            (topLeft.y * config.getXZScale()).toInt(),
-            level + 1
-        )
-
-        val nwKey = QuadTreeKey(
-            (topLeft.x * config.getXZScale()).toInt(),
-            ((topLeft.y + halfEdgeLength) * config.getXZScale()).toInt(),
-            level + 1
-        )
-
-        val neKey = QuadTreeKey(
-            ((topLeft.x + halfEdgeLength) * config.getXZScale()).toInt(),
-            ((topLeft.y + halfEdgeLength) * config.getXZScale()).toInt(),
-            level + 1
-        )
+        val swKey = buildKey(Child.SW)
+        val seKey = buildKey(Child.SE)
+        val nwKey = buildKey(Child.NW)
+        val neKey = buildKey(Child.NE)
 
         val sw = quadTreeCache.getOrPut(swKey) {
             QuadTreeTerrainNode(
@@ -254,5 +235,34 @@ class QuadTreeTerrainNode(
 
     override fun merge() {
         children.clear()
+    }
+
+    private fun buildKey(child: Child, keyScale: Int = 100): QuadTreeKey {
+        return when (child) {
+            Child.NW ->
+                QuadTreeKey(
+                    (topLeft.x * config.getXZScale() * keyScale).toInt(),
+                    ((topLeft.y + halfEdgeLength) * config.getXZScale() * keyScale).toInt(),
+                    level + 1
+                )
+            Child.NE ->
+                QuadTreeKey(
+                    ((topLeft.x + halfEdgeLength) * config.getXZScale() * keyScale).toInt(),
+                    ((topLeft.y + halfEdgeLength) * config.getXZScale() * keyScale).toInt(),
+                    level + 1
+                )
+            Child.SW ->
+                QuadTreeKey(
+                    (topLeft.x * config.getXZScale() * keyScale).toInt(),
+                    (topLeft.y * config.getXZScale() * keyScale).toInt(),
+                    level + 1
+                )
+            Child.SE ->
+                QuadTreeKey(
+                    ((topLeft.x + halfEdgeLength) * config.getXZScale() * keyScale).toInt(),
+                    (topLeft.y * config.getXZScale() * keyScale).toInt(),
+                    level + 1
+                )
+        }
     }
 }

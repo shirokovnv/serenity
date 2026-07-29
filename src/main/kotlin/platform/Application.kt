@@ -5,6 +5,7 @@ import audio.AudioManagerInterface
 import core.ecs.Behaviour
 import core.management.Resources
 import core.scene.SceneGraph
+import core.scene.SceneInterface
 import core.scene.TraversalOrder
 import graphics.animation.AnimationParser
 import graphics.gui.GuiWrapper
@@ -30,7 +31,7 @@ import platform.services.input.MouseInput
 import platform.services.input.WindowInput
 import java.nio.ByteBuffer
 
-abstract class Application(private val settings: ApplicationSettings) {
+abstract class Application(private val settings: ApplicationSettings): SceneInterface {
 
     private var window: Long = 0
     private var isRunning = false
@@ -59,7 +60,7 @@ abstract class Application(private val settings: ApplicationSettings) {
 
     private lateinit var sceneGraph: SceneGraph
 
-    abstract fun oneTimeSceneInit(): SceneGraph
+    abstract override fun oneTimeSceneInit(): SceneGraph
 
     private fun update() {
         appPipes.updatePipeline.update(sceneGraph, TraversalOrder.BREADTH_FIRST)

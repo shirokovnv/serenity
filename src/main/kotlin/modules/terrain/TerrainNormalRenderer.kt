@@ -27,6 +27,10 @@ class TerrainNormalRenderer(
     fun getMaterial(): TerrainNormalMaterial = material
 
     override fun create() {
+        heightmap.texture().bind()
+        heightmap.texture().bilinearFilter()
+        heightmap.texture().unbind()
+
         material = TerrainNormalMaterial()
         shader = TerrainNormalShader()
         shader bind material
@@ -45,6 +49,7 @@ class TerrainNormalRenderer(
         )
         material.normalmap.bilinearFilter()
         shader.setup()
+        material.normalmap.unbind()
 
         println("NORMAL MAP RENDER BEHAVIOUR INITIALIZED")
     }

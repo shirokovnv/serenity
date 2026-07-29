@@ -21,7 +21,9 @@ import graphics.rendering.gizmos.DrawGizmosEvent
 import graphics.rendering.shadows.ShadowFrameBuffer
 import modules.light.SunLightManager
 import modules.terrain.TerrainBlendRenderer
+import modules.terrain.TerrainMaterialDetail
 import modules.terrain.TerrainNormalRenderer
+import modules.terrain.TerrainTextureType
 import modules.terrain.audio.TerrainAmbientSoundsBehaviour
 import platform.services.filesystem.ImageLoader
 
@@ -38,6 +40,9 @@ class TiledTerrainBehaviour(
 
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
+
+    private val imageLoader: ImageLoader
+        get() = Resources.get<ImageLoader>()!!
 
     private val lightViewProjection: Matrix4
         get() {
@@ -88,32 +93,7 @@ class TiledTerrainBehaviour(
         material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
         material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
 
-        // ground textures
-        val imageLoader = Resources.get<ImageLoader>()!!
-        material.materialDetailMap[TiledTerrainTextureType.GRASS_TEXTURE] = TiledTerrainMaterialDetail(
-            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_diff.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_norm.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_disp.jpg")),
-            1.0f,
-            100.0f
-        )
-
-        material.materialDetailMap[TiledTerrainTextureType.DIRT_TEXTURE] = TiledTerrainMaterialDetail(
-            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_diff.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_norm.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_disp.jpg")),
-            1.0f,
-            100.0f
-        )
-
-        material.materialDetailMap[TiledTerrainTextureType.ROCK_TEXTURE] = TiledTerrainMaterialDetail(
-            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_diff.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_norm.jpg")),
-            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_disp.jpg")),
-            2.0f,
-            100.0f
-        )
-
+        loadTerrainTextures()
         shader.setup()
 
         renderer = TiledTerrainRenderer(buffer, material, shader)
@@ -196,6 +176,7 @@ class TiledTerrainBehaviour(
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        frustum.recalculatePlanes()
         frustum.recalculateSearchVolume()
 
         (owner() as Object)
@@ -207,5 +188,39 @@ class TiledTerrainBehaviour(
             .forEach { patch ->
                 patch.getComponent<BoxAABBDrawer>()?.draw()
             }
+    }
+
+    private fun loadTerrainTextures() {
+        material.materialDetailMap[TerrainTextureType.GRASS_TEXTURE] = TerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/grass_01_disp.jpg")),
+            1.0f,
+            100.0f
+        )
+
+        material.materialDetailMap[TerrainTextureType.DIRT_TEXTURE] = TerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/dirt_01_disp.jpg")),
+            1.0f,
+            100.0f
+        )
+
+        material.materialDetailMap[TerrainTextureType.ROCK_TEXTURE] = TerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/rock_01_disp.jpg")),
+            2.0f,
+            100.0f
+        )
+
+        material.materialDetailMap[TerrainTextureType.SNOW_TEXTURE] = TerrainMaterialDetail(
+            Texture2d(imageLoader.loadImage("textures/terrain/snow_01_diff.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/snow_01_norm.jpg")),
+            Texture2d(imageLoader.loadImage("textures/terrain/snow_01_disp.jpg")),
+            2.0f,
+            100.0f
+        )
     }
 }

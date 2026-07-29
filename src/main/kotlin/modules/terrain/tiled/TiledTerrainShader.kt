@@ -2,13 +2,15 @@ package modules.terrain.tiled
 
 import core.management.Resources
 import core.scene.camera.Camera
-import graphics.assets.surface.BaseShader
 import graphics.assets.surface.ShaderType
 import modules.light.SunLightManager
+import modules.terrain.BaseTerrainShader
+import modules.terrain.TerrainMaterialDetail
+import modules.terrain.TerrainTextureType
 import org.lwjgl.opengl.GL43
 import platform.services.filesystem.FileLoader
 
-class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>() {
+class TiledTerrainShader : BaseTerrainShader<TiledTerrainShader, TiledTerrainMaterial>() {
     override fun setup() {
         val fileLoader = Resources.get<FileLoader>()!!
         val frustumInc = fileLoader.loadAsString("shaders/include/Frustum.glsl")!!
@@ -77,7 +79,7 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         addUniform("sunColor")
         addUniform("renderInBlack")
 
-        for (i in TiledTerrainTextureType.entries) {
+        for (i in TerrainTextureType.entries) {
             addUniform("materials[${i.ordinal}].diffusemap")
             addUniform("materials[${i.ordinal}].normalmap")
             addUniform("materials[${i.ordinal}].displacementmap")
@@ -113,8 +115,8 @@ class TiledTerrainShader : BaseShader<TiledTerrainShader, TiledTerrainMaterial>(
         setUniformi("shadowmap", 3)
 
         var texUnit = 4
-        lateinit var materialDetail: TiledTerrainMaterialDetail
-        for (i in TiledTerrainTextureType.entries) {
+        lateinit var materialDetail: TerrainMaterialDetail
+        for (i in TerrainTextureType.entries) {
             materialDetail = shaderMaterial!!.materialDetailMap[i]!!
 
             GL43.glActiveTexture(GL43.GL_TEXTURE0 + texUnit)

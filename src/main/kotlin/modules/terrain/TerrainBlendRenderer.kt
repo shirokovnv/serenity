@@ -30,6 +30,10 @@ class TerrainBlendRenderer(
     fun getMaterial(): TerrainBlendMaterial = material
 
     override fun create() {
+        heightmap.texture().bind()
+        heightmap.texture().bilinearFilter()
+        heightmap.texture().unbind()
+
         material = TerrainBlendMaterial()
         shader = TerrainBlendShader()
         shader bind material
@@ -50,6 +54,7 @@ class TerrainBlendRenderer(
 
         material.blendmap.bilinearFilter()
         shader.setup()
+        material.blendmap.unbind()
 
         println("BLEND MAP RENDER BEHAVIOUR INITIALIZED")
     }

@@ -30,6 +30,9 @@ class Fbo(
         this.height = height
     }
 
+    fun getWidth(): Int = width
+    fun getHeight(): Int = height
+
     override fun getId(): Int {
         return frameBuffer
     }

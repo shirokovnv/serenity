@@ -1,8 +1,8 @@
-package modules.terrain.tiled
+package modules.terrain
 
 import graphics.assets.texture.Texture2d
 
-data class TiledTerrainMaterialDetail(
+data class TerrainMaterialDetail(
     val diffuseMap: Texture2d,
     val normalMap: Texture2d,
     val displacementMap: Texture2d,

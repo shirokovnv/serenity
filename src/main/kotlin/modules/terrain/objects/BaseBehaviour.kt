@@ -16,6 +16,7 @@ abstract class BaseBehaviour : Behaviour() {
     protected abstract var frustum: Frustum
 
     protected fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
+        frustum.recalculatePlanes()
         frustum.recalculateSearchVolume()
         meshVertices.clear()
 

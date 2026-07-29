@@ -18,9 +18,6 @@ class TiledTerrain(config: TiledTerrainConfig, enablePostProcessing: Boolean) : 
             rockElevationData
         )
 
-        config.heightmap.texture().bind()
-        config.heightmap.texture().bilinearFilter()
-
         addComponent(TerrainNormalRenderer(config.heightmap))
         addComponent(TerrainBlendRenderer(config.heightmap, elevationData))
         addComponent(TiledTerrainBehaviour(config, enablePostProcessing))

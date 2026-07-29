@@ -238,6 +238,7 @@ class OceanRenderer(
         var z1 = 1
 
         if (stretchToHorizon) {
+            frustum.recalculatePlanes()
             frustum.recalculateSearchVolume()
             val searchVolume = frustum.searchVolume().shape()
 

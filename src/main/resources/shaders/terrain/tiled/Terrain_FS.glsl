@@ -28,10 +28,11 @@ struct Material {
     float horizontalScale;
 };
 
-uniform Material materials[3];
+uniform Material materials[4];
 // 0 - grass
 // 1 - dirt
 // 2 - rock
+// 3 - snow
 
 float diffuse(vec3 direction, vec3 normal, float intensity)
 {

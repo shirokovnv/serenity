@@ -79,5 +79,12 @@ void main() {
     vec3 finalColor = baseColor * (diff * u_sunColor + ambient); // + spec;
     finalColor = mix(finalColor, atmosphere, 1.0 - extinction.r);
 
+    vec3 fogColorDay   = vec3(0.35, 0.45, 0.55);
+    vec3 fogColorNight = vec3(0.10, 0.10, 0.15);
+    vec3 fogColor = mix(fogColorNight, fogColorDay, atmosphereFactor);
+    float fogFactor = 1.0 - exp(-0.002 * opticalDepth);
+
+    finalColor = mix(finalColor, fogColor, fogFactor);
+
     color = vec4(finalColor, 1.0);
 }

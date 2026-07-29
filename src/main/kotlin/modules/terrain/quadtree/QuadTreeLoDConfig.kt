@@ -4,7 +4,7 @@ class QuadTreeLoDConfig {
     companion object {
         const val DEFAULT_MIN_TESS_FACTOR = 1
         const val DEFAULT_MAX_TESS_FACTOR = 16
-        const val DEFAULT_TESS_FACTOR = 1
+        const val DEFAULT_TESS_FACTOR = 3
 
         const val DEFAULT_MIN_DISTANCE_MULTIPLIER = 1.0f
         const val DEFAULT_MAX_DISTANCE_MULTIPLIER = 20.0f

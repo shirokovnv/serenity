@@ -20,10 +20,12 @@ class QuadTreeTerrainGui(
     }
 
     override fun update(deltaTime: Float) {
-        lodConfig.distanceMultiplier = distMultiplier[0]
         lodConfig.tessFactor = tessFactor[0]
 
-        QuadTreeTerrainNode.calculateLodRanges(lodConfig.maxDepth, terrConfig.getXZScale(), distMultiplier[0])
+        if (lodConfig.distanceMultiplier != distMultiplier[0]) {
+            lodConfig.distanceMultiplier = distMultiplier[0]
+            QuadTreeTerrainNode.calculateLodRanges(lodConfig.maxDepth, terrConfig.getXZScale(), distMultiplier[0])
+        }
     }
 
     override fun onRenderGUI() {

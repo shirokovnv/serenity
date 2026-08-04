@@ -2,6 +2,7 @@ import core.scene.SceneGraph
 import core.scene.camera.CameraSettings
 import modules.terrain.TerrainSceneParams
 import modules.terrain.quadtree.QuadTreeTerrainScene
+import modules.terrain.roam.RoamTerrainScene
 import modules.terrain.tiled.TiledTerrainScene
 import platform.Application
 import platform.ApplicationSettings
@@ -27,7 +28,20 @@ class App(settings: ApplicationSettings) : Application(settings) {
         quadTreeScene
             .withSkyDome()
             .withLensFlare()
-        
+
+//        val roamScene = RoamTerrainScene(params)
+//        val scene = roamScene.oneTimeSceneInit()
+//        roamScene
+//            .withSkyDome()
+//            .withLensFlare()
+
+//        val tiledScene = TiledTerrainScene(params)
+//        val scene = tiledScene.oneTimeSceneInit()
+//        tiledScene
+//            .withWaterPlane()
+//            .withSkyDome()
+//            .withLensFlare()
+
         return scene
     }
 }

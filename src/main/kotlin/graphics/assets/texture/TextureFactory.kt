@@ -9,22 +9,23 @@ import java.nio.FloatBuffer
 typealias TextureNoiseCallback = (
     x: Float,
     y: Float,
-    buffer:
-    FloatBuffer,
+    buffer: FloatBuffer,
     noiseInstance: NoiseInterface,
     params: NoiseParams
 ) -> Unit
 
 object TextureFactory {
+
     fun fromPerlinNoise(
         width: Int,
         height: Int,
         scale: Float,
         octaves: Int = 3,
         amplitude: Float = 1.0f,
-        persistence: Float = 0.2f
+        persistence: Float = 0.2f,
+        useSameNoiseInstance: Boolean = true
     ): Texture2d {
-        val perlinNoise = PerlinNoise()
+        val perlinNoise = if (useSameNoiseInstance) PerlinNoise.defaultNoiseInstance else PerlinNoise()
         val params = OctaveNoiseParams(scale, octaves, amplitude, persistence)
         return buildTextureWithNoiseCallback(width, height, perlinNoise, params, ::octaveNoiseCallback)
     }

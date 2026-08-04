@@ -12,6 +12,8 @@ class PerlinNoise : NoiseInterface {
     companion object {
         private const val TABLE_SIZE = 256
         private const val TABLE_MASK = TABLE_SIZE - 1
+
+        val defaultNoiseInstance = PerlinNoise()
     }
 
     private val vecTable = Array(TABLE_SIZE) { Vector2() }

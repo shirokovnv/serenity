@@ -175,7 +175,7 @@ class TriNode {
                 nbr.leftNeighbour === this -> nbr.leftNeighbour = left
                 nbr.rightNeighbour === this -> nbr.rightNeighbour = left
                 else -> {
-                    println("Warning: Invalid Left Neighbor! Neighbor does not reference this node correctly.")
+                    println("Warning: Left Neighbor does not reference this node correctly.")
                 }
             }
         }
@@ -188,7 +188,7 @@ class TriNode {
                 nbr.rightNeighbour === this -> nbr.rightNeighbour = right
                 nbr.leftNeighbour === this -> nbr.leftNeighbour = right
                 else -> {
-                    println("Warning: Invalid Right Neighbor! Neighbor does not reference this node correctly.")
+                    println("Warning: Right Neighbor does not reference this node correctly.")
                 }
             }
         }

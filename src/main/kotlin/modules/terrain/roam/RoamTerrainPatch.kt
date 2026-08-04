@@ -36,8 +36,8 @@ class RoamTerrainPatch(
     private var pool = TriNodePool()
     private var queue = TriNodeQueue()
 
-    private var node1: TriNode
-    private var node2: TriNode
+    private var nodeA: TriNode
+    private var nodeB: TriNode
 
     private lateinit var buffer: PatchBufferInterface
     private lateinit var metrics: RoamTerrainPatchMetrics
@@ -50,13 +50,13 @@ class RoamTerrainPatch(
         get() = Resources.get<Camera>()!!
 
     init {
-        node1 = pool.allocate(1)
-        node2 = pool.allocate(2)
+        nodeA = pool.allocate(1)
+        nodeB = pool.allocate(2)
 
-        node1.baseNeighbour = node2
-        node2.baseNeighbour = node1
+        nodeA.baseNeighbour = nodeB
+        nodeB.baseNeighbour = nodeA
 
-        node1.initialize(
+        nodeA.initialize(
             heightmap,
             pool,
             { canonicalTriBaseVerticesProvider() },
@@ -64,7 +64,7 @@ class RoamTerrainPatch(
             queue
         )
 
-        node2.initialize(
+        nodeB.initialize(
             heightmap,
             pool,
             { canonicalTriBaseMirrorVerticesProvider() },
@@ -72,11 +72,11 @@ class RoamTerrainPatch(
             queue
         )
 
-        node1.recursiveSplitToTargetLod(0)
-        node2.recursiveSplitToTargetLod(0)
+        nodeA.recursiveSplitToTargetLod(0)
+        nodeB.recursiveSplitToTargetLod(0)
 
-        queue.addSplitTri(node1)
-        queue.addSplitTri(node2)
+        queue.addSplitTri(nodeA)
+        queue.addSplitTri(nodeB)
 
         buffer = createBuffer(bufferType)
         frustum = Frustum(camera as PerspectiveCamera)
@@ -86,7 +86,7 @@ class RoamTerrainPatch(
     fun heightmap(): Heightmap = heightmap
     fun buffer(): PatchBufferInterface = buffer
     fun metrics(): RoamTerrainPatchMetrics = metrics
-    fun baseTriangles(): Pair<TriNode, TriNode> = Pair(node1, node2)
+    fun baseTriangles(): Pair<TriNode, TriNode> = Pair(nodeA, nodeB)
 
     fun update() {
         updateCounter++
@@ -319,16 +319,16 @@ class RoamTerrainPatch(
             PatchBufferType.TREE_VERTEX_PATCH_INDEX_BUFFER -> {
                 val buffer = PatchIndexBuffer()
 
-                node1.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
-                node2.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
+                nodeA.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
+                nodeB.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
 
                 if (!sharedVertexBufferCreated) {
                     buffer.uploadVerticesData(TriNodeGeometry.treeVertices)
                     sharedVertexBufferCreated = true
                 }
 
-                node1.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
-                node2.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
+                nodeA.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
+                nodeB.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
 
                 buffer
             }

@@ -63,3 +63,11 @@ bool frustumCullingTest(mat4 mvp, vec3 bmin, vec3 bmax)
 {
     return frustumCullingTest(loadFrustum(mvp), bmin, bmax);
 }
+
+bool frustumCullingTest(mat4 mvp, in const vec4[3] patchVertices)
+{
+    vec3 bmin = min(min(patchVertices[0].xyz, patchVertices[1].xyz), patchVertices[2].xyz);
+    vec3 bmax = max(max(patchVertices[0].xyz, patchVertices[1].xyz), patchVertices[2].xyz);
+
+    return frustumCullingTest(loadFrustum(mvp), bmin, bmax);
+}

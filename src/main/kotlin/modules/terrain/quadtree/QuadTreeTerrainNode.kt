@@ -141,8 +141,7 @@ class QuadTreeTerrainNode(
             return
         }
 
-        val cameraPosition = camera.position()
-        val from = Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+        val from = camera.position()
         val to = Vector3(worldCenter.x, 0.0f, worldCenter.z)
 
         val distance = distance(from, to)

@@ -107,26 +107,6 @@ class QuadTreeTerrainNode(
         return Quaternion(finalAB.toFloat(), finalBC.toFloat(), finalCD.toFloat(), finalDA.toFloat())
     }
 
-    fun recursiveCollectLeaves(): List<QuadTreeTerrainNode> {
-        val result = mutableListOf<QuadTreeTerrainNode>()
-        val stack = ArrayDeque<QuadTreeTerrainNode>()
-        stack.addFirst(this)
-
-        while (stack.isNotEmpty()) {
-            val node = stack.removeFirst()
-
-            if (node.isLeaf) {
-                result.add(node)
-            } else {
-                for (child in node.children) {
-                    stack.addFirst(child as QuadTreeTerrainNode)
-                }
-            }
-        }
-
-        return result
-    }
-
     fun recursiveCollectInstanceData(): List<QuadTreeInstanceData> {
         val result = mutableListOf<QuadTreeInstanceData>()
         val stack = ArrayDeque<QuadTreeTerrainNode>()
@@ -162,7 +142,7 @@ class QuadTreeTerrainNode(
         }
 
         val cameraPosition = camera.position()
-        val from = Vector3(cameraPosition.x, 0f, cameraPosition.z)
+        val from = Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)
         val to = Vector3(worldCenter.x, 0.0f, worldCenter.z)
 
         val distance = distance(from, to)
@@ -226,6 +206,11 @@ class QuadTreeTerrainNode(
                 lodConfig
             )
         }
+
+        ne.children.clear()
+        nw.children.clear()
+        sw.children.clear()
+        se.children.clear()
 
         addNode(nw, Child.NW)
         addNode(ne, Child.NE)

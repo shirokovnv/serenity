@@ -174,9 +174,6 @@ class QuadTreeTerrainBehaviour(
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
-        frustum.recalculatePlanes()
-        frustum.recalculateSearchVolume()
-
         owner()!!.getComponent<QuadTreeBoundsDrawer>()?.draw()
     }
 }

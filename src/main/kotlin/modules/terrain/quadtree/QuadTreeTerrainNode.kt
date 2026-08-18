@@ -6,7 +6,10 @@ import core.math.Vector3
 import core.math.helpers.distance
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
-import core.scene.spatial.DynamicQuadTreeNode
+import core.scene.spatial.QuadTreeCache
+import core.scene.spatial.QuadTreeKey
+import core.scene.spatial.QuadTreeNode
+import core.scene.volumes.BoxAABB
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -15,15 +18,17 @@ class QuadTreeTerrainNode(
     private val topLeft: Vector2,
     level: Int,
     private val lodConfig: QuadTreeLoDConfig
-) : DynamicQuadTreeNode() {
+) : QuadTreeNode() {
 
     companion object {
         val quadTreeCache = QuadTreeCache(1000, 30000L)
 
-        private var lodRanges: FloatArray? = null
+        var lodRanges: FloatArray? = null
 
         fun calculateLodRanges(maxLod: Int, scaleXZ: Float, distanceMultiplier: Float) {
-            lodRanges = FloatArray(maxLod + 1)
+            if (lodRanges == null) {
+                lodRanges = FloatArray(maxLod + 1)
+            }
 
             val minQuadDiagonal = (sqrt(2.0) * (1.0f / 2.0.pow((maxLod - 1).toDouble()))).toFloat()
             val minLodDistance = minQuadDiagonal * scaleXZ * distanceMultiplier
@@ -37,16 +42,8 @@ class QuadTreeTerrainNode(
 
     private var edgeLength: Float = 0.0f
     private val halfEdgeLength: Float get() = edgeLength * 0.5f
-    private var patch: QuadTreeTerrainPatch
-
-    private var worldCenter: Vector3
-    private var p0: Vector3
-    private var p1: Vector3
-    private var p2: Vector3
-    private var p3: Vector3
-
-    fun worldCenter(): Vector3 = worldCenter
-    fun patch(): QuadTreeTerrainPatch = patch
+    private lateinit var bounds: BoxAABB
+    private lateinit var worldCenter: Vector3
 
     init {
         this.level = level
@@ -55,6 +52,32 @@ class QuadTreeTerrainNode(
         require(topLeft.x in 0.0..1.0)
         require(topLeft.y in 0.0..1.0)
 
+        calculateWorldCenter()
+        calculateBounds()
+
+        if (lodRanges == null) {
+            calculateLodRanges(lodConfig.maxDepth, config.getXZScale(), lodConfig.distanceMultiplier)
+        }
+    }
+
+    fun worldCenter(): Vector3 = worldCenter
+    fun bounds(): BoxAABB = bounds
+
+    fun calculateBounds() : BoxAABB {
+        val xzOffset = Vector2(config.heightmap.worldOffset().x, config.heightmap.worldOffset().z)
+        val xzScale = Vector2(config.heightmap.worldScale().x, config.heightmap.worldScale().z)
+
+        val minPoint = xzOffset + topLeft * xzScale
+        val maxPoint = minPoint + Vector2(edgeLength, edgeLength) * xzScale
+
+        bounds = config.heightmap.calculatePatchBounds(
+            minPoint, maxPoint
+        )
+
+        return bounds
+    }
+
+    fun calculateWorldCenter(): Vector3 {
         val worldCenterX = config.worldOffset.x + (topLeft.x + halfEdgeLength) * config.worldScale.x
         val worldCenterZ = config.worldOffset.z + (topLeft.y + halfEdgeLength) * config.worldScale.z
         val worldCenterY = config.heightmap.getInterpolatedHeight(
@@ -63,28 +86,8 @@ class QuadTreeTerrainNode(
         ) * config.worldScale.y
 
         worldCenter = Vector3(worldCenterX, worldCenterY, worldCenterZ)
-        p0 = config.worldOffset + Vector3(
-            topLeft.x, 0.0f, topLeft.y
-        ) * config.worldScale
-        p1 = config.worldOffset + Vector3(
-            topLeft.x + edgeLength, 0.0f, topLeft.y
-        ) * config.worldScale
-        p2 = config.worldOffset + Vector3(
-            topLeft.x + edgeLength, 0.0f, topLeft.y + edgeLength
-        ) * config.worldScale
-        p3 = config.worldOffset + Vector3(
-            topLeft.x, 0.0f, topLeft.y + edgeLength
-        ) * config.worldScale
 
-        patch = QuadTreeTerrainPatch(
-            config.heightmap,
-            topLeft,
-            edgeLength
-        )
-
-        if (lodRanges == null) {
-            calculateLodRanges(lodConfig.maxDepth, config.getXZScale(), lodConfig.distanceMultiplier)
-        }
+        return worldCenter
     }
 
     private fun calculateNeighbourLodVector(): Quaternion {
@@ -121,8 +124,8 @@ class QuadTreeTerrainNode(
                         node.topLeft,
                         Vector3(node.edgeLength, 1.0f, node.edgeLength),
                         node.calculateNeighbourLodVector(),
-                        Vector3(node.patch.bounds().shape().min),
-                        Vector3(node.patch.bounds().shape().max),
+                        Vector3(node.bounds().shape().min),
+                        Vector3(node.bounds().shape().max),
                     )
                 )
             } else {
@@ -136,7 +139,7 @@ class QuadTreeTerrainNode(
     }
 
     fun recursiveUpdate(camera: Camera, frustum: Frustum) {
-        if (!frustum.checkRect3dInFrustum(patch.bounds().shape())) {
+        if (!frustum.checkRect3dInFrustum(bounds().shape())) {
             merge()
             return
         }
@@ -206,10 +209,10 @@ class QuadTreeTerrainNode(
             )
         }
 
-        ne.children.clear()
-        nw.children.clear()
-        sw.children.clear()
-        se.children.clear()
+        ne.resetChildren()
+        nw.resetChildren()
+        sw.resetChildren()
+        se.resetChildren()
 
         addNode(nw, Child.NW)
         addNode(ne, Child.NE)

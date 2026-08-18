@@ -6,7 +6,9 @@ import modules.terrain.BaseTerrainShader
 import org.lwjgl.opengl.GL43
 import platform.services.filesystem.FileLoader
 
-class RoamTerrainPatchShader: BaseTerrainShader<RoamTerrainPatchShader, RoamTerrainPatchMaterial>() {
+class RoamTerrainPatchShader(
+    private val useInstancing: Boolean
+) : BaseTerrainShader<RoamTerrainPatchShader, RoamTerrainPatchMaterial>() {
     override fun setup() {
         val fileLoader = Resources.get<FileLoader>()!!
 
@@ -16,8 +18,11 @@ class RoamTerrainPatchShader: BaseTerrainShader<RoamTerrainPatchShader, RoamTerr
             mapOf("Frustum.glsl" to frustumInc)
         )
 
+        val vertexShaderPath = if (useInstancing) "shaders/terrain/roam/Terrain_VS_Inst.glsl"
+        else "shaders/terrain/roam/Terrain_VS.glsl"
+
         addShader(
-            fileLoader.loadAsString("shaders/terrain/roam/Terrain_VS.glsl")!!,
+            fileLoader.loadAsString(vertexShaderPath)!!,
             ShaderType.VERTEX_SHADER
         )
 

@@ -3,6 +3,7 @@ package modules.terrain.roam.tri
 import core.math.*
 import core.scene.Transform
 import modules.terrain.heightmap.Heightmap
+import modules.terrain.roam.tri.mesh.TriMesh
 import modules.terrain.roam.tri.refinement.RefinementParams
 import kotlin.math.abs
 import kotlin.math.max
@@ -12,16 +13,17 @@ import kotlin.properties.Delegates
 
 class TriNodeGeometry(
     val node: TriNode,
-    private val heightmap: Heightmap,
+    val heightmap: Heightmap,
     val worldTransform: Transform,
-    var localVerticesProvider: TriLocalVerticesProvider
+    val localVerticesProvider: TriLocalVerticesProvider
 ) {
     companion object {
         val vertexPerTriangle = 3
         val maxLeafTriangles = (2.0f.pow(RefinementParams.MAX_LOD + 1)).toInt()
         val treeVertexCapacity =  (2.0f.pow(RefinementParams.MAX_LOD + 2) - 1).toInt() * vertexPerTriangle
-        val treeIndexCapacity = (2.0f.pow(RefinementParams.MAX_LOD + 1)).toInt() * vertexPerTriangle
         val treeVertices = Array(treeVertexCapacity) { Vector2() }
+
+        var mesh: TriMesh<Any>? = null
     }
 
     var errorMetric = 0f
@@ -33,8 +35,8 @@ class TriNodeGeometry(
     lateinit var boundingBox: Rect3d
     lateinit var boundingSphere: Sphere
 
-    lateinit var indices: Array<Int>
     private var initialized: Boolean = false
+    var meshIndex: Int = -1
 
     val center: Vector3
         get() = (worldVertices[0] + worldVertices[1] + worldVertices[2]) / 3.0f
@@ -55,9 +57,21 @@ class TriNodeGeometry(
         calculateErrorMetric()
         calculateBoundingBox()
         calculateBoundingSphere()
-        calculateTreeIndices()
+        calculateTreeVertices()
 
         initialized = true
+    }
+
+    fun collectMeshData() {
+        if (mesh != null) {
+            mesh!!.addMeshData(this)
+        }
+    }
+
+    fun releaseMeshData() {
+        if (mesh != null) {
+            mesh!!.releaseMeshData(this)
+        }
     }
 
     fun calculateLocalVertices() {
@@ -121,19 +135,13 @@ class TriNodeGeometry(
         boundingSphere = Sphere(Vector3(center), radius)
     }
 
-    fun calculateTreeIndices() {
-        if (::indices.isInitialized) {
-            return
-        }
-
+    fun calculateTreeVertices() {
         val baseIndex = node.index * vertexPerTriangle
         var iterator = baseIndex
 
         treeVertices[iterator++] = localVertices[0]
         treeVertices[iterator++] = localVertices[1]
         treeVertices[iterator++] = localVertices[2]
-
-        indices = arrayOf(baseIndex, baseIndex + 1, baseIndex + 2)
     }
 
     fun recursiveCalculateErrorMetric(): Float {

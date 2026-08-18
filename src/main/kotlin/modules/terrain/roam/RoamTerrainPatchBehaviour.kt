@@ -15,6 +15,7 @@ import modules.terrain.roam.gizmos.RoamPatchBoundsMaterial
 import modules.terrain.roam.gizmos.RoamPatchBoundsShader
 import modules.terrain.roam.gizmos.RoamPatchRootDrawer
 import modules.terrain.roam.gui.RoamTerrainPatchGui
+import modules.terrain.roam.tri.mesh.TriMeshScheme
 
 class RoamTerrainPatchBehaviour(
     private val config: RoamTerrainPatchConfig
@@ -40,7 +41,9 @@ class RoamTerrainPatchBehaviour(
         get() = Resources.get<SunLightManager>()!!
 
     override fun create() {
-        shader = RoamTerrainPatchShader()
+        val useInstancing = patch.meshScheme() == TriMeshScheme.MESH_INSTANCES
+
+        shader = RoamTerrainPatchShader(useInstancing)
         material = RoamTerrainPatchMaterial()
         shader bind material
         shader.setup()
@@ -61,7 +64,7 @@ class RoamTerrainPatchBehaviour(
         boundsMaterial = RoamPatchBoundsMaterial()
         boundsMaterial.model = Matrix4().identity()
         boundsMaterial.color = Colors.Blue
-        boundsShader = RoamPatchBoundsShader()
+        boundsShader = RoamPatchBoundsShader(useInstancing)
         boundsShader bind boundsMaterial
         boundsShader.setup()
         owner()!!.addComponent(RoamPatchBoundsDrawer(patch.buffer(), boundsShader, boundsMaterial))

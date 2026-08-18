@@ -3,7 +3,7 @@ package modules.terrain.roam
 import core.scene.Object
 import graphics.assets.texture.TextureFactory
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.roam.buffers.PatchBufferType
+import modules.terrain.roam.tri.mesh.TriMeshScheme
 
 class RoamTerrainPatchSo(
     private val config: RoamTerrainPatchConfig
@@ -20,7 +20,7 @@ class RoamTerrainPatchSo(
             config,
             heightmap,
             transform(),
-            PatchBufferType.PATCH_VERTEX_BUFFER
+            TriMeshScheme.MESH_VERTICES
         )
 
         addComponent(patch)

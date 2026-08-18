@@ -2,7 +2,6 @@ package modules.terrain.roam.tri
 
 import core.scene.Transform
 import modules.terrain.heightmap.Heightmap
-import kotlin.math.max
 
 class TriNode {
     var baseNeighbour: TriNode? = null
@@ -21,6 +20,8 @@ class TriNode {
     lateinit var geometry: TriNodeGeometry
 
     private lateinit var queue: TriNodeQueue
+    var splitQIndex: Int = -1
+    var mergeQIndex: Int = -1
 
     fun initialize(
         heightmap: Heightmap,
@@ -39,54 +40,6 @@ class TriNode {
         this.queue = queue
 
         initialized = true
-    }
-
-    fun countEmptyNeighbours(): Int {
-        return listOf(
-            baseNeighbour,
-            leftNeighbour,
-            rightNeighbour
-        ).count { it == null }
-    }
-
-    fun getTrisAtDepth(targetDepth: Int): List<TriNode> {
-        val result = mutableListOf<TriNode>()
-
-        if (depth == targetDepth) {
-            result.add(this)
-        }
-
-        if (depth < targetDepth) {
-            if (leftChild != null) {
-                result.addAll(leftChild!!.getTrisAtDepth(targetDepth))
-            }
-            if (rightChild != null) {
-                result.addAll(rightChild!!.getTrisAtDepth(targetDepth))
-            }
-        }
-
-        return result
-    }
-
-    fun recursiveCalculateMaxDepth(): Int {
-        if (leftChild == null && rightChild == null) {
-            return depth
-        }
-
-        return max(
-            leftChild!!.recursiveCalculateMaxDepth(),
-            rightChild!!.recursiveCalculateMaxDepth()
-        )
-    }
-
-    fun recursiveResetToTargetLod(targetLod: Int) {
-        if (depth < targetLod) {
-            recursiveSplitToTargetLod(targetLod)
-        }
-
-        if (depth > targetLod) {
-            recursiveMergeToTargetLod(targetLod)
-        }
     }
 
     fun recursiveSplitToTargetLod(targetLod: Int) {
@@ -223,6 +176,11 @@ class TriNode {
         queue.removeSplitTri(this)
         queue.addSplitTri(leftChild!!)
         queue.addSplitTri(rightChild!!)
+
+        // BUILD GEOMETRY CACHE
+        leftChild!!.geometry.collectMeshData()
+        rightChild!!.geometry.collectMeshData()
+        geometry.releaseMeshData()
     }
 
     private fun makeChildren() {
@@ -376,21 +334,15 @@ class TriNode {
             queue.addMergeTri(parent!!)
         }
 
+        leftChild!!.geometry.releaseMeshData()
+        rightChild!!.geometry.releaseMeshData()
+        geometry.collectMeshData()
+
         pool.release(leftChild!!.index)
         pool.release(rightChild!!.index)
 
         leftChild = null
         rightChild = null
-    }
-
-    fun traverse(callback: (tri: TriNode) -> Unit) {
-        callback(this)
-        if (leftChild != null) {
-            leftChild!!.traverse(callback)
-        }
-        if (rightChild != null) {
-            rightChild!!.traverse(callback)
-        }
     }
 
     fun clear() {

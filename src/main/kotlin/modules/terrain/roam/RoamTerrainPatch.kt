@@ -5,16 +5,18 @@ import core.management.Disposable
 import core.management.Resources
 import core.math.Sphere
 import core.math.Vector2
+import core.math.Vector3
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.roam.buffers.PatchBufferInterface
-import modules.terrain.roam.buffers.PatchBufferType
-import modules.terrain.roam.buffers.PatchIndexBuffer
-import modules.terrain.roam.buffers.PatchVertexBuffer
+import modules.terrain.roam.buffers.*
 import modules.terrain.roam.tri.*
+import modules.terrain.roam.tri.mesh.TriInstanceMesh
+import modules.terrain.roam.tri.mesh.TriMeshFactory
+import modules.terrain.roam.tri.mesh.TriMeshScheme
+import modules.terrain.roam.tri.mesh.TriVertexMesh
 import modules.terrain.roam.tri.refinement.RefinementParams
 import kotlin.math.min
 
@@ -22,15 +24,14 @@ class RoamTerrainPatch(
     private val config: RoamTerrainPatchConfig,
     private val heightmap: Heightmap,
     private val transform: Transform,
-    private val bufferType: PatchBufferType
+    private val meshScheme: TriMeshScheme
 ) : BaseComponent(), Disposable {
 
     companion object {
         private var sharedVertexBufferCreated: Boolean = false
         private val maxTriangles = TriNodeGeometry.maxLeafTriangles
 
-        private val staticVerticesArray = Array(maxTriangles * 3) { Vector2(0f, 0f) }
-        private val staticIndicesArray = Array(maxTriangles * 3) { 0 }
+        private val staticBoundingSphere = Sphere(Vector3(0f), 0f)
     }
 
     private var pool = TriNodePool()
@@ -78,11 +79,12 @@ class RoamTerrainPatch(
         queue.addSplitTri(nodeA)
         queue.addSplitTri(nodeB)
 
-        buffer = createBuffer(bufferType)
+        buffer = createBuffer(meshScheme)
         frustum = Frustum(camera as PerspectiveCamera)
         metrics = RoamTerrainPatchMetrics()
     }
 
+    fun meshScheme(): TriMeshScheme = meshScheme
     fun heightmap(): Heightmap = heightmap
     fun buffer(): PatchBufferInterface = buffer
     fun metrics(): RoamTerrainPatchMetrics = metrics
@@ -112,7 +114,7 @@ class RoamTerrainPatch(
         var splits = 0
         var merges = 0
         val t0 = System.nanoTime()
-        val splittingNodes: List<TriNode> = queue.getAllSplitTriangles()
+        val splittingNodes: Array<TriNode?> = queue.getAllSplitTriangles()
         if (splitIndex > splittingNodes.size - 1) {
             splitIndex = 0
         }
@@ -129,7 +131,7 @@ class RoamTerrainPatch(
                 break
             }
 
-            if (splittingNode.isClear()) {
+            if (splittingNode!!.isClear()) {
                 continue
             }
 
@@ -157,7 +159,7 @@ class RoamTerrainPatch(
         metrics.numSplitsExecuted = splits
 
         val t2 = System.nanoTime()
-        val mergingNodes: List<TriNode> = queue.getAllMergeTriangles()
+        val mergingNodes: Array<TriNode?> = queue.getAllMergeTriangles()
         if (mergeIndex > mergingNodes.size - 1) {
             mergeIndex = 0
         }
@@ -174,7 +176,7 @@ class RoamTerrainPatch(
                 break
             }
 
-            if (mergingNode.isClear()) {
+            if (mergingNode!!.isClear()) {
                 continue
             }
 
@@ -214,7 +216,7 @@ class RoamTerrainPatch(
 
         val numTriangles = when (buffer) {
             is PatchVertexBuffer -> rebuildVertices()
-            is PatchIndexBuffer -> rebuildIndices()
+            is PatchIndexBuffer -> rebuildInstances()
             else -> 0
         }
 
@@ -225,110 +227,49 @@ class RoamTerrainPatch(
     }
 
     private fun rebuildVertices(): Int {
-        val leafs: List<TriNode> = queue.getAllSplitTriangles()
-        if (leafs.isEmpty()) return 0
+        val mesh = (TriNodeGeometry.mesh!! as TriVertexMesh)
+        val vertices = mesh.getMeshData()
 
-        var totalCount = 0
-        for (tri in leafs) {
-            if (tri.isLeaf() && !tri.isClear()) {
-                totalCount += 3
-            }
-        }
-        if (totalCount == 0) return 0
-        if (totalCount > staticVerticesArray.size) {
-            throw RuntimeException("Increase max triangles or vertex buffer size!")
-        }
+        (buffer as PatchVertexBuffer).uploadData(vertices)
 
-        val processors = Runtime.getRuntime().availableProcessors()
-        val chunkSize = maxOf(1, leafs.size / processors)
-
-        val ranges = mutableListOf<Pair<Int, Int>>()
-        var start = 0
-        while (start < leafs.size) {
-            val end = minOf(start + chunkSize, leafs.size)
-            ranges.add(start to end)
-            start = end
-        }
-
-        ranges.parallelStream().forEach { (rangeStart, rangeEnd) ->
-            var localIdx = rangeStart * 3
-            for (i in rangeStart..<rangeEnd) {
-                val tri = leafs[i]
-                if (!tri.isLeaf() || tri.isClear()) continue
-
-                val v = tri.geometry.localVertices
-                staticVerticesArray[localIdx++] = v[0]
-                staticVerticesArray[localIdx++] = v[1]
-                staticVerticesArray[localIdx++] = v[2]
-            }
-        }
-
-        (buffer as PatchVertexBuffer).uploadData(staticVerticesArray.copyOfRange(0, totalCount))
-
-        return leafs.size
+        return vertices.size / 6
     }
 
-    private fun rebuildIndices(): Int {
-        val leafs: List<TriNode> = queue.getAllSplitTriangles()
-        if (leafs.isEmpty()) return 0
+    private fun rebuildInstances(): Int {
+        val mesh = (TriNodeGeometry.mesh as TriInstanceMesh)
+        val instances = mesh.getMeshData()
 
-        var totalCount = 0
-        for (tri in leafs) {
-            if (tri.isLeaf() && !tri.isClear()) {
-                totalCount += 3
-            }
-        }
+        (buffer as PatchIndexBuffer).uploadData(instances)
 
-        if (totalCount == 0) return 0
-        if (totalCount > staticIndicesArray.size) {
-            throw RuntimeException("Increase max triangles or index buffer size!")
-        }
-
-        val processors = Runtime.getRuntime().availableProcessors()
-        val chunkSize = maxOf(1, leafs.size / processors)
-
-        val ranges = mutableListOf<Pair<Int, Int>>()
-        var start = 0
-        while (start < leafs.size) {
-            val end = minOf(start + chunkSize, leafs.size)
-            ranges.add(start to end)
-            start = end
-        }
-
-        ranges.parallelStream().forEach { (rangeStart, rangeEnd) ->
-            var localIdx = rangeStart * 3
-            for (i in rangeStart..<rangeEnd) {
-                val tri = leafs[i]
-                if (!tri.isLeaf() || tri.isClear()) continue
-
-                val indices = tri.geometry.indices
-                staticIndicesArray[localIdx++] = indices[0]
-                staticIndicesArray[localIdx++] = indices[1]
-                staticIndicesArray[localIdx++] = indices[2]
-            }
-        }
-
-        (buffer as PatchIndexBuffer).uploadIndicesData(staticIndicesArray.copyOfRange(0, totalCount))
-
-        return leafs.size
+        return instances.size
     }
 
-    private fun createBuffer(type: PatchBufferType): PatchBufferInterface {
-        return when (type) {
-            PatchBufferType.PATCH_VERTEX_BUFFER -> PatchVertexBuffer()
-            PatchBufferType.TREE_VERTEX_PATCH_INDEX_BUFFER -> {
+    private fun createBuffer(scheme: TriMeshScheme): PatchBufferInterface {
+        return when (scheme) {
+            TriMeshScheme.MESH_VERTICES -> {
+                TriNodeGeometry.mesh = TriMeshFactory.create(TriMeshScheme.MESH_VERTICES)
+                PatchVertexBuffer()
+            }
+            TriMeshScheme.MESH_INSTANCES -> {
                 val buffer = PatchIndexBuffer()
 
                 nodeA.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
                 nodeB.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
 
                 if (!sharedVertexBufferCreated) {
-                    buffer.uploadVerticesData(TriNodeGeometry.treeVertices)
+                    val patchSsbo = PatchSsbo(TriNodeGeometry.treeVertices)
+                    Resources.put(patchSsbo)
                     sharedVertexBufferCreated = true
                 }
 
                 nodeA.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
                 nodeB.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
+
+                TriNodeGeometry.mesh = TriMeshFactory.create(TriMeshScheme.MESH_INSTANCES)
+
+                queue.getAllSplitTriangles().forEach { tri ->
+                    tri!!.geometry.collectMeshData()
+                }
 
                 buffer
             }

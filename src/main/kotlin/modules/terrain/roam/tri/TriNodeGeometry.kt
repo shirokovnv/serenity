@@ -73,10 +73,14 @@ class TriNodeGeometry(
     fun calculateWorldVertices() {
         worldVertices = Array(3) { Vector3(0f) }
         for (i in 0..<3) {
-            val localPosition = Quaternion(localVertices[i].x, 0.0f, localVertices[i].y, 1.0f)
+            val wsX = localVertices[i].x * worldTransform.scale().x
+            val wsZ = localVertices[i].y * worldTransform.scale().z
+
+            val height = heightmap.getInterpolatedHeight(wsX, wsZ)
+
+            val localPosition = Quaternion(localVertices[i].x, height, localVertices[i].y, 1.0f)
             val worldPosition = worldTransform.matrix() * localPosition
-            val height = heightmap.getInterpolatedHeight(worldPosition.x, worldPosition.y) * worldTransform.scale().y
-            worldPosition.y = height
+
             worldVertices[i] = worldPosition.xyz()
         }
     }

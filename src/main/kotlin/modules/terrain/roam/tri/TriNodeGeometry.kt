@@ -3,7 +3,6 @@ package modules.terrain.roam.tri
 import core.math.*
 import core.scene.Transform
 import modules.terrain.heightmap.Heightmap
-import modules.terrain.roam.tri.mesh.TriMesh
 import modules.terrain.roam.tri.refinement.RefinementParams
 import kotlin.math.abs
 import kotlin.math.max
@@ -21,9 +20,6 @@ class TriNodeGeometry(
         val vertexPerTriangle = 3
         val maxLeafTriangles = (2.0f.pow(RefinementParams.MAX_LOD + 1)).toInt()
         val treeVertexCapacity =  (2.0f.pow(RefinementParams.MAX_LOD + 2) - 1).toInt() * vertexPerTriangle
-        val treeVertices = Array(treeVertexCapacity) { Vector2() }
-
-        var mesh: TriMesh<Any>? = null
     }
 
     var errorMetric = 0f
@@ -57,21 +53,8 @@ class TriNodeGeometry(
         calculateErrorMetric()
         calculateBoundingBox()
         calculateBoundingSphere()
-        calculateTreeVertices()
 
         initialized = true
-    }
-
-    fun collectMeshData() {
-        if (mesh != null) {
-            mesh!!.addMeshData(this)
-        }
-    }
-
-    fun releaseMeshData() {
-        if (mesh != null) {
-            mesh!!.releaseMeshData(this)
-        }
     }
 
     fun calculateLocalVertices() {
@@ -133,15 +116,6 @@ class TriNodeGeometry(
         val radius = max(dist0, max(dist1, dist2))
 
         boundingSphere = Sphere(Vector3(center), radius)
-    }
-
-    fun calculateTreeVertices() {
-        val baseIndex = node.index * vertexPerTriangle
-        var iterator = baseIndex
-
-        treeVertices[iterator++] = localVertices[0]
-        treeVertices[iterator++] = localVertices[1]
-        treeVertices[iterator++] = localVertices[2]
     }
 
     fun recursiveCalculateErrorMetric(): Float {

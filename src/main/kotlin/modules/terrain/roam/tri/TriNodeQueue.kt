@@ -8,6 +8,9 @@ class TriNodeQueue {
     private var splitQSize: Int = 0
     private var mergeQSize: Int = 0
 
+    fun splitQueueSize(): Int = splitQSize
+    fun mergeQueueSize(): Int = mergeQSize
+
     fun addSplitTri(tri: TriNode) {
         if (tri.splitQIndex == -1) {
             tri.splitQIndex = splitQSize

@@ -5,7 +5,6 @@ import core.management.Disposable
 import core.management.Resources
 import core.math.Sphere
 import core.math.Vector2
-import core.math.Vector3
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
@@ -13,10 +12,7 @@ import core.scene.camera.PerspectiveCamera
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.roam.buffers.*
 import modules.terrain.roam.tri.*
-import modules.terrain.roam.tri.mesh.TriInstanceMesh
-import modules.terrain.roam.tri.mesh.TriMeshFactory
-import modules.terrain.roam.tri.mesh.TriMeshScheme
-import modules.terrain.roam.tri.mesh.TriVertexMesh
+import modules.terrain.roam.tri.mesh.*
 import modules.terrain.roam.tri.refinement.RefinementParams
 import kotlin.math.min
 
@@ -28,10 +24,8 @@ class RoamTerrainPatch(
 ) : BaseComponent(), Disposable {
 
     companion object {
-        private var sharedVertexBufferCreated: Boolean = false
-        private val maxTriangles = TriNodeGeometry.maxLeafTriangles
-
-        private val staticBoundingSphere = Sphere(Vector3(0f), 0f)
+        private var sharedVerticesInitialized: Boolean = false
+        private val sharedVertices = Array(TriNodeGeometry.treeVertexCapacity) { Vector2() }
     }
 
     private var pool = TriNodePool()
@@ -39,6 +33,8 @@ class RoamTerrainPatch(
 
     private var nodeA: TriNode
     private var nodeB: TriNode
+
+    private var mesh: TriMesh<Any>? = null
 
     private lateinit var buffer: PatchBufferInterface
     private lateinit var metrics: RoamTerrainPatchMetrics
@@ -49,6 +45,14 @@ class RoamTerrainPatch(
     private lateinit var frustum: Frustum
     private val camera: Camera
         get() = Resources.get<Camera>()!!
+
+    private val canRebuildMeshData: Boolean
+        get() {
+            return when (meshScheme) {
+                TriMeshScheme.MESH_VERTICES -> true
+                TriMeshScheme.MESH_INSTANCES -> sharedVerticesInitialized
+            }
+        }
 
     init {
         nodeA = pool.allocate(1)
@@ -61,23 +65,23 @@ class RoamTerrainPatch(
             heightmap,
             pool,
             { canonicalTriBaseVerticesProvider() },
-            transform,
-            queue
+            transform
         )
 
         nodeB.initialize(
             heightmap,
             pool,
             { canonicalTriBaseMirrorVerticesProvider() },
-            transform,
-            queue
+            transform
         )
-
-        nodeA.recursiveSplitToTargetLod(0)
-        nodeB.recursiveSplitToTargetLod(0)
 
         queue.addSplitTri(nodeA)
         queue.addSplitTri(nodeB)
+
+        nodeA.postSplitCallback = ::postSplitCallback
+        nodeA.postMergeCallback = ::postMergeCallback
+        nodeB.postSplitCallback = ::postSplitCallback
+        nodeB.postMergeCallback = ::postMergeCallback
 
         buffer = createBuffer(meshScheme)
         frustum = Frustum(camera as PerspectiveCamera)
@@ -227,7 +231,7 @@ class RoamTerrainPatch(
     }
 
     private fun rebuildVertices(): Int {
-        val mesh = (TriNodeGeometry.mesh!! as TriVertexMesh)
+        val mesh = (mesh!! as TriVertexMesh)
         val vertices = mesh.getMeshData()
 
         (buffer as PatchVertexBuffer).uploadData(vertices)
@@ -236,7 +240,7 @@ class RoamTerrainPatch(
     }
 
     private fun rebuildInstances(): Int {
-        val mesh = (TriNodeGeometry.mesh as TriInstanceMesh)
+        val mesh = (mesh as TriInstanceMesh)
         val instances = mesh.getMeshData()
 
         (buffer as PatchIndexBuffer).uploadData(instances)
@@ -247,32 +251,92 @@ class RoamTerrainPatch(
     private fun createBuffer(scheme: TriMeshScheme): PatchBufferInterface {
         return when (scheme) {
             TriMeshScheme.MESH_VERTICES -> {
-                TriNodeGeometry.mesh = TriMeshFactory.create(TriMeshScheme.MESH_VERTICES)
+                mesh = TriMeshFactory.create(TriMeshScheme.MESH_VERTICES)
                 PatchVertexBuffer()
             }
             TriMeshScheme.MESH_INSTANCES -> {
-                val buffer = PatchIndexBuffer()
+                mesh = TriMeshFactory.create(TriMeshScheme.MESH_INSTANCES)
+                calculateSharedVertices()
 
-                nodeA.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
-                nodeB.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
-
-                if (!sharedVertexBufferCreated) {
-                    val patchSsbo = PatchSsbo(TriNodeGeometry.treeVertices)
-                    Resources.put(patchSsbo)
-                    sharedVertexBufferCreated = true
-                }
-
-                nodeA.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
-                nodeB.recursiveMergeToTargetLod(RefinementParams.MIN_LOD)
-
-                TriNodeGeometry.mesh = TriMeshFactory.create(TriMeshScheme.MESH_INSTANCES)
-
-                queue.getAllSplitTriangles().forEach { tri ->
-                    tri!!.geometry.collectMeshData()
-                }
-
-                buffer
+                PatchIndexBuffer()
             }
         }
+    }
+
+    private fun calculateSharedVertices() {
+        if (!sharedVerticesInitialized) {
+            nodeA.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
+            nodeB.recursiveSplitToTargetLod(RefinementParams.MAX_LOD)
+
+            nodeA.traverse {
+                var iterator = it.index * TriNodeGeometry.vertexPerTriangle
+
+                sharedVertices[iterator++] = it.geometry.localVertices[0]
+                sharedVertices[iterator++] = it.geometry.localVertices[1]
+                sharedVertices[iterator++] = it.geometry.localVertices[2]
+            }
+
+            nodeB.traverse {
+                var iterator = it.index * TriNodeGeometry.vertexPerTriangle
+
+                sharedVertices[iterator++] = it.geometry.localVertices[0]
+                sharedVertices[iterator++] = it.geometry.localVertices[1]
+                sharedVertices[iterator++] = it.geometry.localVertices[2]
+            }
+
+            // RESET TO ROOT
+            while (queue.mergeQueueSize() > 0) {
+                queue.getAllMergeTriangles().forEach { tri ->
+                    tri!!.merge()
+                }
+            }
+
+            val patchSsbo = PatchSsbo(sharedVertices)
+            Resources.put(patchSsbo)
+
+            sharedVerticesInitialized = true
+        }
+    }
+
+    private fun postSplitCallback(tri: TriNode) {
+        if (tri.parent != null) {
+            queue.removeMergeTri(tri.parent!!)
+        }
+
+        queue.addMergeTri(tri)
+        queue.removeSplitTri(tri)
+        queue.addSplitTri(tri.leftChild!!)
+        queue.addSplitTri(tri.rightChild!!)
+
+        if (canRebuildMeshData) {
+            mesh!!.addMeshData(tri.leftChild!!.geometry)
+            mesh!!.addMeshData(tri.rightChild!!.geometry)
+            mesh!!.releaseMeshData(tri.geometry)
+        }
+    }
+
+    private fun postMergeCallback(tri: TriNode) {
+        queue.removeSplitTri(tri.leftChild!!)
+        queue.removeSplitTri(tri.rightChild!!)
+        queue.removeMergeTri(tri)
+        queue.addSplitTri(tri)
+
+        if (tri.parent != null) {
+            queue.addMergeTri(tri.parent!!)
+        }
+
+        if (canRebuildMeshData) {
+            mesh!!.releaseMeshData(tri.leftChild!!.geometry)
+            mesh!!.releaseMeshData(tri.rightChild!!.geometry)
+            mesh!!.addMeshData(tri.geometry)
+        }
+    }
+
+    private fun resetToRoot(tri: TriNode) {
+        tri.leftChild = null
+        tri.rightChild = null
+        tri.leftNeighbour = null
+        tri.rightNeighbour = null
+        tri.baseNeighbour
     }
 }

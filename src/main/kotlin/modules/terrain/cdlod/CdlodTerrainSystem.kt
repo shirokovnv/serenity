@@ -6,6 +6,7 @@ import core.math.Vector2
 import core.math.Vector3
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
+import core.scene.spatial.QuadTreeCache
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -14,6 +15,7 @@ class CdlodTerrainSystem(private val config: CdlodTerrainConfig) {
     private var root: CdlodTerrainSection
     private var sectionsToDraw = mutableListOf<CdlodTerrainSection>()
     private var lodRanges: FloatArray = FloatArray(config.maxLod)
+    private val quadTreeCache = QuadTreeCache(1000, 30000L)
 
     private val scaleXZ: Float
         get() = max(config.worldScale.x, config.worldScale.z)
@@ -24,7 +26,8 @@ class CdlodTerrainSystem(private val config: CdlodTerrainConfig) {
             config,
             Vector2(0.0f, 0.0f),
             0,
-            lodRanges
+            lodRanges,
+            quadTreeCache
         )
     }
 

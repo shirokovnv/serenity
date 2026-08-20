@@ -6,7 +6,6 @@ import core.scene.spatial.QuadTreeCache
 import core.scene.spatial.QuadTreeKey
 import core.scene.spatial.QuadTreeNode
 import core.scene.volumes.BoxAABB
-import modules.terrain.quadtree.QuadTreeTerrainNode
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -14,12 +13,9 @@ class CdlodTerrainSection(
     val config: CdlodTerrainConfig,
     val topLeft: Vector2,
     level: Int,
-    val lodRanges: FloatArray
+    private val lodRanges: FloatArray,
+    private val quadTreeCache: QuadTreeCache
 ) : QuadTreeNode() {
-
-    companion object {
-        private val quadTreeCache = QuadTreeCache(1000, 30000L)
-    }
 
     private lateinit var boxAABB: BoxAABB
     private lateinit var worldCenter: Vector3
@@ -87,7 +83,8 @@ class CdlodTerrainSection(
                 config,
                 Vector2(topLeft.x, topLeft.y),
                 level + 1,
-                lodRanges
+                lodRanges,
+                quadTreeCache
             )
         }
 
@@ -96,25 +93,28 @@ class CdlodTerrainSection(
                 config,
                 Vector2(topLeft.x + halfEdgeLength, topLeft.y),
                 level + 1,
-                lodRanges
+                lodRanges,
+                quadTreeCache
             )
         }
 
-        val nw = QuadTreeTerrainNode.quadTreeCache.getOrPut(nwKey) {
+        val nw = quadTreeCache.getOrPut(nwKey) {
             CdlodTerrainSection(
                 config,
                 Vector2(topLeft.x, topLeft.y + halfEdgeLength),
                 level + 1,
-                lodRanges
+                lodRanges,
+                quadTreeCache
             )
         }
 
-        val ne = QuadTreeTerrainNode.quadTreeCache.getOrPut(neKey) {
+        val ne = quadTreeCache.getOrPut(neKey) {
             CdlodTerrainSection(
                 config,
                 Vector2(topLeft.x + halfEdgeLength, topLeft.y + halfEdgeLength),
                 level + 1,
-                lodRanges
+                lodRanges,
+                quadTreeCache
             )
         }
 

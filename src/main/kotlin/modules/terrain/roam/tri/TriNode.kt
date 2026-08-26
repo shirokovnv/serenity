@@ -28,11 +28,19 @@ class TriNode {
     var splitQIndex: Int = -1
     var mergeQIndex: Int = -1
 
+    var sQBucket: Int = 0
+    var mQBucket: Int = 0
+    var prevS: Int = -1
+    var nextS: Int = -1
+    var prevM: Int = -1
+    var nextM: Int = -1
+
     fun initialize(
         heightmap: Heightmap,
         pool: TriNodePool,
         vertexProvider: TriLocalVerticesProvider,
-        transform: Transform
+        transform: Transform,
+        varianceTree: VarianceTree
     ) {
         if (initialized) {
             return
@@ -40,7 +48,7 @@ class TriNode {
 
         this.heightmap = heightmap
         this.pool = pool
-        this.geometry = TriNodeGeometry(this, heightmap, transform, vertexProvider)
+        this.geometry = TriNodeGeometry(this, heightmap, transform, vertexProvider, varianceTree)
 
         initialized = true
     }
@@ -200,13 +208,15 @@ class TriNode {
             heightmap,
             pool,
             { fromParentVerticesProvider(geometry.localVertices, true) },
-            geometry.worldTransform
+            geometry.worldTransform,
+            geometry.varianceTree
         )
         rightChild!!.initialize(
             heightmap,
             pool,
             { fromParentVerticesProvider(geometry.localVertices, false) },
-            geometry.worldTransform
+            geometry.worldTransform,
+            geometry.varianceTree
         )
 
         postSplitCallback?.let { it(this) }

@@ -4,25 +4,23 @@ import core.math.*
 import core.scene.Transform
 import modules.terrain.heightmap.Heightmap
 import modules.terrain.roam.tri.refinement.RefinementParams
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
+import kotlin.math.*
 import kotlin.properties.Delegates
 
 class TriNodeGeometry(
     val node: TriNode,
     val heightmap: Heightmap,
     val worldTransform: Transform,
-    val localVerticesProvider: TriLocalVerticesProvider
+    val localVerticesProvider: TriLocalVerticesProvider,
+    val varianceTree: VarianceTree
 ) {
     companion object {
         val vertexPerTriangle = 3
         val maxLeafTriangles = (2.0f.pow(RefinementParams.MAX_LOD + 1)).toInt()
-        val treeVertexCapacity =  (2.0f.pow(RefinementParams.MAX_LOD + 2) - 1).toInt() * vertexPerTriangle
+        val treeVertexCapacity = (2.0f.pow(RefinementParams.MAX_LOD + 2) - 1).toInt() * vertexPerTriangle
     }
 
-    var errorMetric = 0f
+    var variance: Float = 0.0f
 
     lateinit var localVertices: Array<Vector2>
     lateinit var worldBaseCenter: Vector3
@@ -50,7 +48,7 @@ class TriNodeGeometry(
         calculateWorldVertices()
         calculateTriSize()
         calculateWorldBaseCenter()
-        calculateErrorMetric()
+        calculateVariance()
         calculateBoundingBox()
         calculateBoundingSphere()
 
@@ -60,14 +58,6 @@ class TriNodeGeometry(
     fun calculateLocalVertices() {
         localVertices = localVerticesProvider()
         require(localVertices.size == 3)
-    }
-
-    fun calculateErrorMetric() {
-        val hLeft: Float = worldVertices[1].y
-        val hRight: Float = worldVertices[2].y
-        val interpolatedHeight: Float = (hLeft + hRight) * 0.5f
-
-        errorMetric = abs(interpolatedHeight - worldBaseCenter.y) / worldTransform.scale().y
     }
 
     fun calculateWorldVertices() {
@@ -86,15 +76,11 @@ class TriNodeGeometry(
     }
 
     fun calculateTriSize() {
-        triSize = (worldVertices[2] - worldVertices[1]).length() * SQRT2
+        triSize = (worldVertices[2] - worldVertices[1]).length()
     }
 
     fun calculateWorldBaseCenter() {
-        val medianX: Float = (worldVertices[1].x + worldVertices[2].x) * 0.5f
-        val medianZ: Float = (worldVertices[1].z + worldVertices[2].z) * 0.5f
-        val medianY = heightmap.getInterpolatedHeight(medianX, medianZ) * worldTransform.scale().y
-
-        worldBaseCenter = Vector3(medianX, medianY, medianZ)
+        worldBaseCenter = (worldVertices[1] + worldVertices[2]) * 0.5f
     }
 
     fun calculateBoundingBox() {
@@ -122,17 +108,7 @@ class TriNodeGeometry(
         boundingSphere = Sphere(Vector3(center), radius)
     }
 
-    fun recursiveCalculateErrorMetric(): Float {
-        calculateErrorMetric()
-
-        if (node.leftChild != null) {
-            errorMetric = max(errorMetric, node.leftChild!!.geometry.recursiveCalculateErrorMetric())
-        }
-
-        if (node.rightChild != null) {
-            errorMetric = max(errorMetric, node.rightChild!!.geometry.recursiveCalculateErrorMetric())
-        }
-
-        return errorMetric
+    fun calculateVariance() {
+        variance = varianceTree.getVariance(node)
     }
 }

@@ -15,4 +15,5 @@ class RoamTerrainPatchMaterial : BaseTerrainMaterial<RoamTerrainPatchMaterial, R
     lateinit var cameraPosition: Vector3
     lateinit var sunVector: Vector3
     var sunIntensity by Delegates.notNull<Float>()
+    var scaleY: Float = 0.0f
 }

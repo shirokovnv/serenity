@@ -63,6 +63,14 @@ class TriNodeQueue {
         }
     }
 
+    fun getSplitPartition(start: Int, end: Int): Array<TriNode?> {
+        return splitQ.copyOfRange(start, end)
+    }
+
+    fun getMergePartition(start: Int, end: Int): Array<TriNode?> {
+        return mergeQ.copyOfRange(start, end)
+    }
+
     fun getAllSplitTriangles(): Array<TriNode?> {
         return splitQ.copyOfRange(0, splitQSize)
     }

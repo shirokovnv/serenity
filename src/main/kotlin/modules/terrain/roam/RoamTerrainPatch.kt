@@ -3,8 +3,7 @@ package modules.terrain.roam
 import core.ecs.BaseComponent
 import core.management.Disposable
 import core.management.Resources
-import core.math.Sphere
-import core.math.Vector2
+import core.math.*
 import core.scene.Transform
 import core.scene.camera.Camera
 import core.scene.camera.Frustum
@@ -14,6 +13,10 @@ import modules.terrain.roam.buffers.*
 import modules.terrain.roam.tri.*
 import modules.terrain.roam.tri.mesh.*
 import modules.terrain.roam.tri.refinement.RefinementParams
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
 import kotlin.math.min
 
 class RoamTerrainPatch(
@@ -35,14 +38,23 @@ class RoamTerrainPatch(
     private var nodeB: TriNode
 
     private var mesh: TriMesh<Any>? = null
+    private var isOccluded: Boolean = false
 
+    private lateinit var varianceTree: VarianceTree
     private lateinit var buffer: PatchBufferInterface
     private lateinit var metrics: RoamTerrainPatchMetrics
     private var updateCounter = 0
     private var splitIndex = 0
     private var mergeIndex = 0
 
-    private lateinit var frustum: Frustum
+    private val numThreads = Runtime.getRuntime().availableProcessors()
+    private val workerPool = Executors.newFixedThreadPool(numThreads)
+
+    private val maxCandidates = max(RoamTerrainPatchConfig.MAX_SPLITS, RoamTerrainPatchConfig.MAX_MERGES)
+    private val candidateBuffer = Array<TriNode?>(maxCandidates) { null }
+    private var candidateCount = AtomicInteger(0)
+
+    private var frustum: Frustum
     private val camera: Camera
         get() = Resources.get<Camera>()!!
 
@@ -61,18 +73,29 @@ class RoamTerrainPatch(
         nodeA.baseNeighbour = nodeB
         nodeB.baseNeighbour = nodeA
 
+        val rootTriangles = buildRootTriangles()
+
+        varianceTree = VarianceTree(
+            heightmap,
+            rootTriangles.first,
+            rootTriangles.second,
+            RefinementParams.MAX_LOD
+        )
+
         nodeA.initialize(
             heightmap,
             pool,
             { canonicalTriBaseVerticesProvider() },
-            transform
+            transform,
+            varianceTree
         )
 
         nodeB.initialize(
             heightmap,
             pool,
             { canonicalTriBaseMirrorVerticesProvider() },
-            transform
+            transform,
+            varianceTree
         )
 
         queue.addSplitTri(nodeA)
@@ -94,13 +117,25 @@ class RoamTerrainPatch(
     fun metrics(): RoamTerrainPatchMetrics = metrics
     fun baseTriangles(): Pair<TriNode, TriNode> = Pair(nodeA, nodeB)
 
+    fun setOcclusion(isOccluded: Boolean) {
+        this.isOccluded = isOccluded
+    }
+
+    fun isOccluded(): Boolean = isOccluded
+
     fun update() {
         updateCounter++
         if (updateCounter % config.perFrameUpdate == 0) {
             val startTime = System.nanoTime()
             frustum.recalculatePlanes()
             frustum.recalculateSearchVolume()
-            triangulate()
+
+            if (config.parallelOps) {
+                triangulateParallel()
+            } else {
+                triangulate()
+            }
+
             rebuildMesh()
             val endTime = System.nanoTime()
             val elapsedTime = endTime - startTime
@@ -110,6 +145,7 @@ class RoamTerrainPatch(
 
     override fun dispose() {
         buffer.destroy()
+        workerPool.shutdown()
     }
 
     private fun triangulate() {
@@ -118,17 +154,17 @@ class RoamTerrainPatch(
         var splits = 0
         var merges = 0
         val t0 = System.nanoTime()
-        val splittingNodes: Array<TriNode?> = queue.getAllSplitTriangles()
-        if (splitIndex > splittingNodes.size - 1) {
+        if (splitIndex > queue.splitQueueSize() - 1) {
             splitIndex = 0
         }
+        val splittingNodes: Array<TriNode?> = queue.getSplitPartition(splitIndex, min(splitIndex + maxSplits, queue.splitQueueSize()))
 
         val t1 = System.nanoTime()
         metrics.timeToGetSplittingList = (t1 - t0) / 1000000
         val splitLoopStart = System.nanoTime()
         var splitWorkTimeNs: Long = 0
 
-        for (i in splitIndex..<min(splitIndex + maxSplits, splittingNodes.size)) {
+        for (i in splittingNodes.indices) {
             val splittingNode = splittingNodes[i]
 
             if (splits >= maxSplits) {
@@ -163,17 +199,17 @@ class RoamTerrainPatch(
         metrics.numSplitsExecuted = splits
 
         val t2 = System.nanoTime()
-        val mergingNodes: Array<TriNode?> = queue.getAllMergeTriangles()
-        if (mergeIndex > mergingNodes.size - 1) {
+        if (mergeIndex > queue.mergeQueueSize() - 1) {
             mergeIndex = 0
         }
+        val mergingNodes: Array<TriNode?> = queue.getMergePartition(mergeIndex, min(mergeIndex + maxMerges, queue.mergeQueueSize()))
 
         val t3 = System.nanoTime()
         metrics.timeToGetMergingList = (t3 - t2) / 1000000
         val mergeLoopStart = System.nanoTime()
         var mergeWorkTimeNs: Long = 0
 
-        for (i in mergeIndex..<min(mergeIndex + maxMerges, mergingNodes.size)) {
+        for (i in mergingNodes.indices) {
             val mergingNode = mergingNodes[i]
 
             if (merges >= maxMerges) {
@@ -206,6 +242,130 @@ class RoamTerrainPatch(
             merges++
         }
         mergeIndex += maxMerges
+
+        val mergeLoopEnd = System.nanoTime()
+        metrics.mergeLoopTotalMs = (mergeLoopEnd - mergeLoopStart) / 1000000
+        metrics.mergeWorkOnlyCallsMs = mergeWorkTimeNs / 1000000
+        metrics.numMergesExecuted = merges
+        val total = System.nanoTime()
+        metrics.triangulationTimeMs = (total - t0) / 1000000
+    }
+
+    private fun triangulateParallel() {
+        val maxSplits = config.maxSplits
+        val maxMerges = config.maxMerges
+        var splits = 0
+        var merges = 0
+        val t0 = System.nanoTime()
+        if (splitIndex > queue.splitQueueSize() - 1) {
+            splitIndex = 0
+        }
+        val splittingNodes: Array<TriNode?> = queue.getSplitPartition(splitIndex, min(splitIndex + maxSplits, queue.splitQueueSize()))
+
+        val t1 = System.nanoTime()
+        metrics.timeToGetSplittingList = (t1 - t0) / 1000000
+        val splitLoopStart = System.nanoTime()
+        var splitWorkTimeNs: Long = 0
+
+        // MARK CANDIDATES FOR SPLIT IN PARALLEL
+        var chunkSize = max(1, splittingNodes.size / numThreads)
+        workerPool.invokeAll((splittingNodes.indices step chunkSize).map { start ->
+            Callable {
+                val end = min(start + chunkSize, splittingNodes.size)
+                var localCount = 0
+                for (i in start..<end) {
+                    val node = splittingNodes[i] ?: continue
+                    if (node.isClear()) continue
+                    if (!config.refinement.shouldSplit(node)) continue
+                    if (!frustum.checkSphereInFrustum(node.geometry.boundingSphere)) continue
+
+                    val idx = candidateCount.getAndIncrement()
+                    if (idx < maxCandidates) {
+                        candidateBuffer[idx] = node
+                        localCount++
+                    }
+                }
+                localCount
+            }
+        }).forEach { it.get() }
+
+        // ACTUAL SPLIT
+        for (i in 0..<candidateCount.get()) {
+            if (splits >= maxSplits) break
+            val node = candidateBuffer[i] ?: continue
+
+            val sStart = System.nanoTime()
+            node.split()
+            val sEnd = System.nanoTime()
+            splitWorkTimeNs += sEnd - sStart
+
+            splits++
+        }
+        splitIndex += maxSplits
+        candidateCount.set(0)
+
+        val splitLoopEnd = System.nanoTime()
+        metrics.splitLoopTotalMs = (splitLoopEnd - splitLoopStart) / 1000000
+        metrics.splitWorkOnlyCallsMs = splitWorkTimeNs / 1000000
+        metrics.numSplitsExecuted = splits
+
+        val t2 = System.nanoTime()
+        if (mergeIndex > queue.mergeQueueSize() - 1) {
+            mergeIndex = 0
+        }
+        val mergingNodes: Array<TriNode?> = queue.getMergePartition(mergeIndex, min(mergeIndex + maxMerges, queue.mergeQueueSize()))
+
+        val t3 = System.nanoTime()
+        metrics.timeToGetMergingList = (t3 - t2) / 1000000
+        val mergeLoopStart = System.nanoTime()
+        var mergeWorkTimeNs: Long = 0
+
+        // MARK CANDIDATES FOR MERGE IN PARALLEL
+        chunkSize = max(1, mergingNodes.size / numThreads)
+        workerPool.invokeAll((mergingNodes.indices step chunkSize).map { start ->
+            Callable {
+                val end = min(start + chunkSize, mergingNodes.size)
+                var localCount = 0
+                for (i in start..<end) {
+                    val node = mergingNodes[i] ?: continue
+                    if (node.isClear()) continue
+
+                    val boundingSphere = Sphere(
+                        node.geometry.boundingSphere.center,
+                        node.geometry.boundingSphere.radius + config.refinement.params().cullDistThreshold
+                    )
+
+                    val shouldMerge = config.refinement.shouldMerge(node)
+                            || (!frustum.checkSphereInFrustum(boundingSphere))
+
+                    if (!shouldMerge) {
+                        continue
+                    }
+
+                    val idx = candidateCount.getAndIncrement()
+                    if (idx < maxCandidates) {
+                        candidateBuffer[idx] = node
+                        localCount++
+                    }
+                }
+                localCount
+            }
+        }).forEach { it.get() }
+
+        // ACTUAL MERGE
+        for (i in 0..<candidateCount.get()) {
+            if (merges >= maxMerges) break
+            val node = candidateBuffer[i] ?: continue
+
+            val mStart = System.nanoTime()
+            node.merge()
+            val mEnd = System.nanoTime()
+            mergeWorkTimeNs += mEnd - mStart
+
+            merges++
+        }
+        mergeIndex += maxMerges
+        candidateCount.set(0)
 
         val mergeLoopEnd = System.nanoTime()
         metrics.mergeLoopTotalMs = (mergeLoopEnd - mergeLoopStart) / 1000000
@@ -332,11 +492,40 @@ class RoamTerrainPatch(
         }
     }
 
-    private fun resetToRoot(tri: TriNode) {
-        tri.leftChild = null
-        tri.rightChild = null
-        tri.leftNeighbour = null
-        tri.rightNeighbour = null
-        tri.baseNeighbour
+    private fun buildRootTriangles(): Pair<Triangle, Triangle> {
+        val rootAVertices = canonicalTriBaseVerticesProvider().map {triLocalVertex ->
+            val wsX = triLocalVertex.x * transform.scale().x
+            val wsZ = triLocalVertex.y * transform.scale().z
+
+            val height = heightmap.getInterpolatedHeight(wsX, wsZ)
+            val localPosition = Quaternion(triLocalVertex.x, height, triLocalVertex.y, 1.0f)
+            val worldPosition = (transform.matrix() * localPosition).xyz()
+
+            worldPosition
+        }.toList()
+
+        val rootBVertices = canonicalTriBaseMirrorVerticesProvider().map { triLocalVertex ->
+            val wsX = triLocalVertex.x * transform.scale().x
+            val wsZ = triLocalVertex.y * transform.scale().z
+
+            val height = heightmap.getInterpolatedHeight(wsX, wsZ)
+            val localPosition = Quaternion(triLocalVertex.x, height, triLocalVertex.y, 1.0f)
+            val worldPosition = (transform.matrix() * localPosition).xyz()
+
+            worldPosition
+        }.toList()
+
+        return Pair(
+            Triangle(
+                rootAVertices[0],
+                rootAVertices[1],
+                rootAVertices[2]
+            ),
+            Triangle(
+                rootBVertices[0],
+                rootBVertices[1],
+                rootBVertices[2]
+            )
+        )
     }
 }

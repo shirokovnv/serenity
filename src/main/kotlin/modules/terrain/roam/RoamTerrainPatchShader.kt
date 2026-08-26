@@ -46,6 +46,7 @@ class RoamTerrainPatchShader(
         addUniform("u_textureSize")
         addUniform("u_sunVector")
         addUniform("u_sunIntensity")
+        addUniform("u_scaleY")
     }
 
     override fun updateUniforms() {
@@ -56,6 +57,7 @@ class RoamTerrainPatchShader(
         setUniform("u_textureSize", shaderMaterial!!.textureSize)
         setUniform("u_sunVector", shaderMaterial!!.sunVector)
         setUniformf("u_sunIntensity", shaderMaterial!!.sunIntensity)
+        setUniformf("u_scaleY", shaderMaterial!!.scaleY)
 
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
         shaderMaterial!!.heightmap.texture().bind()

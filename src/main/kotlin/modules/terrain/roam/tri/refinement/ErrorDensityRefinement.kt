@@ -26,7 +26,7 @@ class ErrorDensityRefinement(override val params: ErrorDensityParams, override v
             tri.baseNeighbour?.geometry?.variance ?: 0f
         )
 
-        if (variance <= params.varianceThreshold) return false
+        if (variance < params.varianceThreshold) return false
 
         val triSize = tri.geometry.triSize * SQRT2
         val s: Float = 2 * distance * halfTanFov
@@ -49,7 +49,7 @@ class ErrorDensityRefinement(override val params: ErrorDensityParams, override v
             tri.baseNeighbour?.geometry?.variance ?: 0f
         )
 
-        if (variance <= params.varianceThreshold) return true
+        if (variance < params.varianceThreshold) return true
 
         val diamondCriteria = if (tri.baseNeighbour != null && tri.baseNeighbour!!.index < tri.index)
             mergeCriteria(tri.baseNeighbour!!)

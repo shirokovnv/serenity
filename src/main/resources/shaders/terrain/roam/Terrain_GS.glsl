@@ -23,7 +23,7 @@ vec3 calculateNormalCentralDifference(vec2 uv)
     float dx = texture(u_heightmap, clampedUV + vec2(texelSize.x, 0)).r - texture(u_heightmap, clampedUV - vec2(texelSize.x, 0)).r;
     float dy = texture(u_heightmap, clampedUV + vec2(0, texelSize.y)).r - texture(u_heightmap, clampedUV - vec2(0, texelSize.y)).r;
 
-    vec3 normal = vec3(-dx, -dy, 2.0 * texelSize.x);
+    vec3 normal = vec3(-dx, 2.0 * texelSize.x, -dy);
     return normalize(normal);
 }
 

@@ -22,7 +22,7 @@ float diffuse(vec3 lightDir, vec3 normal, float intensity) {
 void main()
 {
     float s = u_scaleY;
-    vec3 lightDir = normalize(-u_sunVector);
+    vec3 lightDir = normalize(u_sunVector);
     vec3 viewDir  = normalize(u_camPos - mapWorld_FS);
 
     float slope = dot(mapNormal_FS, vec3(0.0, 1.0, 0.0));
@@ -33,13 +33,13 @@ void main()
     vec3 ambient = vec3(0.08, 0.07, 0.06);
     vec3 litColor = baseColor * (diff * vec3(1.0f) + ambient);
 
-    float rim = 1.0 - max(0.0, dot(mapNormal_FS, viewDir));
-    float rimFactor = pow(rim, 3.0);
-    vec3 rimColor = vec3(1.0, 0.86, 0.68) * rimFactor;
-    litColor = mix(litColor, rimColor, min(rimFactor, 0.3));
-
     float sunElevation = u_sunVector.y;
     float atmosphereFactor = smoothstep(-0.2, 0.1, sunElevation);
+
+    float rim = 1.0 - max(0.0, dot(mapNormal_FS, viewDir));
+    float rimFactor = pow(rim, 3.0);
+    vec3 rimColor = vec3(1.0, 0.86, 0.68) * rimFactor * atmosphereFactor;
+    litColor = mix(litColor, rimColor, min(rimFactor, 0.3));
 
     float d = length(u_camPos - mapWorld_FS);
     float fogFactorBase = 1.0 - exp(-0.002 * d);

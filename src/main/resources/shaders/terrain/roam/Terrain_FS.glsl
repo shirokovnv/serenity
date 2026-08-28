@@ -1,5 +1,7 @@
 #version 430
 
+#include <Atmosphere.glsl>
+
 in float mapHeight_FS;
 in vec3 mapNormal_FS;
 in vec3 mapWorld_FS;
@@ -21,7 +23,7 @@ float diffuse(vec3 lightDir, vec3 normal, float intensity) {
 
 void main()
 {
-    float s = u_scaleY;
+    float scaleY = u_scaleY;
     vec3 lightDir = normalize(u_sunVector);
     vec3 viewDir  = normalize(u_camPos - mapWorld_FS);
 
@@ -33,20 +35,25 @@ void main()
     vec3 ambient = vec3(0.08, 0.07, 0.06);
     vec3 litColor = baseColor * (diff * vec3(1.0f) + ambient);
 
-    float sunElevation = u_sunVector.y;
-    float atmosphereFactor = smoothstep(-0.2, 0.1, sunElevation);
+    vec3 eyeVector = u_camPos - mapWorld_FS;
+    float s = dot(eyeVector, eyeVector);
+    s = 1.0f/sqrt(s);
+    eyeVector.xyz *= s;
+    s = 1.0f / s;
 
-    float rim = 1.0 - max(0.0, dot(mapNormal_FS, viewDir));
-    float rimFactor = pow(rim, 3.0);
-    vec3 rimColor = vec3(1.0, 0.86, 0.68) * rimFactor * atmosphereFactor;
-    litColor = mix(litColor, rimColor, min(rimFactor, 0.3));
+    vec4 vI;
+    vec4 vE;
+    atmosphericLighting(
+        eyeVector,
+        u_sunVector,
+        vec4(u_sunColor, u_sunIntensity),
+        mapNormal_FS,
+        s,
+        vE,
+        vI
+    );
 
-    float d = length(u_camPos - mapWorld_FS);
-    float fogFactorBase = 1.0 - exp(-0.002 * d);
-    float fogFactor = fogFactorBase * atmosphereFactor;
-
-    vec3 fogColor = vec3(0.48, 0.40, 0.34);
-    vec3 finalColor = mix(litColor, fogColor, fogFactor);
+    vec3 finalColor = litColor * vE.xyz + vI.xyz;
 
     color = vec4(finalColor, 1.0);
 }

@@ -134,6 +134,7 @@ class RoamTerrainPatchBehaviour(
             cameraPosition = camera.position()
             heightmap = patch.heightmap()
             sunVector = sunLightManager.sunVector()
+            sunColor = sunLightManager.sunColor()
             sunIntensity = sunLightManager.sunIntensity()
             scaleY = config.worldScale.y
         }

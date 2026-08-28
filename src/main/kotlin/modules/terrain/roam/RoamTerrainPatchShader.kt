@@ -13,9 +13,14 @@ class RoamTerrainPatchShader(
         val fileLoader = Resources.get<FileLoader>()!!
 
         val frustumInc = fileLoader.loadAsString("shaders/include/Frustum.glsl")!!
+        val atmosphereInc = fileLoader.loadAsString("shaders/include/Atmosphere.glsl")!!
         val geometryShaderSource = preprocessShader(
             fileLoader.loadAsString("shaders/terrain/roam/Terrain_GS.glsl")!!,
             mapOf("Frustum.glsl" to frustumInc)
+        )
+        val fragmentShaderSource = preprocessShader(
+            fileLoader.loadAsString("shaders/terrain/roam/Terrain_FS.glsl")!!,
+            mapOf("Atmosphere.glsl" to atmosphereInc)
         )
 
         val vertexShaderPath = if (useInstancing) "shaders/terrain/roam/Terrain_VS_Inst.glsl"
@@ -32,7 +37,7 @@ class RoamTerrainPatchShader(
         )
 
         addShader(
-            fileLoader.loadAsString("shaders/terrain/roam/Terrain_FS.glsl")!!,
+            fragmentShaderSource,
             ShaderType.FRAGMENT_SHADER
         )
 
@@ -45,6 +50,7 @@ class RoamTerrainPatchShader(
         addUniform("u_camPos")
         addUniform("u_textureSize")
         addUniform("u_sunVector")
+        addUniform("u_sunColor")
         addUniform("u_sunIntensity")
         addUniform("u_scaleY")
     }
@@ -56,6 +62,7 @@ class RoamTerrainPatchShader(
         setUniform("u_camPos", shaderMaterial!!.cameraPosition)
         setUniform("u_textureSize", shaderMaterial!!.textureSize)
         setUniform("u_sunVector", shaderMaterial!!.sunVector)
+        setUniform("u_sunColor", shaderMaterial!!.sunColor)
         setUniformf("u_sunIntensity", shaderMaterial!!.sunIntensity)
         setUniformf("u_scaleY", shaderMaterial!!.scaleY)
 

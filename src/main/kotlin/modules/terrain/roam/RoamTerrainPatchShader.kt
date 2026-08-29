@@ -44,6 +44,8 @@ class RoamTerrainPatchShader(
         linkAndValidate()
 
         addUniform("u_heightmap")
+        addUniform("u_normalmap")
+        addUniform("u_blendmap")
         addUniform("u_model")
         addUniform("u_world")
         addUniform("u_viewProj")
@@ -69,5 +71,13 @@ class RoamTerrainPatchShader(
         GL43.glActiveTexture(GL43.GL_TEXTURE0)
         shaderMaterial!!.heightmap.texture().bind()
         setUniformi("u_heightmap", 0)
+
+        GL43.glActiveTexture(GL43.GL_TEXTURE1)
+        shaderMaterial!!.normalmap.bind()
+        setUniformi("u_normalmap", 1)
+
+        GL43.glActiveTexture(GL43.GL_TEXTURE2)
+        shaderMaterial!!.blendmap.bind()
+        setUniformi("u_blendmap", 2)
     }
 }

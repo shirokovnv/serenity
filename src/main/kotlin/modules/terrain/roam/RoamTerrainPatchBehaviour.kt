@@ -12,6 +12,8 @@ import graphics.assets.surface.bind
 import graphics.rendering.Colors
 import graphics.rendering.gizmos.DrawGizmosEvent
 import modules.light.SunLightManager
+import modules.terrain.TerrainBlendRenderer
+import modules.terrain.TerrainNormalRenderer
 import modules.terrain.roam.gizmos.RoamPatchBoundsDrawer
 import modules.terrain.roam.gizmos.RoamPatchBoundsMaterial
 import modules.terrain.roam.gizmos.RoamPatchBoundsShader
@@ -138,6 +140,9 @@ class RoamTerrainPatchBehaviour(
             sunIntensity = sunLightManager.sunIntensity()
             scaleY = config.worldScale.y
         }
+
+        material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+        material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
 
         boundsMaterial.apply {
             world = transform.matrix()

@@ -9,6 +9,8 @@ import core.scene.camera.Frustum
 import core.scene.camera.PerspectiveCamera
 import graphics.assets.surface.bind
 import modules.light.SunLightManager
+import modules.terrain.TerrainBlendRenderer
+import modules.terrain.TerrainNormalRenderer
 
 class CdlodTerrainBehaviour(private val config: CdlodTerrainConfig) : Behaviour() {
     private lateinit var terrain: CdlodTerrainSystem
@@ -78,7 +80,13 @@ class CdlodTerrainBehaviour(private val config: CdlodTerrainConfig) : Behaviour(
             resolution = config.resolution.toFloat()
             lodRanges = terrain.lodRanges()
             camPos = camera.position()
+            sunVector = sunLightManager.sunVector()
+            sunColor = sunLightManager.sunColor()
+            sunIntensity = sunLightManager.sunIntensity()
         }
+
+        material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+        material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
     }
 
     override fun destroy() {

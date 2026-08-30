@@ -8,6 +8,8 @@ layout (location = 2) in vec3 scaleVector;
 layout (location = 3) in float lodLevel;
 
 out float mapHeight_FS;
+out vec3 mapWorld_FS;
+out vec2 mapCoord_FS;
 
 uniform sampler2D u_heightmap;
 uniform vec3 u_camPos;
@@ -71,6 +73,8 @@ void main() {
     vec4 worldMorphedPos = u_world * vec4(localMorpedPos.x, finalHeight, localMorpedPos.y, 1);
 
     mapHeight_FS = finalHeight;
+    mapWorld_FS = worldMorphedPos.xyz;
+    mapCoord_FS = localMorpedPos;
 
     gl_Position = u_viewProj * worldMorphedPos;
 }

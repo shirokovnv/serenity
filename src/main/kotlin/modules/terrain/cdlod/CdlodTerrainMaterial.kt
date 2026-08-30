@@ -8,4 +8,8 @@ class CdlodTerrainMaterial : BaseTerrainMaterial<CdlodTerrainMaterial, CdlodTerr
     lateinit var camPos: Vector3
     lateinit var lodRanges: FloatArray
     var resolution by Delegates.notNull<Float>()
+
+    lateinit var sunColor: Vector3
+    lateinit var sunVector: Vector3
+    var sunIntensity by Delegates.notNull<Float>()
 }

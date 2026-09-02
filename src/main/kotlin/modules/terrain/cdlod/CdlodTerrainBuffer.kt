@@ -132,6 +132,7 @@ class CdlodTerrainBuffer(
     override fun destroy() {
         GL43.glBindVertexArray(vaoId)
         GL43.glDeleteBuffers(vbo)
+        GL43.glDeleteBuffers(ibo)
         GL43.glDeleteBuffers(scalingBuffer)
         GL43.glDeleteBuffers(lodBuffer)
         GL43.glDeleteBuffers(locBuffer)

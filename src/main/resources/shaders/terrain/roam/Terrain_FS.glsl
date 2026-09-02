@@ -81,9 +81,9 @@ void main()
 //    vec4 vE;
 //    atmosphericLighting(
 //        eyeVector,
-//        u_sunVector,
+//        lightDir,
 //        vec4(u_sunColor, u_sunIntensity),
-//        mapNormal_FS,
+//        normal,
 //        s,
 //        vE,
 //        vI

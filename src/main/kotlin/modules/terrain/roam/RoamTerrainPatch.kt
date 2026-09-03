@@ -38,7 +38,6 @@ class RoamTerrainPatch(
     private var nodeB: TriNode
 
     private var mesh: TriMesh<Any>? = null
-    private var isOccluded: Boolean = false
 
     private lateinit var varianceTree: VarianceTree
     private lateinit var buffer: PatchBufferInterface
@@ -116,12 +115,6 @@ class RoamTerrainPatch(
     fun buffer(): PatchBufferInterface = buffer
     fun metrics(): RoamTerrainPatchMetrics = metrics
     fun baseTriangles(): Pair<TriNode, TriNode> = Pair(nodeA, nodeB)
-
-    fun setOcclusion(isOccluded: Boolean) {
-        this.isOccluded = isOccluded
-    }
-
-    fun isOccluded(): Boolean = isOccluded
 
     fun update() {
         updateCounter++

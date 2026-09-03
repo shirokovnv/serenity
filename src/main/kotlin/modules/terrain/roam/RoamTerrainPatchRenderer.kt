@@ -23,10 +23,6 @@ class RoamTerrainPatchRenderer(
     private val atmosphereConstantsSsbo = Resources.get<AtmosphereConstantsSsbo>()
 
     override fun render(pass: RenderPass) {
-        if (patch.isOccluded()) {
-            return
-        }
-
         val startTime = System.nanoTime()
         atmosphereConstantsSsbo?.setBindingPoint(0)
         atmosphereConstantsSsbo?.bind()

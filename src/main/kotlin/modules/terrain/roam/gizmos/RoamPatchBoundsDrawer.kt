@@ -17,10 +17,6 @@ class RoamPatchBoundsDrawer(
         get() = patch.buffer()
 
     override fun draw() {
-        if (patch.isOccluded()) {
-            return
-        }
-
         val ssbo = Resources.get<PatchSsbo>()
 
         ssbo?.setBindingPoint(1)

@@ -21,10 +21,6 @@ class RoamTopViewRenderer(
         get() = patch.buffer()
 
     override fun render(pass: RenderPass) {
-        if (patch.isOccluded()) {
-            return
-        }
-
         fbo.bind()
         val prevViewport = IntArray(4)
         GL43.glGetIntegerv(GL43.GL_VIEWPORT, prevViewport)

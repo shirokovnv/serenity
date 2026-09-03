@@ -1,4 +1,4 @@
-#version 100
+#version 430
 
 layout (location = 0) in int tri_index;
 layout(std430, binding = 1) buffer RoamSsbo {

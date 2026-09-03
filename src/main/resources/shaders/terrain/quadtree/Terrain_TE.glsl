@@ -5,8 +5,6 @@ layout(quads, equal_spacing, cw) in;
 in vec2 mapCoord_TE[];
 out vec2 mapCoord_GS;
 
-uniform sampler2D u_heightmap;
-
 void main(){
 
     float u = gl_TessCoord.x;
@@ -25,7 +23,6 @@ void main(){
     u * v * mapCoord_TE[3] +
     (1 - u) * v * mapCoord_TE[1]);
 
-    float height = texture(u_heightmap, mapCoord).r;
     mapCoord_GS = mapCoord;
 
     gl_Position = position;

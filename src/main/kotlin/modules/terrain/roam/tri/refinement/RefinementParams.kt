@@ -4,7 +4,7 @@ abstract class RefinementParams {
     companion object {
         const val DEFAULT_LOD = 12
         const val MIN_LOD = 5
-        const val MAX_LOD = 18
+        const val MAX_LOD = 20
 
         const val DEFAULT_CULL_DIST_THRESHOLD = 200.0f
         const val MIN_CULL_DIST_THRESHOLD = 0.0f

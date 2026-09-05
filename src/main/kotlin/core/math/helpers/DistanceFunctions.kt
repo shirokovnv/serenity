@@ -1,6 +1,7 @@
 package core.math.helpers
 
 import core.math.Vector3
+import kotlin.math.acos
 import kotlin.math.sqrt
 
 fun distance(a: Vector3, b: Vector3): Float {
@@ -15,4 +16,8 @@ fun distanceSquared(a: Vector3, b: Vector3): Float {
     val dy = a.y - b.y
     val dz = a.z - b.z
     return dx * dx + dy * dy + dz * dz
+}
+
+fun distanceOnSphere(a: Vector3, b: Vector3, radius: Float): Float {
+    return radius * acos(a.dot(b) / (radius * radius))
 }

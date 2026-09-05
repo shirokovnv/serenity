@@ -24,9 +24,9 @@ fun fromParentVerticesProvider(parentLocalVertices: Array<Vector2>, isLeftChild:
     val localMedian = (parentLocalVertices[1] + parentLocalVertices[2]) * 0.5f
     val restVertices =
         if (isLeftChild)
-            arrayOf(parentLocalVertices[2], parentLocalVertices[0])
-        else
             arrayOf(parentLocalVertices[0], parentLocalVertices[1])
+        else
+            arrayOf(parentLocalVertices[2], parentLocalVertices[0])
 
     return arrayOf(
         localMedian,

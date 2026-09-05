@@ -1,4 +1,4 @@
-package modules.terrain.heightmap
+package modules.terrain.heightmap.generators
 
 import core.math.helpers.smoothStep
 import org.lwjgl.BufferUtils

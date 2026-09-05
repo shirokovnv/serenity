@@ -1,20 +1,26 @@
 package modules.terrain.roam.gui
 
 import core.scene.camera.Camera
+import graphics.assets.buffer.Fbo
 import graphics.gui.GuiBehaviour
 import graphics.gui.GuiWindow
 import imgui.ImGui
+import imgui.ImVec2
+import imgui.type.ImBoolean
 import imgui.type.ImInt
 import modules.terrain.roam.RoamTerrainPatchConfig
 import modules.terrain.roam.RoamTerrainPatchMetrics
 import modules.terrain.roam.tri.refinement.*
+import org.lwjgl.opengl.GL43
 
 class RoamTerrainPatchGui(
     private val config: RoamTerrainPatchConfig,
     private val metrics: RoamTerrainPatchMetrics,
-    private val camera: Camera
+    private val camera: Camera,
+    private val topViewFbo: Fbo? = null
 ) : GuiBehaviour() {
     private val perFrameUpdate = IntArray(1) { config.perFrameUpdate }
+    private val parallelOps = ImBoolean(config.parallelOps)
     private val lod = IntArray(1) { config.refinement.params().maxLOD }
     private val cullDistThreshold = FloatArray(1) { config.refinement.params().cullDistThreshold }
     private val splits = IntArray(1) { config.maxSplits }
@@ -48,6 +54,7 @@ class RoamTerrainPatchGui(
 
     override fun update(deltaTime: Float) {
         config.perFrameUpdate = perFrameUpdate[0]
+        config.parallelOps = parallelOps.get()
         config.refinement.params().maxLOD = lod[0]
         config.refinement.params().cullDistThreshold = cullDistThreshold[0]
         config.maxSplits = splits[0]
@@ -77,6 +84,9 @@ class RoamTerrainPatchGui(
             RoamTerrainPatchConfig.MIN_FRAME_UPDATE,
             RoamTerrainPatchConfig.MAX_FRAME_UPDATE,
         )
+        ImGui.separator()
+
+        ImGui.checkbox("Parallel ops", parallelOps)
         ImGui.separator()
 
         ImGui.sliderInt(
@@ -130,5 +140,22 @@ class RoamTerrainPatchGui(
         ImGui.text("Update time: ${metrics.updateTimeMs} ms")
         ImGui.text("Draw time: ${metrics.drawTimeMs} ms")
         ImGui.separator()
+
+        renderTopView()
+    }
+
+    private fun renderTopView() {
+        if (topViewFbo != null) {
+            val topViewTexture = topViewFbo.getColorTexture()
+
+            GL43.glBindTexture(GL43.GL_TEXTURE_2D, topViewTexture.getId())
+
+            ImGui.image(
+                topViewTexture.getId().toLong(),
+                ImVec2(topViewTexture.getWidth().toFloat(), topViewTexture.getHeight().toFloat())
+            )
+
+            GL43.glBindTexture(GL43.GL_TEXTURE_2D, 0)
+        }
     }
 }

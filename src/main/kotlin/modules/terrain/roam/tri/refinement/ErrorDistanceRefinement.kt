@@ -12,13 +12,13 @@ class ErrorDistanceRefinement(override val params: ErrorDistanceParams, override
 
     override fun splitCriteria(tri: TriNode): Boolean {
         val distance = distance(camera.position(), tri.geometry.center)
-        val error = tri.geometry.errorMetric
+        val error = tri.geometry.variance
         return error * params.errorScale > distance * params.errorLimit * params.splitThreshold
     }
 
     override fun mergeCriteria(tri: TriNode): Boolean {
         val distance = distance(camera.position(), tri.geometry.center)
-        val error = tri.geometry.errorMetric
+        val error = tri.geometry.variance
         return error * params.errorScale < distance * params.errorLimit * params.mergeThreshold
     }
 }

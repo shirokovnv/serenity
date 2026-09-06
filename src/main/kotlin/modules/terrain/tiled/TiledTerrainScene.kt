@@ -3,8 +3,8 @@ package modules.terrain.tiled
 import core.management.Resources
 import modules.terrain.BaseTerrainScene
 import modules.terrain.TerrainSceneParams
-import modules.terrain.heightmap.DiamondSquareGenerator
-import modules.terrain.heightmap.DiamondSquareParams
+import modules.terrain.heightmap.generators.DiamondSquareGenerator
+import modules.terrain.heightmap.generators.DiamondSquareParams
 import modules.terrain.heightmap.Heightmap
 
 class TiledTerrainScene(

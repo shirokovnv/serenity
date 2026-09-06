@@ -9,7 +9,7 @@ import graphics.rendering.passes.NormalPass
 import graphics.rendering.passes.RenderPass
 
 class QuadTreeTerrainRenderer(
-    private val terrainNode: QuadTreeTerrainNode,
+    private val terrain: QuadTreeTerrainSystem,
     private val buffer: QuadTreeBuffer,
     private val shader: QuadTreeTerrainShader,
     private val material: QuadTreeTerrainMaterial
@@ -17,7 +17,7 @@ class QuadTreeTerrainRenderer(
 
     override fun render(pass: RenderPass) {
 
-        val bufferData = terrainNode.recursiveCollectInstanceData()
+        val bufferData = terrain.prepareRenderData()
         val numInstances = bufferData.size
 
         val locations = Array(numInstances) { Vector2(0f, 0f) }

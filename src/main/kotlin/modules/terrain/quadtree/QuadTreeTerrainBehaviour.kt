@@ -29,7 +29,7 @@ class QuadTreeTerrainBehaviour(
     private val lodConfig: QuadTreeLoDConfig
 ) : Behaviour() {
 
-    private lateinit var rootNode: QuadTreeTerrainNode
+    private lateinit var terrain: QuadTreeTerrainSystem
     private lateinit var buffer: QuadTreeBuffer
     private lateinit var shader: QuadTreeTerrainShader
     private lateinit var material: QuadTreeTerrainMaterial
@@ -45,9 +45,6 @@ class QuadTreeTerrainBehaviour(
     private lateinit var camera: Camera
     private lateinit var frustum: Frustum
 
-    private var lastCleanupTimeMs = System.currentTimeMillis()
-    private val cleanupIntervalMs = 10_000L
-
     private val transform: Transform
         get() = owner()!!.getComponent<Transform>()!!
 
@@ -55,10 +52,8 @@ class QuadTreeTerrainBehaviour(
         get() = Resources.get<SunLightManager>()!!
 
     override fun create() {
-        rootNode = QuadTreeTerrainNode(
+        terrain = QuadTreeTerrainSystem(
             terrConfig,
-            Vector2(0.0f, 0.0f),
-            0,
             lodConfig
         )
 
@@ -79,7 +74,7 @@ class QuadTreeTerrainBehaviour(
         material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
         material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
 
-        val renderer = QuadTreeTerrainRenderer(rootNode, buffer, shader, material)
+        val renderer = QuadTreeTerrainRenderer(terrain, buffer, shader, material)
         owner()!!.addComponent(renderer)
 
         topViewMaterial = QuadTreeTopViewMaterial()
@@ -108,7 +103,7 @@ class QuadTreeTerrainBehaviour(
         )
         owner()!!.addComponent(boundsDrawer)
 
-        gui = QuadTreeTerrainGui(rootNode, terrConfig, lodConfig, topViewFbo.getColorTexture().getId())
+        gui = QuadTreeTerrainGui(terrain, terrConfig, lodConfig, topViewFbo.getColorTexture().getId())
         owner()!!.addComponent(gui)
 
         Events.subscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
@@ -117,18 +112,9 @@ class QuadTreeTerrainBehaviour(
     }
 
     override fun update(deltaTime: Float) {
-        val now = System.currentTimeMillis()
-        if (now - lastCleanupTimeMs >= cleanupIntervalMs) {
-            println("HITS: " + QuadTreeTerrainNode.quadTreeCache.hits())
-            println("ALLOC: " + QuadTreeTerrainNode.quadTreeCache.allocations())
-            println("CLEANUP")
-            QuadTreeTerrainNode.quadTreeCache.cleanupExpired()
-            lastCleanupTimeMs = now
-        }
-
         frustum.recalculatePlanes()
         frustum.recalculateSearchVolume()
-        rootNode.recursiveUpdate(camera, frustum)
+        terrain.update(camera, frustum)
 
         material.apply {
             heightmap = terrConfig.heightmap
@@ -156,7 +142,7 @@ class QuadTreeTerrainBehaviour(
     override fun destroy() {
         Events.unsubscribe<DrawGizmosEvent, Any>(::onDrawGizmos)
 
-        rootNode.clear()
+        terrain.clear()
         buffer.destroy()
         shader.destroy()
         topViewShader.destroy()

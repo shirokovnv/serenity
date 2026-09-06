@@ -1,6 +1,6 @@
 package core.scene.spatial
 
-abstract class DynamicQuadTreeNode {
+abstract class QuadTreeNode {
     companion object {
         const val MIN_LEVEL: Int = 0
         const val MAX_LEVEL: Int = 32
@@ -20,7 +20,7 @@ abstract class DynamicQuadTreeNode {
         E
     }
 
-    var level: Int = 0
+    protected var level: Int = 0
         set(value) {
             require(value in MIN_LEVEL..MAX_LEVEL) {
                 "Level must be in range [$MIN_LEVEL, $MAX_LEVEL], but was $value"
@@ -28,16 +28,20 @@ abstract class DynamicQuadTreeNode {
             field = value
         }
 
-    protected var parent: DynamicQuadTreeNode? = null
-    protected val children = mutableListOf<DynamicQuadTreeNode>()
+    protected var parent: QuadTreeNode? = null
+    protected val children = mutableListOf<QuadTreeNode>()
 
     val isRoot: Boolean get() = parent == null
     val isLeaf: Boolean get() = children.isEmpty()
 
-    fun addNode(node: DynamicQuadTreeNode, child: Child) {
+    fun addNode(node: QuadTreeNode, child: Child) {
         node.parent = this
         node.level = level + 1
         children.add(child.ordinal, node)
+    }
+
+    fun resetChildren() {
+        children.clear()
     }
 
     fun clear() {
@@ -46,7 +50,7 @@ abstract class DynamicQuadTreeNode {
         parent = null
     }
 
-    fun children(): List<DynamicQuadTreeNode> {
+    fun children(): List<QuadTreeNode> {
         return children
     }
 
@@ -58,7 +62,7 @@ abstract class DynamicQuadTreeNode {
         }
     }
 
-    fun getNeighborOfGreaterOrEqualSize(direction: Direction): DynamicQuadTreeNode? {
+    fun getNeighborOfGreaterOrEqualSize(direction: Direction): QuadTreeNode? {
         return when (direction) {
             Direction.N -> {
                 if (this.parent == null) return null
@@ -134,9 +138,9 @@ abstract class DynamicQuadTreeNode {
         }
     }
 
-    fun findNeighborsOfSmallerSize(neighbor: DynamicQuadTreeNode?, direction: Direction): List<DynamicQuadTreeNode> {
-        val candidates = mutableListOf<DynamicQuadTreeNode>()
-        val neighbors = mutableListOf<DynamicQuadTreeNode>()
+    fun findNeighborsOfSmallerSize(neighbor: QuadTreeNode?, direction: Direction): List<QuadTreeNode> {
+        val candidates = mutableListOf<QuadTreeNode>()
+        val neighbors = mutableListOf<QuadTreeNode>()
 
         neighbor?.let { candidates.add(it) }
 

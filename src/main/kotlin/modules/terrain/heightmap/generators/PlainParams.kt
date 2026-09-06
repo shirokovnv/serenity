@@ -1,4 +1,4 @@
-package modules.terrain.heightmap
+package modules.terrain.heightmap.generators
 
 data class PlainParams(
     val yOffset: Float = 0.0f,

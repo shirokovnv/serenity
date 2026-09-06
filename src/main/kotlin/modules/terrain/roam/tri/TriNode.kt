@@ -4,6 +4,8 @@ import core.scene.Transform
 import modules.terrain.heightmap.Heightmap
 import kotlin.math.max
 
+typealias TriNodeProcessCallback = (TriNode) -> Unit
+
 class TriNode {
     var baseNeighbour: TriNode? = null
     var leftNeighbour: TriNode? = null
@@ -20,14 +22,25 @@ class TriNode {
     private lateinit var pool: TriNodePool
     lateinit var geometry: TriNodeGeometry
 
-    private lateinit var queue: TriNodeQueue
+    var postSplitCallback: TriNodeProcessCallback? = null
+    var postMergeCallback: TriNodeProcessCallback? = null
+
+    var splitQIndex: Int = -1
+    var mergeQIndex: Int = -1
+
+    var sQBucket: Int = 0
+    var mQBucket: Int = 0
+    var prevS: Int = -1
+    var nextS: Int = -1
+    var prevM: Int = -1
+    var nextM: Int = -1
 
     fun initialize(
         heightmap: Heightmap,
         pool: TriNodePool,
         vertexProvider: TriLocalVerticesProvider,
         transform: Transform,
-        queue: TriNodeQueue
+        varianceTree: VarianceTree
     ) {
         if (initialized) {
             return
@@ -35,58 +48,9 @@ class TriNode {
 
         this.heightmap = heightmap
         this.pool = pool
-        this.geometry = TriNodeGeometry(this, heightmap, transform, vertexProvider)
-        this.queue = queue
+        this.geometry = TriNodeGeometry(this, heightmap, transform, vertexProvider, varianceTree)
 
         initialized = true
-    }
-
-    fun countEmptyNeighbours(): Int {
-        return listOf(
-            baseNeighbour,
-            leftNeighbour,
-            rightNeighbour
-        ).count { it == null }
-    }
-
-    fun getTrisAtDepth(targetDepth: Int): List<TriNode> {
-        val result = mutableListOf<TriNode>()
-
-        if (depth == targetDepth) {
-            result.add(this)
-        }
-
-        if (depth < targetDepth) {
-            if (leftChild != null) {
-                result.addAll(leftChild!!.getTrisAtDepth(targetDepth))
-            }
-            if (rightChild != null) {
-                result.addAll(rightChild!!.getTrisAtDepth(targetDepth))
-            }
-        }
-
-        return result
-    }
-
-    fun recursiveCalculateMaxDepth(): Int {
-        if (leftChild == null && rightChild == null) {
-            return depth
-        }
-
-        return max(
-            leftChild!!.recursiveCalculateMaxDepth(),
-            rightChild!!.recursiveCalculateMaxDepth()
-        )
-    }
-
-    fun recursiveResetToTargetLod(targetLod: Int) {
-        if (depth < targetLod) {
-            recursiveSplitToTargetLod(targetLod)
-        }
-
-        if (depth > targetLod) {
-            recursiveMergeToTargetLod(targetLod)
-        }
     }
 
     fun recursiveSplitToTargetLod(targetLod: Int) {
@@ -101,17 +65,24 @@ class TriNode {
         }
     }
 
-    fun recursiveMergeToTargetLod(targetLod: Int) {
-        if (depth >= targetLod) {
-            merge()
+    fun recursiveCalculateMaxDepth(): Int {
+        if (leftChild == null && rightChild == null) {
+            return depth
         }
 
+        return max(
+            leftChild?.recursiveCalculateMaxDepth() ?: 0,
+            rightChild?.recursiveCalculateMaxDepth() ?: 0
+        )
+    }
+
+    fun traverse(callback: TriNodeProcessCallback) {
+        callback(this)
         if (leftChild != null) {
-            leftChild!!.recursiveMergeToTargetLod(targetLod)
+            leftChild!!.traverse(callback)
         }
-
         if (rightChild != null) {
-            rightChild!!.recursiveMergeToTargetLod(targetLod)
+            rightChild!!.traverse(callback)
         }
     }
 
@@ -214,15 +185,6 @@ class TriNode {
             left.rightNeighbour = null
             right.leftNeighbour = null
         }
-
-        if (parent != null) {
-            queue.removeMergeTri(parent!!)
-        }
-
-        queue.addMergeTri(this)
-        queue.removeSplitTri(this)
-        queue.addSplitTri(leftChild!!)
-        queue.addSplitTri(rightChild!!)
     }
 
     private fun makeChildren() {
@@ -247,15 +209,22 @@ class TriNode {
             pool,
             { fromParentVerticesProvider(geometry.localVertices, true) },
             geometry.worldTransform,
-            queue
+            geometry.varianceTree
         )
         rightChild!!.initialize(
             heightmap,
             pool,
             { fromParentVerticesProvider(geometry.localVertices, false) },
             geometry.worldTransform,
-            queue
+            geometry.varianceTree
         )
+
+        postSplitCallback?.let { it(this) }
+
+        leftChild!!.postSplitCallback = postSplitCallback
+        leftChild!!.postMergeCallback = postMergeCallback
+        rightChild!!.postSplitCallback = postSplitCallback
+        rightChild!!.postMergeCallback = postMergeCallback
     }
 
     //
@@ -367,30 +336,13 @@ class TriNode {
             }
         }
 
-        queue.removeSplitTri(leftChild!!)
-        queue.removeSplitTri(rightChild!!)
-        queue.removeMergeTri(this)
-        queue.addSplitTri(this)
-
-        if (parent != null) {
-            queue.addMergeTri(parent!!)
-        }
+        postMergeCallback?.let { it(this) }
 
         pool.release(leftChild!!.index)
         pool.release(rightChild!!.index)
 
         leftChild = null
         rightChild = null
-    }
-
-    fun traverse(callback: (tri: TriNode) -> Unit) {
-        callback(this)
-        if (leftChild != null) {
-            leftChild!!.traverse(callback)
-        }
-        if (rightChild != null) {
-            rightChild!!.traverse(callback)
-        }
     }
 
     fun clear() {

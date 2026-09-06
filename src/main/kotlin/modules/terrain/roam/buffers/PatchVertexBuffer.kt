@@ -21,9 +21,6 @@ class PatchVertexBuffer : PatchBufferInterface {
         create()
     }
 
-    override val type: PatchBufferType
-        get() = PatchBufferType.PATCH_VERTEX_BUFFER
-
     override fun getId(): Int {
         return vaoId
     }
@@ -86,5 +83,16 @@ class PatchVertexBuffer : PatchBufferInterface {
         GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, buffer!!)
 
         size = bufferData.size
+    }
+
+    fun uploadData(bufferData: FloatArray) {
+        if (bufferData.size > capacity) {
+            throw RuntimeException("Increase vertex buffer size!")
+        }
+
+        GL43.glBindBuffer(GL43.GL_ARRAY_BUFFER, vbo)
+        GL43.glBufferSubData(GL43.GL_ARRAY_BUFFER, 0, bufferData)
+
+        size = bufferData.size / 2
     }
 }

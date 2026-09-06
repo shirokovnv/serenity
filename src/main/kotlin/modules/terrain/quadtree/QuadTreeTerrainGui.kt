@@ -7,7 +7,7 @@ import imgui.ImVec2
 import org.lwjgl.opengl.GL43
 
 class QuadTreeTerrainGui(
-    private val rootNode: QuadTreeTerrainNode,
+    private val terrain: QuadTreeTerrainSystem,
     private val terrConfig: QuadTreeTerrainConfig,
     private val lodConfig: QuadTreeLoDConfig,
     private val topViewTextureId: Int
@@ -24,7 +24,7 @@ class QuadTreeTerrainGui(
 
         if (lodConfig.distanceMultiplier != distMultiplier[0]) {
             lodConfig.distanceMultiplier = distMultiplier[0]
-            QuadTreeTerrainNode.calculateLodRanges(lodConfig.maxDepth, terrConfig.getXZScale(), distMultiplier[0])
+            terrain.calculateLodRanges()
         }
     }
 
@@ -43,8 +43,8 @@ class QuadTreeTerrainGui(
 
         ImGui.separator()
 
-        ImGui.text("Leaf count: ${rootNode.countLeaves()}")
-        ImGui.text("Cache size: ${QuadTreeTerrainNode.quadTreeCache.count()}")
+        ImGui.text("Leaf count: ${terrain.root().countLeaves()}")
+        ImGui.text("Cache size: ${terrain.cacheSize()}")
 
         ImGui.separator()
 

@@ -11,17 +11,18 @@ class RoamTerrainPatchConfig {
 
         const val DEFAULT_SPLITS = 1000
         const val MIN_SPLITS = 100
-        const val MAX_SPLITS = 3000
+        const val MAX_SPLITS = 25000
 
         const val DEFAULT_MERGES = 1000
         const val MIN_MERGES = 100
-        const val MAX_MERGES = 3000
+        const val MAX_MERGES = 5000
     }
 
     lateinit var worldScale: Vector3
     lateinit var worldOffset: Vector3
     lateinit var refinement: BaseRefinement
     var perFrameUpdate: Int = DEFAULT_PER_FRAME_UPDATE
+    var parallelOps: Boolean = true
     var maxSplits: Int = DEFAULT_SPLITS
     var maxMerges: Int = DEFAULT_MERGES
 }

@@ -33,9 +33,9 @@ vec3 toneMap(vec3 color) {
 }
 
 void main() {
-    vec3 lightDir = normalize(-u_sunVector);
+    vec3 lightDir = normalize(u_sunVector);
     vec3 viewDir  = normalize(u_camPos - mapWorld_FS);
-    vec3 normal = normalize(texture(u_normalMap, mapCoord_FS).rgb * 2.0 - 1.0);
+    vec3 normal = normalize(texture(u_normalMap, mapCoord_FS).rbg);
 
     // base color from blendmap
     vec4 blend = texture(u_blendMap, mapCoord_FS);

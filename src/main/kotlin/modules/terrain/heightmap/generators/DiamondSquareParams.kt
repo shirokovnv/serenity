@@ -1,4 +1,6 @@
-package modules.terrain.heightmap
+package modules.terrain.heightmap.generators
+
+import modules.terrain.heightmap.generators.HeightmapGenerationParams
 
 data class DiamondSquareParams(
     val roughness: Float,

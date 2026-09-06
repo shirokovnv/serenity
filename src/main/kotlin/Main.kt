@@ -1,6 +1,8 @@
+import core.math.Vector3
 import core.scene.SceneGraph
 import core.scene.camera.CameraSettings
 import modules.terrain.TerrainSceneParams
+import modules.terrain.cdlod.CdlodTerrainScene
 import modules.terrain.quadtree.QuadTreeTerrainScene
 import modules.terrain.roam.RoamTerrainScene
 import modules.terrain.tiled.TiledTerrainScene
@@ -23,17 +25,23 @@ class App(settings: ApplicationSettings) : Application(settings) {
             )
         )
 
-        val quadTreeScene = QuadTreeTerrainScene(params)
-        val scene = quadTreeScene.oneTimeSceneInit()
-        quadTreeScene
-            .withSkyDome()
-            .withLensFlare()
-
-//        val roamScene = RoamTerrainScene(params)
-//        val scene = roamScene.oneTimeSceneInit()
-//        roamScene
+//        val quadTreeScene = QuadTreeTerrainScene(params)
+//        val scene = quadTreeScene.oneTimeSceneInit()
+//        quadTreeScene
 //            .withSkyDome()
 //            .withLensFlare()
+
+//        val cdlodScene = CdlodTerrainScene(params)
+//        val scene = cdlodScene.oneTimeSceneInit()
+//        cdlodScene
+//            .withSkyDome()
+//            .withLensFlare()
+
+        val roamScene = RoamTerrainScene(params)
+        val scene = roamScene.oneTimeSceneInit()
+        roamScene
+            .withSkyDome()
+            .withLensFlare()
 
 //        val tiledScene = TiledTerrainScene(params)
 //        val scene = tiledScene.oneTimeSceneInit()

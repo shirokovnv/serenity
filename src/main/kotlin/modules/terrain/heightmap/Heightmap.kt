@@ -8,6 +8,8 @@ import core.scene.volumes.BoundsInterface
 import core.scene.volumes.BoxAABB
 import graphics.assets.texture.Texture2d
 import graphics.assets.texture.TextureFactory
+import modules.terrain.heightmap.generators.HeightmapGenerationInterface
+import modules.terrain.heightmap.generators.HeightmapGenerationParams
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.nio.FloatBuffer
@@ -139,5 +141,31 @@ class Heightmap(
         }
 
         return BoxAABB(Rect3d(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ)))
+    }
+
+    fun calculateMinHeight(): Float {
+        var minHeight = Float.POSITIVE_INFINITY
+        for (x in 0..<width) {
+            for (y in 0..<height) {
+                val height = getHeightAt(x, y)
+                if (minHeight > height) {
+                    minHeight = height
+                }
+            }
+        }
+        return minHeight
+    }
+
+    fun calculateMaxHeight(): Float {
+        var maxHeight = Float.NEGATIVE_INFINITY
+        for (x in 0..<width) {
+            for (y in 0..<height) {
+                val height = getHeightAt(x, y)
+                if (maxHeight < height) {
+                    maxHeight = height
+                }
+            }
+        }
+        return maxHeight
     }
 }

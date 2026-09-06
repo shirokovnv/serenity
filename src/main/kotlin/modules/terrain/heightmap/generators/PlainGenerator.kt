@@ -1,4 +1,4 @@
-package modules.terrain.heightmap
+package modules.terrain.heightmap.generators
 
 import org.lwjgl.BufferUtils
 import java.nio.FloatBuffer

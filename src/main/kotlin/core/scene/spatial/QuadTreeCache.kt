@@ -1,10 +1,10 @@
-package modules.terrain.quadtree
+package core.scene.spatial
 
 class QuadTreeCache(
     private val maxSize: Int,
     private val ttlMillis: Long
 ) {
-    private val map = HashMap<QuadTreeKey, Pair<QuadTreeTerrainNode, Long>>(maxSize)
+    private val map = HashMap<QuadTreeKey, Pair<QuadTreeNode, Long>>(maxSize)
     private var allocationsCount = 0
     private var cacheHits = 0
 
@@ -12,7 +12,7 @@ class QuadTreeCache(
     fun allocations(): Int = allocationsCount
     fun hits(): Int = cacheHits
 
-    fun getOrPut(key: QuadTreeKey, createNode: () -> QuadTreeTerrainNode): QuadTreeTerrainNode {
+    fun getOrPut(key: QuadTreeKey, createNode: () -> QuadTreeNode): QuadTreeNode {
         val now = System.currentTimeMillis()
 
         map[key]?.let { (node, lastAccess) ->

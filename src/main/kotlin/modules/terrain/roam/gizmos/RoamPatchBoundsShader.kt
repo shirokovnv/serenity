@@ -6,7 +6,8 @@ import graphics.assets.surface.ShaderType
 import org.lwjgl.opengl.GL43
 import platform.services.filesystem.FileLoader
 
-class RoamPatchBoundsShader: BaseShader<RoamPatchBoundsShader, RoamPatchBoundsMaterial>() {
+class RoamPatchBoundsShader(private val useInstancing: Boolean) :
+    BaseShader<RoamPatchBoundsShader, RoamPatchBoundsMaterial>() {
     override fun setup() {
         val fileLoader = Resources.get<FileLoader>()!!
 
@@ -16,8 +17,12 @@ class RoamPatchBoundsShader: BaseShader<RoamPatchBoundsShader, RoamPatchBoundsMa
             mapOf("Frustum.glsl" to frustumInc)
         )
 
+        val vertexShaderPath =
+            if (useInstancing) "shaders/terrain/roam/gizmos/Bounds_VS_Inst.glsl"
+            else "shaders/terrain/roam/gizmos/Bounds_VS.glsl"
+
         addShader(
-            fileLoader.loadAsString("shaders/terrain/roam/gizmos/Bounds_VS.glsl")!!,
+            fileLoader.loadAsString(vertexShaderPath)!!,
             ShaderType.VERTEX_SHADER
         )
 

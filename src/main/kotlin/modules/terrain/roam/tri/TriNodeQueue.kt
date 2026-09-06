@@ -1,37 +1,81 @@
 package modules.terrain.roam.tri
 
-import kotlin.collections.ArrayList
-
 class TriNodeQueue {
 
-    private var splitQ = HashSet<TriNode>()
-    private var mergeQ = HashSet<TriNode>()
+    private var splitQ: Array<TriNode?> = arrayOfNulls(TriNodeGeometry.maxLeafTriangles)
+    private var mergeQ: Array<TriNode?> = arrayOfNulls(TriNodeGeometry.maxLeafTriangles / 2)
+
+    private var splitQSize: Int = 0
+    private var mergeQSize: Int = 0
+
+    fun splitQueueSize(): Int = splitQSize
+    fun mergeQueueSize(): Int = mergeQSize
 
     fun addSplitTri(tri: TriNode) {
-        if (!splitQ.contains(tri)) {
-            splitQ.add(tri)
+        if (tri.splitQIndex == -1) {
+            tri.splitQIndex = splitQSize
+            splitQ[splitQSize++] = tri
         }
     }
 
     fun removeSplitTri(tri: TriNode) {
-        splitQ.remove(tri)
+        if (splitQSize == 0) {
+            return
+        }
+
+        if (tri.splitQIndex > splitQSize - 1) {
+            return
+        }
+
+        if (tri.splitQIndex != -1) {
+            // SWAP WITH LAST
+            val last = splitQ[splitQSize - 1]
+            splitQ[tri.splitQIndex] = last
+            last!!.splitQIndex = tri.splitQIndex
+            tri.splitQIndex = -1
+            splitQSize--
+        }
     }
 
     fun addMergeTri(tri: TriNode) {
-        if (!mergeQ.contains(tri)) {
-            mergeQ.add(tri)
+        if (tri.mergeQIndex == -1) {
+            tri.mergeQIndex = mergeQSize
+            mergeQ[mergeQSize++] = tri
         }
     }
 
     fun removeMergeTri(tri: TriNode) {
-        mergeQ.remove(tri)
+        if (mergeQSize == 0) {
+            return
+        }
+
+        if (tri.mergeQIndex > mergeQSize - 1) {
+            return
+        }
+
+        if (tri.mergeQIndex != -1) {
+            // SWAP WITH LAST
+            val last = mergeQ[mergeQSize - 1]
+            mergeQ[tri.mergeQIndex] = last
+            last!!.mergeQIndex = tri.mergeQIndex
+            tri.mergeQIndex = -1
+            mergeQSize--
+        }
     }
 
-    fun getAllSplitTriangles(): ArrayList<TriNode> {
-        return ArrayList(splitQ)
+    fun getSplitPartition(start: Int, end: Int): Array<TriNode?> {
+        return splitQ.copyOfRange(start, end)
     }
 
-    fun getAllMergeTriangles(): ArrayList<TriNode> {
-        return ArrayList(mergeQ)
+    fun getMergePartition(start: Int, end: Int): Array<TriNode?> {
+        return mergeQ.copyOfRange(start, end)
+    }
+
+    fun getAllSplitTriangles(): Array<TriNode?> {
+        return splitQ.copyOfRange(0, splitQSize)
+    }
+
+    fun getAllMergeTriangles(): Array<TriNode?> {
+        return mergeQ.copyOfRange(0, mergeQSize)
     }
 }

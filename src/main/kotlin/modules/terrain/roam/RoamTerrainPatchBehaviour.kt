@@ -6,15 +6,23 @@ import core.math.Matrix4
 import core.scene.Transform
 import core.scene.behaviour.FrameUpdateBehaviour
 import core.scene.camera.Camera
+import graphics.assets.buffer.DepthBufferType
+import graphics.assets.buffer.Fbo
 import graphics.assets.surface.bind
 import graphics.rendering.Colors
 import graphics.rendering.gizmos.DrawGizmosEvent
 import modules.light.SunLightManager
+import modules.terrain.TerrainBlendRenderer
+import modules.terrain.TerrainNormalRenderer
 import modules.terrain.roam.gizmos.RoamPatchBoundsDrawer
 import modules.terrain.roam.gizmos.RoamPatchBoundsMaterial
 import modules.terrain.roam.gizmos.RoamPatchBoundsShader
 import modules.terrain.roam.gizmos.RoamPatchRootDrawer
 import modules.terrain.roam.gui.RoamTerrainPatchGui
+import modules.terrain.roam.top_view.RoamTopViewMaterial
+import modules.terrain.roam.top_view.RoamTopViewRenderer
+import modules.terrain.roam.top_view.RoamTopViewShader
+import modules.terrain.roam.tri.mesh.TriMeshScheme
 
 class RoamTerrainPatchBehaviour(
     private val config: RoamTerrainPatchConfig
@@ -26,6 +34,10 @@ class RoamTerrainPatchBehaviour(
 
     private lateinit var boundsShader: RoamPatchBoundsShader
     private lateinit var boundsMaterial: RoamPatchBoundsMaterial
+
+    private lateinit var topViewFbo: Fbo
+    private lateinit var topViewMaterial: RoamTopViewMaterial
+    private lateinit var topViewShader: RoamTopViewShader
 
     private val patch: RoamTerrainPatch
         get() = owner()!!.getComponent<RoamTerrainPatch>()!!
@@ -40,7 +52,9 @@ class RoamTerrainPatchBehaviour(
         get() = Resources.get<SunLightManager>()!!
 
     override fun create() {
-        shader = RoamTerrainPatchShader()
+        val useInstancing = patch.meshScheme() == TriMeshScheme.MESH_INSTANCES
+
+        shader = RoamTerrainPatchShader(useInstancing)
         material = RoamTerrainPatchMaterial()
         shader bind material
         shader.setup()
@@ -48,23 +62,43 @@ class RoamTerrainPatchBehaviour(
         material.model = Matrix4().identity()
 
         renderer = RoamTerrainPatchRenderer(
-            patch.buffer(),
+            patch,
             shader,
             material,
             patch.metrics()
         )
 
         owner()!!.addComponent(renderer)
-        gui = RoamTerrainPatchGui(config, patch.metrics(), camera)
+
+        topViewFbo = Fbo(
+            256,
+            256,
+            DepthBufferType.NONE
+        )
+        topViewMaterial = RoamTopViewMaterial()
+        topViewShader = RoamTopViewShader(useInstancing)
+        topViewShader bind topViewMaterial
+        topViewShader.setup()
+
+        owner()!!.addComponent(
+            RoamTopViewRenderer(
+                patch,
+                topViewFbo,
+                topViewMaterial,
+                topViewShader
+            )
+        )
+
+        gui = RoamTerrainPatchGui(config, patch.metrics(), camera, topViewFbo)
         owner()!!.addComponent(gui)
 
         boundsMaterial = RoamPatchBoundsMaterial()
         boundsMaterial.model = Matrix4().identity()
         boundsMaterial.color = Colors.Blue
-        boundsShader = RoamPatchBoundsShader()
+        boundsShader = RoamPatchBoundsShader(useInstancing)
         boundsShader bind boundsMaterial
         boundsShader.setup()
-        owner()!!.addComponent(RoamPatchBoundsDrawer(patch.buffer(), boundsShader, boundsMaterial))
+        owner()!!.addComponent(RoamPatchBoundsDrawer(patch, boundsShader, boundsMaterial))
         setupMaterials()
 
         owner()!!.addComponent(RoamPatchRootDrawer(patch))
@@ -86,6 +120,8 @@ class RoamTerrainPatchBehaviour(
         patch.dispose()
         shader.destroy()
         boundsShader.destroy()
+        topViewShader.destroy()
+        topViewFbo.destroy()
     }
 
     private fun onDrawGizmos(event: DrawGizmosEvent, sender: Any) {
@@ -100,8 +136,13 @@ class RoamTerrainPatchBehaviour(
             cameraPosition = camera.position()
             heightmap = patch.heightmap()
             sunVector = sunLightManager.sunVector()
+            sunColor = sunLightManager.sunColor()
             sunIntensity = sunLightManager.sunIntensity()
+            scaleY = config.worldScale.y
         }
+
+        material.normalmap = owner()!!.getComponent<TerrainNormalRenderer>()!!.getMaterial().normalmap
+        material.blendmap = owner()!!.getComponent<TerrainBlendRenderer>()!!.getMaterial().blendmap
 
         boundsMaterial.apply {
             world = transform.matrix()
